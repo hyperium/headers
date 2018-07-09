@@ -1,0 +1,24 @@
+[package]
+
+name = "headers"
+version = "0.12.5" # don't forget to update html_root_url
+description = "A fast and correct HTTP library."
+readme = "README.md"
+homepage = "https://hyper.rs"
+license = "MIT"
+authors = ["Sean McArthur <sean@seanmonstar.com>"]
+keywords = ["http", "hyper", "hyperium"]
+categories = ["network-programming", "web-programming::http-client", "web-programming::http-server"]
+
+publish = false
+
+include = [
+  "Cargo.toml",
+  "LICENSE",
+  "src/**/*"
+]
+
+[dependencies]
+bytes = "0.4.4"
+http = "0.1.7"
+
