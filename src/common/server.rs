@@ -21,7 +21,7 @@ header! {
     /// # Example
     ///
     /// ```
-    /// use hyper::{Headers, Server};
+    /// use headers::{Headers, Server};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(Server::new("hyper/0.5.2"));

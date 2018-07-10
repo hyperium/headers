@@ -20,14 +20,14 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// use hyper::{Headers, Location};
+    /// use headers::{Headers, Location};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(Location::new("/People.html#tim"));
     /// ```
     ///
     /// ```
-    /// use hyper::{Headers, Location};
+    /// use headers::{Headers, Location};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(Location::new("http://www.example.com/index.html"));

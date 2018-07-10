@@ -22,7 +22,7 @@ header! {
     ///
     /// # Examples
     /// ```
-    /// use hyper::{Headers, AcceptCharset, Charset, qitem};
+    /// use headers::{Headers, AcceptCharset, Charset, qitem};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(
@@ -30,7 +30,7 @@ header! {
     /// );
     /// ```
     /// ```
-    /// use hyper::{Headers, AcceptCharset, Charset, q, QualityItem};
+    /// use headers::{Headers, AcceptCharset, Charset, q, QualityItem};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(
@@ -41,7 +41,7 @@ header! {
     /// );
     /// ```
     /// ```
-    /// use hyper::{Headers, AcceptCharset, Charset, qitem};
+    /// use headers::{Headers, AcceptCharset, Charset, qitem};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(

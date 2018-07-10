@@ -16,7 +16,7 @@ use {Header, Raw};
 ///
 /// # Example
 /// ```
-/// use hyper::{Headers, Expect};
+/// use headers::{Headers, Expect};
 /// let mut headers = Headers::new();
 /// headers.set(Expect::Continue);
 /// ```

@@ -28,10 +28,10 @@ use {Header, Raw};
 /// # Examples
 ///
 /// ```
-/// # extern crate hyper;
+/// # extern crate headers;
 /// # fn main() {
 ///
-/// use hyper::{Headers, AccessControlAllowCredentials};
+/// use headers::{Headers, AccessControlAllowCredentials};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(AccessControlAllowCredentials);

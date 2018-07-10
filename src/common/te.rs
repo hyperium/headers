@@ -27,7 +27,7 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// use hyper::{Headers, Te, Encoding, qitem};
+    /// use headers::{Headers, Te, Encoding, qitem};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(
@@ -36,7 +36,7 @@ header! {
     /// ```
     ///
     /// ```
-    /// use hyper::{Headers, Te, Encoding, qitem};
+    /// use headers::{Headers, Te, Encoding, qitem};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(
@@ -49,7 +49,7 @@ header! {
     /// ```
     ///
     /// ```
-    /// use hyper::{Headers, Te, Encoding, QualityItem, q, qitem};
+    /// use headers::{Headers, Te, Encoding, QualityItem, q, qitem};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(

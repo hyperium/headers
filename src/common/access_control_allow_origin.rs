@@ -23,7 +23,7 @@ use {Header, Raw};
 ///
 /// # Examples
 /// ```
-/// use hyper::{Headers, AccessControlAllowOrigin};
+/// use headers::{Headers, AccessControlAllowOrigin};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -31,7 +31,7 @@ use {Header, Raw};
 /// );
 /// ```
 /// ```
-/// use hyper::{Headers, AccessControlAllowOrigin};
+/// use headers::{Headers, AccessControlAllowOrigin};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -39,7 +39,7 @@ use {Header, Raw};
 /// );
 /// ```
 /// ```
-/// use hyper::{Headers, AccessControlAllowOrigin};
+/// use headers::{Headers, AccessControlAllowOrigin};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(

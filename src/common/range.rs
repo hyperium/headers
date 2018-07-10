@@ -39,7 +39,7 @@ use parsing::{from_one_raw_str};
 /// # Examples
 ///
 /// ```
-/// use hyper::{Headers, Range, ByteRangeSpec};
+/// use headers::{Headers, Range, ByteRangeSpec};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(Range::Bytes(
@@ -51,7 +51,7 @@ use parsing::{from_one_raw_str};
 /// ```
 ///
 /// ```
-/// use hyper::{Headers, Range};
+/// use headers::{Headers, Range};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(Range::bytes(1, 100));

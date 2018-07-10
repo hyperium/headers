@@ -30,8 +30,9 @@ header! {
     ///
     /// # Examples
     /// ```
-    /// use hyper::{Headers, Accept, qitem};
-    /// use hyper::mime;
+    /// # extern crate headers;
+    /// extern crate mime;
+    /// use headers::{Headers, Accept, qitem};
     ///
     /// let mut headers = Headers::new();
     ///
@@ -43,8 +44,9 @@ header! {
     /// ```
     ///
     /// ```
-    /// use hyper::{Headers, Accept, qitem};
-    /// use hyper::mime;
+    /// # extern crate headers;
+    /// extern crate mime;
+    /// use headers::{Headers, Accept, qitem};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(
@@ -54,8 +56,9 @@ header! {
     /// );
     /// ```
     /// ```
-    /// use hyper::{Headers, Accept, QualityItem, q, qitem};
-    /// use hyper::mime;
+    /// # extern crate headers;
+    /// extern crate mime;
+    /// use headers::{Headers, Accept, QualityItem, q, qitem};
     ///
     /// let mut headers = Headers::new();
     ///

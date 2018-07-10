@@ -25,7 +25,7 @@ use parsing::{from_comma_delimited, fmt_comma_delimited};
 ///
 /// # Examples
 /// ```
-/// use hyper::{Headers, CacheControl, CacheDirective};
+/// use headers::{Headers, CacheControl, CacheDirective};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -34,7 +34,7 @@ use parsing::{from_comma_delimited, fmt_comma_delimited};
 /// ```
 ///
 /// ```
-/// use hyper::{Headers, CacheControl, CacheDirective};
+/// use headers::{Headers, CacheControl, CacheDirective};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(

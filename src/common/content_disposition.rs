@@ -69,7 +69,7 @@ pub enum DispositionParam {
 /// # Example
 ///
 /// ```
-/// use hyper::{Headers, ContentDisposition, DispositionType, DispositionParam, Charset};
+/// use headers::{Headers, ContentDisposition, DispositionType, DispositionParam, Charset};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(ContentDisposition {

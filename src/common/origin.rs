@@ -17,7 +17,7 @@ use parsing::from_one_raw_str;
 /// # Examples
 ///
 /// ```
-/// use hyper::{Headers, Origin};
+/// use headers::{Headers, Origin};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -26,7 +26,7 @@ use parsing::from_one_raw_str;
 /// ```
 ///
 /// ```
-/// use hyper::{Headers, Origin};
+/// use headers::{Headers, Origin};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -72,7 +72,7 @@ impl Origin {
     /// The scheme, such as http or https.
     ///
     /// ```
-    /// use hyper::Origin;
+    /// use headers::Origin;
     /// let origin = Origin::new("https", "foo.com", Some(443));
     /// assert_eq!(origin.scheme(), Some("https"));
     /// ```
@@ -86,7 +86,7 @@ impl Origin {
     /// The host, such as `Host { hostname: "hyper.rs".to_owned(), port: None}`.
     ///
     /// ```
-    /// use hyper::{Origin,Host};
+    /// use headers::{Origin,Host};
     /// let origin = Origin::new("https", "foo.com", Some(443));
     /// assert_eq!(origin.host(), Some(&Host::new("foo.com", Some(443))));
     /// ```

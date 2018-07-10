@@ -28,13 +28,13 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// use hyper::{Headers, ETag, EntityTag};
+    /// use headers::{Headers, ETag, EntityTag};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(ETag(EntityTag::new(false, "xyzzy".to_owned())));
     /// ```
     /// ```
-    /// use hyper::{Headers, ETag, EntityTag};
+    /// use headers::{Headers, ETag, EntityTag};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(ETag(EntityTag::new(true, "xyzzy".to_owned())));

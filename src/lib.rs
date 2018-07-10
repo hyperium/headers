@@ -20,8 +20,8 @@
 //! many wrapper-style headers.
 //!
 //! ```
-//! #[macro_use] extern crate hyper;
-//! use hyper::Headers;
+//! #[macro_use] extern crate headers;
+//! use headers::Headers;
 //! header! { (XRequestGuid, "X-Request-Guid") => [String] }
 //!
 //! fn main () {
@@ -41,7 +41,7 @@
 //!
 //! ```
 //! use std::fmt;
-//! use hyper::{self, Header, Raw};
+//! use headers::{self, Formatter, Header, Raw};
 //!
 //! #[derive(Debug, Clone, Copy)]
 //! struct Dnt(bool);
@@ -51,7 +51,7 @@
 //!         "DNT"
 //!     }
 //!
-//!     fn parse_header(raw: &Raw) -> hyper::Result<Dnt> {
+//!     fn parse_header(raw: &Raw) -> headers::Result<Dnt> {
 //!         if raw.len() == 1 {
 //!             let line = &raw[0];
 //!             if line.len() == 1 {
@@ -63,7 +63,7 @@
 //!                 }
 //!             }
 //!         }
-//!         Err(hyper::Error::Header)
+//!         Err(headers::Error::Header)
 //!     }
 //!
 //!     fn fmt_header(&self, f: &mut Formatter) -> fmt::Result {
@@ -434,8 +434,8 @@ impl Headers {
     /// Example:
     ///
     /// ```
-    /// # use hyper::Headers;
-    /// # use hyper::ContentType;
+    /// # use headers::Headers;
+    /// # use headers::ContentType;
     /// # let mut headers = Headers::new();
     /// headers.set(ContentType::json());
     /// assert!(headers.has::<ContentType>());
@@ -478,7 +478,7 @@ impl Headers {
     /// Example:
     ///
     /// ```
-    /// # use hyper::Headers;
+    /// # use headers::Headers;
     /// # let mut headers = Headers::new();
     /// # headers.set_raw("content-type", "text/plain");
     /// let raw = headers.get_raw("content-type").unwrap();
@@ -495,7 +495,7 @@ impl Headers {
     /// Example:
     ///
     /// ```
-    /// # use hyper::Headers;
+    /// # use headers::Headers;
     /// # let mut headers = Headers::new();
     /// headers.set_raw("content-length", b"1".as_ref());
     /// headers.set_raw("content-length", "2");
@@ -518,7 +518,7 @@ impl Headers {
     /// Example:
     ///
     /// ```
-    /// # use hyper::Headers;
+    /// # use headers::Headers;
     /// # let mut headers = Headers::new();
     /// headers.append_raw("x-foo", b"bar".to_vec());
     /// headers.append_raw("x-foo", b"quux".to_vec());

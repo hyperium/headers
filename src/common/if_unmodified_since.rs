@@ -23,7 +23,7 @@ header! {
     /// # Example
     ///
     /// ```
-    /// use hyper::{Headers, IfUnmodifiedSince};
+    /// use headers::{Headers, IfUnmodifiedSince};
     /// use std::time::{SystemTime, Duration};
     ///
     /// let mut headers = Headers::new();

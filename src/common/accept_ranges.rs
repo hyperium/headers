@@ -22,21 +22,21 @@ header! {
     ///
     /// # Examples
     /// ```
-    /// use hyper::{Headers, AcceptRanges, RangeUnit};
+    /// use headers::{Headers, AcceptRanges, RangeUnit};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(AcceptRanges(vec![RangeUnit::Bytes]));
     /// ```
     ///
     /// ```
-    /// use hyper::{Headers, AcceptRanges, RangeUnit};
+    /// use headers::{Headers, AcceptRanges, RangeUnit};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(AcceptRanges(vec![RangeUnit::None]));
     /// ```
     ///
     /// ```
-    /// use hyper::{Headers, AcceptRanges, RangeUnit};
+    /// use headers::{Headers, AcceptRanges, RangeUnit};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(

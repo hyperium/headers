@@ -29,7 +29,7 @@ use {Header, Raw, parsing};
 /// # Example
 ///
 /// ```
-/// use hyper::{Headers, ReferrerPolicy};
+/// use headers::{Headers, ReferrerPolicy};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(ReferrerPolicy::NoReferrer);

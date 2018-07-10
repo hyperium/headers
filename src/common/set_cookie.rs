@@ -58,7 +58,7 @@ use std::str::from_utf8;
 /// # Example
 ///
 /// ```
-/// use hyper::{Headers, SetCookie};
+/// use headers::{Headers, SetCookie};
 ///
 /// let mut headers = Headers::new();
 ///

@@ -30,7 +30,8 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// use hyper::{Headers, ContentType};
+    /// # extern crate headers;
+    /// use headers::{Headers, ContentType};
     ///
     /// let mut headers = Headers::new();
     ///
@@ -40,8 +41,9 @@ header! {
     /// ```
     ///
     /// ```
-    /// use hyper::{Headers, ContentType};
-    /// use hyper::mime;
+    /// # extern crate headers;
+    /// extern crate mime;
+    /// use headers::{Headers, ContentType};
     ///
     /// let mut headers = Headers::new();
     ///

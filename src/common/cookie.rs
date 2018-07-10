@@ -20,7 +20,7 @@ use internals::VecMap;
 ///
 /// # Example
 /// ```
-/// use hyper::{Headers, Cookie};
+/// use headers::{Headers, Cookie};
 ///
 /// let mut headers = Headers::new();
 /// let mut cookie = Cookie::new();
@@ -63,7 +63,7 @@ impl Cookie {
     /// a value multiple times. For example:
     ///
     /// ```
-    /// use hyper::Cookie;
+    /// use headers::Cookie;
     /// let mut cookie = Cookie::new();
     /// cookie.append("foo", "bar");
     /// cookie.append("foo", "quux");
@@ -91,7 +91,7 @@ impl Cookie {
     /// Iterate cookie (key, value) in insertion order.
     ///
     /// ```
-    /// use hyper::Cookie;
+    /// use headers::Cookie;
     /// let mut cookie = Cookie::new();
     /// cookie.append("foo", "bar");
     /// cookie.append(String::from("dyn"), String::from("amic"));

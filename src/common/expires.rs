@@ -22,7 +22,7 @@ header! {
     /// # Example
     ///
     /// ```
-    /// use hyper::{Headers, Expires};
+    /// use headers::{Headers, Expires};
     /// use std::time::{SystemTime, Duration};
     ///
     /// let mut headers = Headers::new();
