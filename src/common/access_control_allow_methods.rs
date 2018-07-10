@@ -1,4 +1,4 @@
-use method::Method;
+use http::Method;
 
 header! {
     /// `Access-Control-Allow-Methods` header, part of
@@ -20,26 +20,31 @@ header! {
     /// # Examples
     ///
     /// ```
+    /// # extern crate headers;
+    /// extern crate http;
     /// use headers::{Headers, AccessControlAllowMethods};
-    /// use headers::Method;
+    /// use http::Method;
     ///
     /// let mut headers = Headers::new();
     /// headers.set(
-    ///     AccessControlAllowMethods(vec![Method::Get])
+    ///     AccessControlAllowMethods(vec![Method::GET])
     /// );
     /// ```
     ///
     /// ```
+    /// # extern crate headers;
+    /// extern crate http;
     /// use headers::{Headers, AccessControlAllowMethods};
-    /// use headers::Method;
+    /// use http::Method;
+    /// use std::str::FromStr;
     ///
     /// let mut headers = Headers::new();
     /// headers.set(
     ///     AccessControlAllowMethods(vec![
-    ///         Method::Get,
-    ///         Method::Post,
-    ///         Method::Patch,
-    ///         Method::Extension("COPY".to_owned()),
+    ///         Method::GET,
+    ///         Method::POST,
+    ///         Method::PATCH,
+    ///         Method::from_str("COPY").unwrap(),
     ///     ])
     /// );
     /// ```

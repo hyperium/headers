@@ -107,13 +107,11 @@ pub use self::error::{Result, Error};
 pub use self::shared::*;
 pub use self::common::*;
 pub use self::raw::Raw;
-pub use method::Method;
 use bytes::Bytes;
 
 mod common;
 mod error;
 mod internals;
-mod method;
 mod raw;
 mod shared;
 pub mod parsing;

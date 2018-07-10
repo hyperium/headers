@@ -126,10 +126,10 @@ macro_rules! __hyper__tm {
         #[allow(unused_imports)]
         #[cfg(test)]
         mod $tm{
-            use std::str;
+            use http::Method;
+            use std::str::{self, FromStr};
             use $crate::*;
             use $crate::mime::*;
-            use $crate::method::Method;
             use super::$id as HeaderField;
             $($tf)*
         }

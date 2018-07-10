@@ -1,4 +1,4 @@
-use method::Method;
+use http::Method;
 
 header! {
     /// `Access-Control-Request-Method` header, part of
@@ -18,11 +18,13 @@ header! {
     /// # Examples
     ///
     /// ```
+    /// # extern crate headers;
+    /// extern crate http;
     /// use headers::{Headers, AccessControlRequestMethod};
-    /// use headers::Method;
+    /// use http::Method;
     ///
     /// let mut headers = Headers::new();
-    /// headers.set(AccessControlRequestMethod(Method::Get));
+    /// headers.set(AccessControlRequestMethod(Method::GET));
     /// ```
     (AccessControlRequestMethod, "Access-Control-Request-Method") => [Method]
 
