@@ -1,4 +1,4 @@
-use header::HttpDate;
+use HttpDate;
 
 header! {
     /// `Date` header, defined in [RFC7231](http://tools.ietf.org/html/rfc7231#section-7.1.1.2)
@@ -19,7 +19,7 @@ header! {
     /// # Example
     ///
     /// ```
-    /// use hyper::header::{Headers, Date};
+    /// use hyper::{Headers, Date};
     /// use std::time::SystemTime;
     ///
     /// let mut headers = Headers::new();

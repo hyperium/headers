@@ -1,9 +1,9 @@
-use header::Encoding;
+use Encoding;
 
 header! {
     /// `Transfer-Encoding` header, defined in
     /// [RFC7230](http://tools.ietf.org/html/rfc7230#section-3.3.1)
-    /// 
+    ///
     /// The `Transfer-Encoding` header field lists the transfer coding names
     /// corresponding to the sequence of transfer codings that have been (or
     /// will be) applied to the payload body in order to form the message
@@ -15,22 +15,22 @@ header! {
     ///
     /// > A sender MUST NOT send a Content-Length header field in any message
     /// > that contains a Transfer-Encoding header field.
-    /// 
+    ///
     /// # ABNF
     ///
     /// ```text
     /// Transfer-Encoding = 1#transfer-coding
     /// ```
-    /// 
+    ///
     /// # Example values
     ///
     /// * `gzip, chunked`
-    /// 
+    ///
     /// # Example
     ///
     /// ```
-    /// use hyper::header::{Headers, TransferEncoding, Encoding};
-    /// 
+    /// use hyper::{Headers, TransferEncoding, Encoding};
+    ///
     /// let mut headers = Headers::new();
     /// headers.set(
     ///     TransferEncoding(vec![

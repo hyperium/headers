@@ -1,4 +1,4 @@
-use header::{Header, Raw};
+use {Header, Raw};
 use std::fmt;
 use std::str::from_utf8;
 
@@ -58,7 +58,7 @@ use std::str::from_utf8;
 /// # Example
 ///
 /// ```
-/// use hyper::header::{Headers, SetCookie};
+/// use hyper::{Headers, SetCookie};
 ///
 /// let mut headers = Headers::new();
 ///
@@ -94,7 +94,7 @@ impl Header for SetCookie {
         }
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         for cookie in &self.0 {
             try!(f.fmt_line(cookie));
         }
@@ -104,7 +104,7 @@ impl Header for SetCookie {
 
 #[test]
 fn test_set_cookie_fmt() {
-    use ::header::Headers;
+    use ::Headers;
     let mut headers = Headers::new();
     headers.set(SetCookie(vec![
         "foo=bar".into(),

@@ -1,6 +1,6 @@
 use std::fmt;
-use header::{Header, Raw, Preference};
-use header::parsing::{from_comma_delimited, fmt_comma_delimited};
+use {Header, Raw, Preference};
+use parsing::{from_comma_delimited, fmt_comma_delimited};
 
 /// `Preference-Applied` header, defined in [RFC7240](http://tools.ietf.org/html/rfc7240)
 ///
@@ -24,7 +24,7 @@ use header::parsing::{from_comma_delimited, fmt_comma_delimited};
 /// # Examples
 ///
 /// ```
-/// use hyper::header::{Headers, PreferenceApplied, Preference};
+/// use hyper::{Headers, PreferenceApplied, Preference};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -33,7 +33,7 @@ use header::parsing::{from_comma_delimited, fmt_comma_delimited};
 /// ```
 ///
 /// ```
-/// use hyper::header::{Headers, PreferenceApplied, Preference};
+/// use hyper::{Headers, PreferenceApplied, Preference};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -67,7 +67,7 @@ impl Header for PreferenceApplied {
         }
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 }
@@ -90,7 +90,7 @@ impl fmt::Display for PreferenceApplied {
 
 #[cfg(test)]
 mod tests {
-    use header::Preference;
+    use Preference;
     use super::*;
 
     #[test]

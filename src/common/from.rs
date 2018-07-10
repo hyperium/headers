@@ -15,7 +15,7 @@ header! {
     /// # Example
     ///
     /// ```
-    /// use hyper::header::{Headers, From};
+    /// use hyper::{Headers, From};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(From("webmaster@example.org".to_owned()));

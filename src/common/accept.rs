@@ -1,6 +1,6 @@
 use mime::{self, Mime};
 
-use header::{QualityItem, qitem};
+use {QualityItem, qitem};
 
 header! {
     /// `Accept` header, defined in [RFC7231](http://tools.ietf.org/html/rfc7231#section-5.3.2)
@@ -30,7 +30,7 @@ header! {
     ///
     /// # Examples
     /// ```
-    /// use hyper::header::{Headers, Accept, qitem};
+    /// use hyper::{Headers, Accept, qitem};
     /// use hyper::mime;
     ///
     /// let mut headers = Headers::new();
@@ -43,7 +43,7 @@ header! {
     /// ```
     ///
     /// ```
-    /// use hyper::header::{Headers, Accept, qitem};
+    /// use hyper::{Headers, Accept, qitem};
     /// use hyper::mime;
     ///
     /// let mut headers = Headers::new();
@@ -54,7 +54,7 @@ header! {
     /// );
     /// ```
     /// ```
-    /// use hyper::header::{Headers, Accept, QualityItem, q, qitem};
+    /// use hyper::{Headers, Accept, QualityItem, q, qitem};
     /// use hyper::mime;
     ///
     /// let mut headers = Headers::new();

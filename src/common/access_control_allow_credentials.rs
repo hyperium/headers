@@ -1,7 +1,7 @@
 use std::fmt::{self, Display};
 use std::str;
 use unicase;
-use header::{Header, Raw};
+use {Header, Raw};
 
 /// `Access-Control-Allow-Credentials` header, part of
 /// [CORS](http://www.w3.org/TR/cors/#access-control-allow-headers-response-header)
@@ -31,7 +31,7 @@ use header::{Header, Raw};
 /// # extern crate hyper;
 /// # fn main() {
 ///
-/// use hyper::header::{Headers, AccessControlAllowCredentials};
+/// use hyper::{Headers, AccessControlAllowCredentials};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(AccessControlAllowCredentials);
@@ -65,7 +65,7 @@ impl Header for AccessControlAllowCredentials {
         Err(::Error::Header)
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 }
@@ -79,7 +79,7 @@ impl Display for AccessControlAllowCredentials {
 #[cfg(test)]
 mod test_access_control_allow_credentials {
     use std::str;
-    use header::*;
+    use *;
     use super::AccessControlAllowCredentials as HeaderField;
     test_header!(works,        vec![b"true"], Some(HeaderField));
     test_header!(ignores_case, vec![b"True"]);

@@ -1,8 +1,8 @@
-use header::{Header, Raw, Host};
+use {Header, Raw, Host};
 use std::borrow::Cow;
 use std::fmt;
 use std::str::FromStr;
-use header::parsing::from_one_raw_str;
+use parsing::from_one_raw_str;
 
 /// The `Origin` header.
 ///
@@ -10,14 +10,14 @@ use header::parsing::from_one_raw_str;
 /// This header is often used to inform recipients of the security context of where the request was initiated.
 ///
 /// Following the spec, [https://fetch.spec.whatwg.org/#origin-header][url], the value of this header is composed of
-/// a String (scheme), header::Host (host/port)
+/// a String (scheme), Host (host/port)
 ///
 /// [url]: https://fetch.spec.whatwg.org/#origin-header
 ///
 /// # Examples
 ///
 /// ```
-/// use hyper::header::{Headers, Origin};
+/// use hyper::{Headers, Origin};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -26,7 +26,7 @@ use header::parsing::from_one_raw_str;
 /// ```
 ///
 /// ```
-/// use hyper::header::{Headers, Origin};
+/// use hyper::{Headers, Origin};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -72,7 +72,7 @@ impl Origin {
     /// The scheme, such as http or https.
     ///
     /// ```
-    /// use hyper::header::Origin;
+    /// use hyper::Origin;
     /// let origin = Origin::new("https", "foo.com", Some(443));
     /// assert_eq!(origin.scheme(), Some("https"));
     /// ```
@@ -86,7 +86,7 @@ impl Origin {
     /// The host, such as `Host { hostname: "hyper.rs".to_owned(), port: None}`.
     ///
     /// ```
-    /// use hyper::header::{Origin,Host};
+    /// use hyper::{Origin,Host};
     /// let origin = Origin::new("https", "foo.com", Some(443));
     /// assert_eq!(origin.host(), Some(&Host::new("foo.com", Some(443))));
     /// ```
@@ -108,7 +108,7 @@ impl Header for Origin {
         from_one_raw_str(raw)
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 }
@@ -154,7 +154,7 @@ impl fmt::Display for Origin {
 #[cfg(test)]
 mod tests {
     use super::Origin;
-    use header::Header;
+    use Header;
     use std::borrow::Cow;
 
     macro_rules! assert_borrowed{

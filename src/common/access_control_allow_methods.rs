@@ -20,7 +20,7 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// use hyper::header::{Headers, AccessControlAllowMethods};
+    /// use hyper::{Headers, AccessControlAllowMethods};
     /// use hyper::Method;
     ///
     /// let mut headers = Headers::new();
@@ -30,7 +30,7 @@ header! {
     /// ```
     ///
     /// ```
-    /// use hyper::header::{Headers, AccessControlAllowMethods};
+    /// use hyper::{Headers, AccessControlAllowMethods};
     /// use hyper::Method;
     ///
     /// let mut headers = Headers::new();

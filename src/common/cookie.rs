@@ -2,8 +2,8 @@ use std::borrow::Cow;
 use std::fmt;
 use std::str::from_utf8;
 
-use header::{Header, Raw};
-use header::internals::VecMap;
+use {Header, Raw};
+use internals::VecMap;
 
 /// `Cookie` header, defined in [RFC6265](http://tools.ietf.org/html/rfc6265#section-5.4)
 ///
@@ -20,7 +20,7 @@ use header::internals::VecMap;
 ///
 /// # Example
 /// ```
-/// use hyper::header::{Headers, Cookie};
+/// use hyper::{Headers, Cookie};
 ///
 /// let mut headers = Headers::new();
 /// let mut cookie = Cookie::new();
@@ -63,7 +63,7 @@ impl Cookie {
     /// a value multiple times. For example:
     ///
     /// ```
-    /// use hyper::header::Cookie;
+    /// use hyper::Cookie;
     /// let mut cookie = Cookie::new();
     /// cookie.append("foo", "bar");
     /// cookie.append("foo", "quux");
@@ -91,7 +91,7 @@ impl Cookie {
     /// Iterate cookie (key, value) in insertion order.
     ///
     /// ```
-    /// use hyper::header::Cookie;
+    /// use hyper::Cookie;
     /// let mut cookie = Cookie::new();
     /// cookie.append("foo", "bar");
     /// cookie.append(String::from("dyn"), String::from("amic"));
@@ -136,7 +136,7 @@ impl Header for Cookie {
         }
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 }
@@ -191,7 +191,7 @@ impl<'a> Iterator for CookieIter<'a> {
 
 #[cfg(test)]
 mod tests {
-    use header::Header;
+    use Header;
     use super::Cookie;
 
     #[test]

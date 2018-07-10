@@ -1,8 +1,8 @@
 use std::fmt::{self, Display};
 use std::str::FromStr;
 
-use header::{Header, Raw};
-use header::parsing::{from_one_raw_str};
+use {Header, Raw};
+use parsing::{from_one_raw_str};
 
 /// `Range` header, defined in [RFC7233](https://tools.ietf.org/html/rfc7233#section-3.1)
 ///
@@ -39,7 +39,7 @@ use header::parsing::{from_one_raw_str};
 /// # Examples
 ///
 /// ```
-/// use hyper::header::{Headers, Range, ByteRangeSpec};
+/// use hyper::{Headers, Range, ByteRangeSpec};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(Range::Bytes(
@@ -51,7 +51,7 @@ use header::parsing::{from_one_raw_str};
 /// ```
 ///
 /// ```
-/// use hyper::header::{Headers, Range};
+/// use hyper::{Headers, Range};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(Range::bytes(1, 100));
@@ -95,7 +95,7 @@ impl ByteRangeSpec {
     ///
     /// This function closely follows [RFC 7233][1] section 2.1.
     /// As such, it considers ranges to be satisfiable if they meet the following
-    /// conditions: 
+    /// conditions:
     ///
     /// > If a valid byte-range-set includes at least one byte-range-spec with
     /// a first-byte-pos that is less than the current length of the
@@ -265,7 +265,7 @@ impl Header for Range {
         from_one_raw_str(raw)
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 
@@ -342,7 +342,7 @@ fn test_parse_invalid() {
 
 #[test]
 fn test_fmt() {
-    use header::Headers;
+    use Headers;
 
     let mut headers = Headers::new();
 

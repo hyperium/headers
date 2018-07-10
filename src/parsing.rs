@@ -6,8 +6,8 @@ use std::str::FromStr;
 use std::fmt::{self, Display};
 use percent_encoding;
 
-use header::Raw;
-use header::shared::Charset;
+use Raw;
+use shared::Charset;
 
 
 /// Reads a single raw string when parsing a header.
@@ -175,7 +175,7 @@ mod percent_encoding_http {
 
 #[cfg(test)]
 mod tests {
-    use header::shared::Charset;
+    use shared::Charset;
     use super::{ExtendedValue, parse_extended_value};
     use language_tags::LanguageTag;
 

@@ -3,7 +3,7 @@ use std::fmt::{self, Display};
 use std::str::{FromStr, from_utf8};
 use std::ops::{Deref, DerefMut};
 use base64::{encode, decode};
-use header::{Header, Raw};
+use {Header, Raw};
 
 /// `Authorization` header, defined in [RFC7235](https://tools.ietf.org/html/rfc7235#section-4.2)
 ///
@@ -26,13 +26,13 @@ use header::{Header, Raw};
 /// # Examples
 ///
 /// ```
-/// use hyper::header::{Headers, Authorization};
+/// use hyper::{Headers, Authorization};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(Authorization("let me in".to_owned()));
 /// ```
 /// ```
-/// use hyper::header::{Headers, Authorization, Basic};
+/// use hyper::{Headers, Authorization, Basic};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -46,7 +46,7 @@ use header::{Header, Raw};
 /// ```
 ///
 /// ```
-/// use hyper::header::{Headers, Authorization, Bearer};
+/// use hyper::{Headers, Authorization, Bearer};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -103,7 +103,7 @@ impl<S: Scheme + Any> Header for Authorization<S> where <S as FromStr>::Err: 'st
         }
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 }

@@ -32,14 +32,14 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// use hyper::header::{Headers, Upgrade, Protocol, ProtocolName};
+    /// use hyper::{Headers, Upgrade, Protocol, ProtocolName};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(Upgrade(vec![Protocol::new(ProtocolName::WebSocket, None)]));
     /// ```
     ///
     /// ```
-    /// use hyper::header::{Headers, Upgrade, Protocol, ProtocolName};
+    /// use hyper::{Headers, Upgrade, Protocol, ProtocolName};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(

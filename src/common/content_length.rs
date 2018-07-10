@@ -1,6 +1,6 @@
 use std::fmt;
 
-use header::{Header, Raw, parsing};
+use {Header, Raw, parsing};
 
 /// `Content-Length` header, defined in
 /// [RFC7230](http://tools.ietf.org/html/rfc7230#section-3.3.2)
@@ -34,7 +34,7 @@ use header::{Header, Raw, parsing};
 /// # Example
 ///
 /// ```
-/// use hyper::header::{Headers, ContentLength};
+/// use hyper::{Headers, ContentLength};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(ContentLength(1024u64));
@@ -68,7 +68,7 @@ impl Header for ContentLength {
     }
 
     #[inline]
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.danger_fmt_line_without_newline_replacer(self)
     }
 }

@@ -3,7 +3,7 @@ use std::str;
 
 use unicase;
 
-use header::{Header, Raw};
+use {Header, Raw};
 
 /// The `Expect` header.
 ///
@@ -16,7 +16,7 @@ use header::{Header, Raw};
 ///
 /// # Example
 /// ```
-/// use hyper::header::{Headers, Expect};
+/// use hyper::{Headers, Expect};
 /// let mut headers = Headers::new();
 /// headers.set(Expect::Continue);
 /// ```
@@ -52,7 +52,7 @@ impl Header for Expect {
         }
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 }

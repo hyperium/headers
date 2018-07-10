@@ -1,4 +1,4 @@
-use header::EntityTag;
+use EntityTag;
 
 header! {
     /// `If-Match` header, defined in
@@ -30,14 +30,14 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// use hyper::header::{Headers, IfMatch};
+    /// use hyper::{Headers, IfMatch};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(IfMatch::Any);
     /// ```
     ///
     /// ```
-    /// use hyper::header::{Headers, IfMatch, EntityTag};
+    /// use hyper::{Headers, IfMatch, EntityTag};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(

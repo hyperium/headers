@@ -30,7 +30,7 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// use hyper::header::{Headers, ContentType};
+    /// use hyper::{Headers, ContentType};
     ///
     /// let mut headers = Headers::new();
     ///
@@ -40,7 +40,7 @@ header! {
     /// ```
     ///
     /// ```
-    /// use hyper::header::{Headers, ContentType};
+    /// use hyper::{Headers, ContentType};
     /// use hyper::mime;
     ///
     /// let mut headers = Headers::new();

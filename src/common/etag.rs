@@ -1,4 +1,4 @@
-use header::EntityTag;
+use EntityTag;
 
 header! {
     /// `ETag` header, defined in [RFC7232](http://tools.ietf.org/html/rfc7232#section-2.3)
@@ -28,13 +28,13 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// use hyper::header::{Headers, ETag, EntityTag};
+    /// use hyper::{Headers, ETag, EntityTag};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(ETag(EntityTag::new(false, "xyzzy".to_owned())));
     /// ```
     /// ```
-    /// use hyper::header::{Headers, ETag, EntityTag};
+    /// use hyper::{Headers, ETag, EntityTag};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(ETag(EntityTag::new(true, "xyzzy".to_owned())));

@@ -2,7 +2,7 @@ use std::fmt;
 #[allow(unused, deprecated)]
 use std::ascii::AsciiExt;
 
-use header::{Header, Raw, parsing};
+use {Header, Raw, parsing};
 
 /// The `Pragma` header defined by HTTP/1.0.
 ///
@@ -22,14 +22,14 @@ use header::{Header, Raw, parsing};
 /// # Examples
 ///
 /// ```
-/// use hyper::header::{Headers, Pragma};
+/// use hyper::{Headers, Pragma};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(Pragma::NoCache);
 /// ```
 ///
 /// ```
-/// use hyper::header::{Headers, Pragma};
+/// use hyper::{Headers, Pragma};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(Pragma::Ext("foobar".to_owned()));
@@ -58,7 +58,7 @@ impl Header for Pragma {
         })
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 }

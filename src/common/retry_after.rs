@@ -38,8 +38,8 @@
 use std::fmt;
 use std::time::Duration;
 
-use header::{Header, Raw};
-use header::shared::HttpDate;
+use {Header, Raw};
+use shared::HttpDate;
 
 /// The `Retry-After` header.
 ///
@@ -54,7 +54,7 @@ use header::shared::HttpDate;
 /// # Examples
 /// ```
 /// use std::time::Duration;
-/// use hyper::header::{Headers, RetryAfter};
+/// use hyper::{Headers, RetryAfter};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -63,7 +63,7 @@ use header::shared::HttpDate;
 /// ```
 /// ```
 /// use std::time::{SystemTime, Duration};
-/// use hyper::header::{Headers, RetryAfter};
+/// use hyper::{Headers, RetryAfter};
 ///
 /// let mut headers = Headers::new();
 /// let date = SystemTime::now() + Duration::from_secs(300);
@@ -111,7 +111,7 @@ impl Header for RetryAfter {
         }
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> ::std::fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> ::std::fmt::Result {
         f.fmt_line(self)
     }
 }
@@ -132,8 +132,8 @@ impl fmt::Display for RetryAfter {
 #[cfg(test)]
 mod tests {
     use std::time::Duration;
-    use header::Header;
-    use header::shared::HttpDate;
+    use Header;
+    use shared::HttpDate;
 
     use super::RetryAfter;
 

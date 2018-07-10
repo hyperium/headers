@@ -2,7 +2,7 @@ use std::fmt;
 #[allow(unused, deprecated)]
 use std::ascii::AsciiExt;
 
-use header::{Header, Raw, parsing};
+use {Header, Raw, parsing};
 
 /// `Referrer-Policy` header, part of
 /// [Referrer Policy](https://www.w3.org/TR/referrer-policy/#referrer-policy-header)
@@ -29,7 +29,7 @@ use header::{Header, Raw, parsing};
 /// # Example
 ///
 /// ```
-/// use hyper::header::{Headers, ReferrerPolicy};
+/// use hyper::{Headers, ReferrerPolicy};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(ReferrerPolicy::NoReferrer);
@@ -83,7 +83,7 @@ impl Header for ReferrerPolicy {
         Err(::Error::Header)
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 }

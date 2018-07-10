@@ -23,7 +23,7 @@ header! {
     /// # Example
     ///
     /// ```
-    /// use hyper::header::{Headers, Vary};
+    /// use hyper::{Headers, Vary};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(Vary::Any);
@@ -37,7 +37,7 @@ header! {
     /// # fn main() {
     /// // extern crate unicase;
     ///
-    /// use hyper::header::{Headers, Vary};
+    /// use hyper::{Headers, Vary};
     /// use unicase::Ascii;
     ///
     /// let mut headers = Headers::new();

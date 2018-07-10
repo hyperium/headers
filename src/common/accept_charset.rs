@@ -1,4 +1,4 @@
-use header::{Charset, QualityItem};
+use {Charset, QualityItem};
 
 header! {
     /// `Accept-Charset` header, defined in
@@ -22,7 +22,7 @@ header! {
     ///
     /// # Examples
     /// ```
-    /// use hyper::header::{Headers, AcceptCharset, Charset, qitem};
+    /// use hyper::{Headers, AcceptCharset, Charset, qitem};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(
@@ -30,7 +30,7 @@ header! {
     /// );
     /// ```
     /// ```
-    /// use hyper::header::{Headers, AcceptCharset, Charset, q, QualityItem};
+    /// use hyper::{Headers, AcceptCharset, Charset, q, QualityItem};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(
@@ -41,7 +41,7 @@ header! {
     /// );
     /// ```
     /// ```
-    /// use hyper::header::{Headers, AcceptCharset, Charset, qitem};
+    /// use hyper::{Headers, AcceptCharset, Charset, qitem};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(

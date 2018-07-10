@@ -22,7 +22,7 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// use hyper::header::{Headers, Allow};
+    /// use hyper::{Headers, Allow};
     /// use hyper::Method;
     ///
     /// let mut headers = Headers::new();
@@ -32,7 +32,7 @@ header! {
     /// ```
     ///
     /// ```
-    /// use hyper::header::{Headers, Allow};
+    /// use hyper::{Headers, Allow};
     /// use hyper::Method;
     ///
     /// let mut headers = Headers::new();

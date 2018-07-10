@@ -10,9 +10,9 @@ use language_tags::LanguageTag;
 use std::fmt;
 use unicase;
 
-use header::{Header, Raw, parsing};
-use header::parsing::{parse_extended_value, http_percent_encode};
-use header::shared::Charset;
+use {Header, Raw, parsing};
+use parsing::{parse_extended_value, http_percent_encode};
+use shared::Charset;
 
 /// The implied disposition of the content of the HTTP body.
 #[derive(Clone, Debug, PartialEq)]
@@ -69,7 +69,7 @@ pub enum DispositionParam {
 /// # Example
 ///
 /// ```
-/// use hyper::header::{Headers, ContentDisposition, DispositionType, DispositionParam, Charset};
+/// use hyper::{Headers, ContentDisposition, DispositionType, DispositionParam, Charset};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(ContentDisposition {
@@ -148,7 +148,7 @@ impl Header for ContentDisposition {
     }
 
     #[inline]
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 }
@@ -196,8 +196,8 @@ impl fmt::Display for ContentDisposition {
 #[cfg(test)]
 mod tests {
     use super::{ContentDisposition,DispositionType,DispositionParam};
-    use ::header::Header;
-    use ::header::shared::Charset;
+    use ::Header;
+    use ::shared::Charset;
 
     #[test]
     fn test_parse_header() {

@@ -2,7 +2,7 @@ use std::any::Any;
 use std::fmt;
 use std::str::{FromStr, from_utf8};
 use std::ops::{Deref, DerefMut};
-use header::{Header, Raw, Scheme};
+use {Header, Raw, Scheme};
 
 /// `Proxy-Authorization` header, defined in [RFC7235](https://tools.ietf.org/html/rfc7235#section-4.4)
 ///
@@ -26,13 +26,13 @@ use header::{Header, Raw, Scheme};
 /// # Examples
 ///
 /// ```
-/// use hyper::header::{Headers, ProxyAuthorization};
+/// use hyper::{Headers, ProxyAuthorization};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(ProxyAuthorization("let me in".to_owned()));
 /// ```
 /// ```
-/// use hyper::header::{Headers, ProxyAuthorization, Basic};
+/// use hyper::{Headers, ProxyAuthorization, Basic};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -46,7 +46,7 @@ use header::{Header, Raw, Scheme};
 /// ```
 ///
 /// ```
-/// use hyper::header::{Headers, ProxyAuthorization, Bearer};
+/// use hyper::{Headers, ProxyAuthorization, Bearer};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -103,7 +103,7 @@ impl<S: Scheme + Any> Header for ProxyAuthorization<S> where <S as FromStr>::Err
         }
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 }
@@ -190,7 +190,7 @@ mod tests {
 #[cfg(feature = "nightly")]
 mod benches {
     use super::ProxyAuthorization;
-    use ::header::{Basic, Bearer};
+    use ::{Basic, Bearer};
 
     bench_header!(raw, ProxyAuthorization<String>, { vec![b"foo bar baz".to_vec()] });
     bench_header!(basic, ProxyAuthorization<Basic>, { vec![b"Basic QWxhZGRpbjpuIHNlc2FtZQ==".to_vec()] });

@@ -1,4 +1,4 @@
-use header::{Encoding, QualityItem};
+use {Encoding, QualityItem};
 
 header! {
     /// `Accept-Encoding` header, defined in
@@ -26,7 +26,7 @@ header! {
     ///
     /// # Examples
     /// ```
-    /// use hyper::header::{Headers, AcceptEncoding, Encoding, qitem};
+    /// use hyper::{Headers, AcceptEncoding, Encoding, qitem};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(
@@ -34,7 +34,7 @@ header! {
     /// );
     /// ```
     /// ```
-    /// use hyper::header::{Headers, AcceptEncoding, Encoding, qitem};
+    /// use hyper::{Headers, AcceptEncoding, Encoding, qitem};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(
@@ -46,7 +46,7 @@ header! {
     /// );
     /// ```
     /// ```
-    /// use hyper::header::{Headers, AcceptEncoding, Encoding, QualityItem, q, qitem};
+    /// use hyper::{Headers, AcceptEncoding, Encoding, QualityItem, q, qitem};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(

@@ -1,4 +1,4 @@
-use header::HttpDate;
+use HttpDate;
 
 header! {
     /// `If-Modified-Since` header, defined in
@@ -22,7 +22,7 @@ header! {
     /// # Example
     ///
     /// ```
-    /// use hyper::header::{Headers, IfModifiedSince};
+    /// use hyper::{Headers, IfModifiedSince};
     /// use std::time::{SystemTime, Duration};
     ///
     /// let mut headers = Headers::new();

@@ -1,5 +1,5 @@
 use std::fmt::{self, Display};
-use header::{self, Header, Raw, EntityTag, HttpDate};
+use {Header, Raw, EntityTag, HttpDate};
 
 /// `If-Range` header, defined in [RFC7233](http://tools.ietf.org/html/rfc7233#section-3.2)
 ///
@@ -30,14 +30,14 @@ use header::{self, Header, Raw, EntityTag, HttpDate};
 /// # Examples
 ///
 /// ```
-/// use hyper::header::{Headers, IfRange, EntityTag};
+/// use hyper::{Headers, IfRange, EntityTag};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(IfRange::EntityTag(EntityTag::new(false, "xyzzy".to_owned())));
 /// ```
 ///
 /// ```
-/// use hyper::header::{Headers, IfRange};
+/// use hyper::{Headers, IfRange};
 /// use std::time::{SystemTime, Duration};
 ///
 /// let mut headers = Headers::new();
@@ -58,18 +58,18 @@ impl Header for IfRange {
         NAME
     }
     fn parse_header(raw: &Raw) -> ::Result<IfRange> {
-        let etag: ::Result<EntityTag> = header::parsing::from_one_raw_str(raw);
+        let etag: ::Result<EntityTag> = ::parsing::from_one_raw_str(raw);
         if let Ok(etag) = etag {
             return Ok(IfRange::EntityTag(etag));
         }
-        let date: ::Result<HttpDate> = header::parsing::from_one_raw_str(raw);
+        let date: ::Result<HttpDate> = ::parsing::from_one_raw_str(raw);
         if let Ok(date) = date {
             return Ok(IfRange::Date(date));
         }
         Err(::Error::Header)
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> ::std::fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> ::std::fmt::Result {
         f.fmt_line(self)
     }
 }
@@ -86,7 +86,7 @@ impl Display for IfRange {
 #[cfg(test)]
 mod test_if_range {
     use std::str;
-    use header::*;
+    use *;
     use super::IfRange as HeaderField;
     test_header!(test1, vec![b"Sat, 29 Oct 1994 19:43:31 GMT"]);
     test_header!(test2, vec![b"\"xyzzy\""]);

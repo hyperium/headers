@@ -21,7 +21,7 @@
 //!
 //! ```
 //! #[macro_use] extern crate hyper;
-//! use hyper::header::Headers;
+//! use hyper::Headers;
 //! header! { (XRequestGuid, "X-Request-Guid") => [String] }
 //!
 //! fn main () {
@@ -41,7 +41,7 @@
 //!
 //! ```
 //! use std::fmt;
-//! use hyper::header::{self, Header, Raw};
+//! use hyper::{self, Header, Raw};
 //!
 //! #[derive(Debug, Clone, Copy)]
 //! struct Dnt(bool);
@@ -66,7 +66,7 @@
 //!         Err(hyper::Error::Header)
 //!     }
 //!
-//!     fn fmt_header(&self, f: &mut header::Formatter) -> fmt::Result {
+//!     fn fmt_header(&self, f: &mut Formatter) -> fmt::Result {
 //!         let value = if self.0 {
 //!             "1"
 //!         } else {
@@ -76,6 +76,19 @@
 //!     }
 //! }
 //! ```
+extern crate base64;
+extern crate bytes;
+extern crate http;
+extern crate httparse;
+extern crate language_tags;
+#[macro_use]
+extern crate log;
+extern crate mime;
+#[macro_use]
+extern crate percent_encoding;
+extern crate unicase;
+extern crate time;
+
 use std::borrow::{Cow, ToOwned};
 #[cfg(feature = "compat")]
 use std::convert::From;
@@ -90,13 +103,17 @@ use unicase::Ascii;
 use self::internals::{Item, VecMap, Entry};
 use self::sealed::HeaderClone;
 
+pub use self::error::{Result, Error};
 pub use self::shared::*;
 pub use self::common::*;
 pub use self::raw::Raw;
+pub use method::Method;
 use bytes::Bytes;
 
 mod common;
+mod error;
 mod internals;
+mod method;
 mod raw;
 mod shared;
 pub mod parsing;
@@ -417,8 +434,8 @@ impl Headers {
     /// Example:
     ///
     /// ```
-    /// # use hyper::header::Headers;
-    /// # use hyper::header::ContentType;
+    /// # use hyper::Headers;
+    /// # use hyper::ContentType;
     /// # let mut headers = Headers::new();
     /// headers.set(ContentType::json());
     /// assert!(headers.has::<ContentType>());
@@ -461,7 +478,7 @@ impl Headers {
     /// Example:
     ///
     /// ```
-    /// # use hyper::header::Headers;
+    /// # use hyper::Headers;
     /// # let mut headers = Headers::new();
     /// # headers.set_raw("content-type", "text/plain");
     /// let raw = headers.get_raw("content-type").unwrap();
@@ -478,7 +495,7 @@ impl Headers {
     /// Example:
     ///
     /// ```
-    /// # use hyper::header::Headers;
+    /// # use hyper::Headers;
     /// # let mut headers = Headers::new();
     /// headers.set_raw("content-length", b"1".as_ref());
     /// headers.set_raw("content-length", "2");
@@ -501,7 +518,7 @@ impl Headers {
     /// Example:
     ///
     /// ```
-    /// # use hyper::header::Headers;
+    /// # use hyper::Headers;
     /// # let mut headers = Headers::new();
     /// headers.append_raw("x-foo", b"bar".to_vec());
     /// headers.append_raw("x-foo", b"quux".to_vec());
@@ -569,7 +586,7 @@ impl From<http::HeaderMap> for Headers {
                 for value in value_drain {
                     raw.push(value.as_bytes());
                 }
-                headers.append_raw(name.as_str().to_string(), raw);        
+                headers.append_raw(name.as_str().to_string(), raw);
             }
         }
         headers
@@ -584,16 +601,16 @@ impl From<Headers> for http::HeaderMap {
             let entry = header_map.entry(header.name())
                 .expect("attempted to convert invalid header name");
             let mut value_iter = header.raw().iter().map(|line| {
-                http::header::HeaderValue::from_bytes(line)
+                http::HeaderValue::from_bytes(line)
                     .expect("attempted to convert invalid header value")
             });
             match entry {
-                http::header::Entry::Occupied(mut  occupied) => {
+                http::Entry::Occupied(mut  occupied) => {
                     for value in value_iter {
                         occupied.append(value);
                     }
                 },
-                http::header::Entry::Vacant(vacant) => {
+                http::Entry::Vacant(vacant) => {
                     if let Some(first_value) = value_iter.next() {
                         let mut occupied = vacant.insert_entry(first_value);
                         for value in value_iter {
@@ -1013,8 +1030,8 @@ mod tests {
         orig_hyper_headers.append_raw("x-foo", b"quux".to_vec());
 
         let mut orig_http_headers = http::HeaderMap::new();
-        orig_http_headers.insert(http::header::CONTENT_LENGTH, "11".parse().unwrap());
-        orig_http_headers.insert(http::header::HOST, "foo.bar".parse().unwrap());
+        orig_http_headers.insert(http::CONTENT_LENGTH, "11".parse().unwrap());
+        orig_http_headers.insert(http::HOST, "foo.bar".parse().unwrap());
         orig_http_headers.append("x-foo", "bar".parse().unwrap());
         orig_http_headers.append("x-foo", "quux".parse().unwrap());
 

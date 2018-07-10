@@ -24,7 +24,7 @@ header! {
     /// # fn main() {
     /// // extern crate unicase;
     ///
-    /// use hyper::header::{Headers, AccessControlExposeHeaders};
+    /// use hyper::{Headers, AccessControlExposeHeaders};
     /// use unicase::Ascii;
     ///
     /// let mut headers = Headers::new();
@@ -43,7 +43,7 @@ header! {
     /// # fn main() {
     /// // extern crate unicase;
     ///
-    /// use hyper::header::{Headers, AccessControlExposeHeaders};
+    /// use hyper::{Headers, AccessControlExposeHeaders};
     /// use unicase::Ascii;
     ///
     /// let mut headers = Headers::new();

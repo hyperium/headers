@@ -2,8 +2,8 @@ use std::borrow::Cow;
 use std::fmt;
 use std::str::FromStr;
 
-use header::{Header, Raw};
-use header::parsing::from_one_raw_str;
+use {Header, Raw};
+use parsing::from_one_raw_str;
 
 /// The `Host` header.
 ///
@@ -12,7 +12,7 @@ use header::parsing::from_one_raw_str;
 ///
 /// # Examples
 /// ```
-/// use hyper::header::{Headers, Host};
+/// use hyper::{Headers, Host};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -20,7 +20,7 @@ use header::parsing::from_one_raw_str;
 /// );
 /// ```
 /// ```
-/// use hyper::header::{Headers, Host};
+/// use hyper::{Headers, Host};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -68,7 +68,7 @@ impl Header for Host {
        from_one_raw_str(raw)
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 }
@@ -105,7 +105,7 @@ impl FromStr for Host {
 #[cfg(test)]
 mod tests {
     use super::Host;
-    use header::Header;
+    use Header;
 
 
     #[test]

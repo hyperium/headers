@@ -73,7 +73,7 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// use hyper::header::{Headers, Connection};
+    /// use hyper::{Headers, Connection};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(Connection::keep_alive());
@@ -85,7 +85,7 @@ header! {
     /// # fn main() {
     /// // extern crate unicase;
     ///
-    /// use hyper::header::{Headers, Connection, ConnectionOption};
+    /// use hyper::{Headers, Connection, ConnectionOption};
     /// use unicase::Ascii;
     ///
     /// let mut headers = Headers::new();
@@ -126,7 +126,7 @@ bench_header!(header, Connection, { vec![b"authorization".to_vec()] });
 #[cfg(test)]
 mod tests {
     use super::{Connection,ConnectionHeader};
-    use header::Header;
+    use Header;
     use unicase::Ascii;
 
     fn parse_option(header: Vec<u8>) -> Connection {
