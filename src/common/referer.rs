@@ -21,14 +21,14 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// use hyper::header::{Headers, Referer};
+    /// use headers::{Headers, Referer};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(Referer::new("/People.html#tim"));
     /// ```
     ///
     /// ```
-    /// use hyper::header::{Headers, Referer};
+    /// use headers::{Headers, Referer};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(Referer::new("http://www.example.com/index.html"));

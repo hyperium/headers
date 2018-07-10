@@ -1,4 +1,4 @@
-use method::Method;
+use http::Method;
 
 header! {
     /// `Allow` header, defined in [RFC7231](http://tools.ietf.org/html/rfc7231#section-7.4.1)
@@ -22,26 +22,31 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// use hyper::header::{Headers, Allow};
-    /// use hyper::Method;
+    /// # extern crate headers;
+    /// extern crate http;
+    /// use headers::{Headers, Allow};
+    /// use http::Method;
     ///
     /// let mut headers = Headers::new();
     /// headers.set(
-    ///     Allow(vec![Method::Get])
+    ///     Allow(vec![Method::GET])
     /// );
     /// ```
     ///
     /// ```
-    /// use hyper::header::{Headers, Allow};
-    /// use hyper::Method;
+    /// # extern crate headers;
+    /// extern crate http;
+    /// use headers::{Headers, Allow};
+    /// use http::Method;
+    /// use std::str::FromStr;
     ///
     /// let mut headers = Headers::new();
     /// headers.set(
     ///     Allow(vec![
-    ///         Method::Get,
-    ///         Method::Post,
-    ///         Method::Patch,
-    ///         Method::Extension("COPY".to_owned()),
+    ///         Method::GET,
+    ///         Method::POST,
+    ///         Method::PATCH,
+    ///         Method::from_str("COPY").unwrap(),
     ///     ])
     /// );
     /// ```
@@ -52,22 +57,22 @@ header! {
         test_header!(
             test1,
             vec![b"GET, HEAD, PUT"],
-            Some(HeaderField(vec![Method::Get, Method::Head, Method::Put])));
+            Some(HeaderField(vec![Method::GET, Method::HEAD, Method::PUT])));
         // Own tests
         test_header!(
             test2,
             vec![b"OPTIONS, GET, PUT, POST, DELETE, HEAD, TRACE, CONNECT, PATCH, fOObAr"],
             Some(HeaderField(vec![
-                Method::Options,
-                Method::Get,
-                Method::Put,
-                Method::Post,
-                Method::Delete,
-                Method::Head,
-                Method::Trace,
-                Method::Connect,
-                Method::Patch,
-                Method::Extension("fOObAr".to_owned())])));
+                Method::OPTIONS,
+                Method::GET,
+                Method::PUT,
+                Method::POST,
+                Method::DELETE,
+                Method::HEAD,
+                Method::TRACE,
+                Method::CONNECT,
+                Method::PATCH,
+                Method::from_str("fOObAr").unwrap()])));
         test_header!(
             test3,
             vec![b""],

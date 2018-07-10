@@ -4,7 +4,7 @@ use std::fmt;
 use std::str::from_utf8;
 
 use super::cell::{OptCell, PtrMapCell};
-use header::{Header, Formatter, Multi, raw, Raw};
+use {Header, Formatter, Multi, raw, Raw};
 
 
 #[derive(Clone)]

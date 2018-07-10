@@ -1,4 +1,4 @@
-use header::HttpDate;
+use HttpDate;
 
 header! {
     /// `Expires` header, defined in [RFC7234](http://tools.ietf.org/html/rfc7234#section-5.3)
@@ -22,7 +22,7 @@ header! {
     /// # Example
     ///
     /// ```
-    /// use hyper::header::{Headers, Expires};
+    /// use headers::{Headers, Expires};
     /// use std::time::{SystemTime, Duration};
     ///
     /// let mut headers = Headers::new();

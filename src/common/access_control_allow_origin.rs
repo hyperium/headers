@@ -1,7 +1,7 @@
 use std::fmt::{self, Display};
 use std::str;
 
-use header::{Header, Raw};
+use {Header, Raw};
 
 /// The `Access-Control-Allow-Origin` response header,
 /// part of [CORS](http://www.w3.org/TR/cors/#access-control-allow-origin-response-header)
@@ -23,7 +23,7 @@ use header::{Header, Raw};
 ///
 /// # Examples
 /// ```
-/// use hyper::header::{Headers, AccessControlAllowOrigin};
+/// use headers::{Headers, AccessControlAllowOrigin};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -31,7 +31,7 @@ use header::{Header, Raw};
 /// );
 /// ```
 /// ```
-/// use hyper::header::{Headers, AccessControlAllowOrigin};
+/// use headers::{Headers, AccessControlAllowOrigin};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -39,7 +39,7 @@ use header::{Header, Raw};
 /// );
 /// ```
 /// ```
-/// use hyper::header::{Headers, AccessControlAllowOrigin};
+/// use headers::{Headers, AccessControlAllowOrigin};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -73,7 +73,7 @@ impl Header for AccessControlAllowOrigin {
         }
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 }
@@ -90,7 +90,7 @@ impl Display for AccessControlAllowOrigin {
 
 #[cfg(test)]
 mod test_access_control_allow_origin {
-    use header::*;
+    use *;
     use super::AccessControlAllowOrigin as HeaderField;
     test_header!(test1, vec![b"null"]);
     test_header!(test2, vec![b"*"]);

@@ -1,7 +1,7 @@
 use std::fmt;
 use std::str::FromStr;
-use header::{Header, Raw};
-use header::parsing::{from_comma_delimited, fmt_comma_delimited};
+use {Header, Raw};
+use parsing::{from_comma_delimited, fmt_comma_delimited};
 
 /// `Cache-Control` header, defined in [RFC7234](https://tools.ietf.org/html/rfc7234#section-5.2)
 ///
@@ -25,7 +25,7 @@ use header::parsing::{from_comma_delimited, fmt_comma_delimited};
 ///
 /// # Examples
 /// ```
-/// use hyper::header::{Headers, CacheControl, CacheDirective};
+/// use headers::{Headers, CacheControl, CacheDirective};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -34,7 +34,7 @@ use header::parsing::{from_comma_delimited, fmt_comma_delimited};
 /// ```
 ///
 /// ```
-/// use hyper::header::{Headers, CacheControl, CacheDirective};
+/// use headers::{Headers, CacheControl, CacheDirective};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -68,7 +68,7 @@ impl Header for CacheControl {
         }
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 }
@@ -172,7 +172,7 @@ impl FromStr for CacheDirective {
 
 #[cfg(test)]
 mod tests {
-    use header::Header;
+    use Header;
     use super::*;
 
     #[test]

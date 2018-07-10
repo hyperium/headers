@@ -20,12 +20,12 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// # extern crate hyper;
+    /// # extern crate headers;
     /// # extern crate unicase;
     /// # fn main() {
     /// // extern crate unicase;
     ///
-    /// use hyper::header::{Headers, AccessControlRequestHeaders};
+    /// use headers::{Headers, AccessControlRequestHeaders};
     /// use unicase::Ascii;
     ///
     /// let mut headers = Headers::new();
@@ -36,12 +36,12 @@ header! {
     /// ```
     ///
     /// ```
-    /// # extern crate hyper;
+    /// # extern crate headers;
     /// # extern crate unicase;
     /// # fn main() {
     /// // extern crate unicase;
     ///
-    /// use hyper::header::{Headers, AccessControlRequestHeaders};
+    /// use headers::{Headers, AccessControlRequestHeaders};
     /// use unicase::Ascii;
     ///
     /// let mut headers = Headers::new();

@@ -1,4 +1,4 @@
-use header::EntityTag;
+use EntityTag;
 
 header! {
     /// `If-None-Match` header, defined in
@@ -32,14 +32,14 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// use hyper::header::{Headers, IfNoneMatch};
+    /// use headers::{Headers, IfNoneMatch};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(IfNoneMatch::Any);
     /// ```
     ///
     /// ```
-    /// use hyper::header::{Headers, IfNoneMatch, EntityTag};
+    /// use headers::{Headers, IfNoneMatch, EntityTag};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(
@@ -64,8 +64,8 @@ header! {
 #[cfg(test)]
 mod tests {
     use super::IfNoneMatch;
-    use header::Header;
-    use header::EntityTag;
+    use Header;
+    use EntityTag;
 
     #[test]
     fn test_if_none_match() {

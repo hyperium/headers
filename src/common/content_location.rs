@@ -24,14 +24,14 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// use hyper::header::{Headers, ContentLocation};
+    /// use headers::{Headers, ContentLocation};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(ContentLocation("/hypertext/Overview.html".to_owned()));
     /// ```
     ///
     /// ```
-    /// use hyper::header::{Headers, ContentLocation};
+    /// use headers::{Headers, ContentLocation};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(ContentLocation("http://www.example.org/hypertext/Overview.html".to_owned()));

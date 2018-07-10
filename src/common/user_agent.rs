@@ -30,7 +30,7 @@ header! {
     /// # Example
     ///
     /// ```
-    /// use hyper::header::{Headers, UserAgent};
+    /// use headers::{Headers, UserAgent};
     ///
     /// let mut headers = Headers::new();
     /// headers.set(UserAgent::new("hyper/0.5.2"));

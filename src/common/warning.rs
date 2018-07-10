@@ -1,14 +1,14 @@
 use std::fmt;
 use std::str::{FromStr};
-use header::{Header, HttpDate, Raw};
-use header::parsing::from_one_raw_str;
+use {Header, HttpDate, Raw};
+use parsing::from_one_raw_str;
 
 /// `Warning` header, defined in [RFC7234](https://tools.ietf.org/html/rfc7234#section-5.5)
 ///
 /// The `Warning` header field can be be used to carry additional information
 /// about the status or transformation of a message that might not be reflected
 /// in the status code. This header is sometimes used as backwards
-/// compatible way to notify of a deprecated API. 
+/// compatible way to notify of a deprecated API.
 ///
 /// # ABNF
 ///
@@ -30,12 +30,12 @@ use header::parsing::from_one_raw_str;
 /// * `Warning: 112 - "network down" "Sat, 25 Aug 2012 23:34:45 GMT"`
 /// * `Warning: 299 - "Deprecated API " "Tue, 15 Nov 1994 08:12:31 GMT"`
 /// * `Warning: 299 api.hyper.rs:8080 "Deprecated API : use newapi.hyper.rs instead."`
-/// * `Warning: 299 api.hyper.rs:8080 "Deprecated API : use newapi.hyper.rs instead." "Tue, 15 Nov 1994 08:12:31 GMT"` 
+/// * `Warning: 299 api.hyper.rs:8080 "Deprecated API : use newapi.hyper.rs instead." "Tue, 15 Nov 1994 08:12:31 GMT"`
 ///
 /// # Examples
 ///
 /// ```
-/// use hyper::header::{Headers, Warning};
+/// use headers::{Headers, Warning};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -49,7 +49,7 @@ use header::parsing::from_one_raw_str;
 /// ```
 ///
 /// ```
-/// use hyper::header::{Headers, HttpDate, Warning};
+/// use headers::{Headers, HttpDate, Warning};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -64,7 +64,7 @@ use header::parsing::from_one_raw_str;
 ///
 /// ```
 /// use std::time::SystemTime;
-/// use hyper::header::{Headers, Warning};
+/// use headers::{Headers, Warning};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(
@@ -98,7 +98,7 @@ impl Header for Warning {
         from_one_raw_str(raw)
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 }
@@ -151,7 +151,7 @@ impl FromStr for Warning {
 #[cfg(test)]
 mod tests {
     use super::Warning;
-    use header::{Header, HttpDate};
+    use {Header, HttpDate};
 
     #[test]
     fn test_parsing() {

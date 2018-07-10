@@ -1,5 +1,5 @@
 use language_tags::LanguageTag;
-use header::QualityItem;
+use QualityItem;
 
 header! {
     /// `Accept-Language` header, defined in
@@ -23,7 +23,7 @@ header! {
     /// # Examples
     ///
     /// ```
-    /// use hyper::header::{Headers, AcceptLanguage, LanguageTag, qitem};
+    /// use headers::{Headers, AcceptLanguage, LanguageTag, qitem};
     ///
     /// let mut headers = Headers::new();
     /// let mut langtag: LanguageTag = Default::default();
@@ -37,9 +37,9 @@ header! {
     /// ```
     ///
     /// ```
-    /// # extern crate hyper;
+    /// # extern crate headers;
     /// # #[macro_use] extern crate language_tags;
-    /// # use hyper::header::{Headers, AcceptLanguage, QualityItem, q, qitem};
+    /// # use headers::{Headers, AcceptLanguage, QualityItem, q, qitem};
     /// #
     /// # fn main() {
     /// let mut headers = Headers::new();

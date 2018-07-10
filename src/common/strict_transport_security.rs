@@ -3,7 +3,7 @@ use std::str::{self, FromStr};
 
 use unicase;
 
-use header::{Header, Raw, parsing};
+use {Header, Raw, parsing};
 
 /// `StrictTransportSecurity` header, defined in [RFC6797](https://tools.ietf.org/html/rfc6797)
 ///
@@ -34,9 +34,9 @@ use header::{Header, Raw, parsing};
 /// # Example
 ///
 /// ```
-/// # extern crate hyper;
+/// # extern crate headers;
 /// # fn main() {
-/// use hyper::header::{Headers, StrictTransportSecurity};
+/// use headers::{Headers, StrictTransportSecurity};
 ///
 /// let mut headers = Headers::new();
 ///
@@ -131,7 +131,7 @@ impl Header for StrictTransportSecurity {
         parsing::from_one_raw_str(raw)
     }
 
-    fn fmt_header(&self, f: &mut ::header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 }
@@ -149,7 +149,7 @@ impl fmt::Display for StrictTransportSecurity {
 #[cfg(test)]
 mod tests {
     use super::StrictTransportSecurity;
-    use header::Header;
+    use Header;
 
     #[test]
     fn test_parse_max_age() {

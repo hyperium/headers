@@ -1,5 +1,5 @@
 use std::fmt::{self, Display};
-use header::{self, Header, Raw};
+use {Header, Raw};
 
 /// `Last-Event-ID` header, defined in
 /// [RFC3864](https://html.spec.whatwg.org/multipage/references.html#refsRFC3864)
@@ -16,7 +16,7 @@ use header::{self, Header, Raw};
 ///
 /// # Example
 /// ```
-/// use hyper::header::{Headers, LastEventId};
+/// use headers::{Headers, LastEventId};
 ///
 /// let mut headers = Headers::new();
 /// headers.set(LastEventId("1".to_owned()));
@@ -35,13 +35,13 @@ impl Header for LastEventId {
     fn parse_header(raw: &Raw) -> ::Result<Self> {
         match raw.one() {
             Some(line) if line.is_empty() => Ok(LastEventId("".to_owned())),
-            Some(line) => header::parsing::from_raw_str(line).map(LastEventId),
+            Some(line) => ::parsing::from_raw_str(line).map(LastEventId),
             None => Err(::Error::Header),
         }
     }
 
     #[inline]
-    fn fmt_header(&self, f: &mut header::Formatter) -> fmt::Result {
+    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
         f.fmt_line(self)
     }
 }

@@ -1,4 +1,4 @@
-use header::HttpDate;
+use HttpDate;
 
 header! {
     /// `Last-Modified` header, defined in
@@ -22,7 +22,7 @@ header! {
     /// # Example
     ///
     /// ```
-    /// use hyper::header::{Headers, LastModified};
+    /// use headers::{Headers, LastModified};
     /// use std::time::{SystemTime, Duration};
     ///
     /// let mut headers = Headers::new();
