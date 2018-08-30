@@ -39,7 +39,7 @@ header! {
     /// let mut headers = Headers::new();
     /// headers.set(ETag(EntityTag::new(true, "xyzzy".to_owned())));
     /// ```
-    (ETag, "ETag") => [EntityTag]
+    (ETag, ETAG) => [EntityTag]
 
     test_etag {
         // From the RFC

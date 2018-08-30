@@ -39,7 +39,7 @@ header! {
     ///     ])
     /// );
     /// ```
-    (TransferEncoding, "Transfer-Encoding") => (Encoding)+
+    (TransferEncoding, TRANSFER_ENCODING) => (Encoding)+
 
     transfer_encoding {
         test_header!(

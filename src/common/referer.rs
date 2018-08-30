@@ -34,7 +34,7 @@ header! {
     /// headers.set(Referer::new("http://www.example.com/index.html"));
     /// ```
     // TODO Use URL
-    (Referer, "Referer") => Cow[str]
+    (Referer, REFERER) => Cow[str]
 
     test_referer {
         // Testcase from the RFC

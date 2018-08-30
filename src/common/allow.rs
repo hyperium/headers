@@ -50,7 +50,7 @@ header! {
     ///     ])
     /// );
     /// ```
-    (Allow, "Allow") => (Method)*
+    (Allow, ALLOW) => (Method)*
 
     test_allow {
         // From the RFC

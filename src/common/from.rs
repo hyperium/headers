@@ -21,7 +21,7 @@ header! {
     /// headers.set(From("webmaster@example.org".to_owned()));
     /// ```
     // FIXME: Maybe use mailbox?
-    (From, "From") => [String]
+    (From, FROM) => [String]
 
     test_from {
         test_header!(test1, vec![b"webmaster@example.org"]);

@@ -48,7 +48,7 @@ header! {
     ///     AcceptCharset(vec![qitem(Charset::Ext("utf-8".to_owned()))])
     /// );
     /// ```
-    (AcceptCharset, "Accept-Charset") => (QualityItem<Charset>)+
+    (AcceptCharset, ACCEPT_CHARSET) => (QualityItem<Charset>)+
 
     test_accept_charset {
         /// Testcase from RFC

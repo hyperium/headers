@@ -6,68 +6,67 @@
 //! strongly-typed theme, the [mime](https://docs.rs/mime) crate
 //! is used, such as `ContentType(pub Mime)`.
 
+/*
 pub use self::accept_charset::AcceptCharset;
 pub use self::accept_encoding::AcceptEncoding;
 pub use self::accept_language::AcceptLanguage;
 pub use self::accept_ranges::{AcceptRanges, RangeUnit};
 pub use self::accept::Accept;
-pub use self::access_control_allow_credentials::AccessControlAllowCredentials;
+//pub use self::access_control_allow_credentials::AccessControlAllowCredentials;
 pub use self::access_control_allow_headers::AccessControlAllowHeaders;
 pub use self::access_control_allow_methods::AccessControlAllowMethods;
-pub use self::access_control_allow_origin::AccessControlAllowOrigin;
+//pub use self::access_control_allow_origin::AccessControlAllowOrigin;
 pub use self::access_control_expose_headers::AccessControlExposeHeaders;
 pub use self::access_control_max_age::AccessControlMaxAge;
 pub use self::access_control_request_headers::AccessControlRequestHeaders;
 pub use self::access_control_request_method::AccessControlRequestMethod;
 pub use self::allow::Allow;
-pub use self::authorization::{Authorization, Scheme, Basic, Bearer};
-pub use self::cache_control::{CacheControl, CacheDirective};
+//pub use self::authorization::{Authorization, Scheme, Basic, Bearer};
+//pub use self::cache_control::{CacheControl, CacheDirective};
 pub use self::connection::{Connection, ConnectionOption};
-pub use self::content_disposition::{ContentDisposition, DispositionType, DispositionParam};
+//pub use self::content_disposition::{ContentDisposition, DispositionType, DispositionParam};
 pub use self::content_encoding::ContentEncoding;
 pub use self::content_language::ContentLanguage;
-pub use self::content_length::ContentLength;
+//pub use self::content_length::ContentLength;
 pub use self::content_location::ContentLocation;
 pub use self::content_range::{ContentRange, ContentRangeSpec};
 pub use self::content_type::ContentType;
-pub use self::cookie::{Cookie, CookieIter};
+//pub use self::cookie::{Cookie, CookieIter};
 pub use self::date::Date;
 pub use self::etag::ETag;
-pub use self::expect::Expect;
+//pub use self::expect::Expect;
 pub use self::expires::Expires;
 pub use self::from::From;
-pub use self::host::Host;
+//pub use self::host::Host;
 pub use self::if_match::IfMatch;
 pub use self::if_modified_since::IfModifiedSince;
 pub use self::if_none_match::IfNoneMatch;
-pub use self::if_range::IfRange;
+//pub use self::if_range::IfRange;
 pub use self::if_unmodified_since::IfUnmodifiedSince;
-pub use self::last_event_id::LastEventId;
+//pub use self::last_event_id::LastEventId;
 pub use self::last_modified::LastModified;
-pub use self::link::{Link, LinkValue, RelationType, MediaDesc};
+//pub use self::link::{Link, LinkValue, RelationType, MediaDesc};
 pub use self::location::Location;
-pub use self::origin::Origin;
-pub use self::pragma::Pragma;
-pub use self::prefer::{Prefer, Preference};
-pub use self::preference_applied::PreferenceApplied;
-pub use self::proxy_authorization::ProxyAuthorization;
-pub use self::range::{Range, ByteRangeSpec};
+//pub use self::origin::Origin;
+//pub use self::pragma::Pragma;
+//pub use self::prefer::{Prefer, Preference};
+//pub use self::preference_applied::PreferenceApplied;
+//pub use self::proxy_authorization::ProxyAuthorization;
+//pub use self::range::{Range, ByteRangeSpec};
 pub use self::referer::Referer;
-pub use self::referrer_policy::ReferrerPolicy;
-pub use self::retry_after::RetryAfter;
+//pub use self::referrer_policy::ReferrerPolicy;
+//pub use self::retry_after::RetryAfter;
 pub use self::server::Server;
-pub use self::set_cookie::SetCookie;
-pub use self::strict_transport_security::StrictTransportSecurity;
+//pub use self::set_cookie::SetCookie;
+//pub use self::strict_transport_security::StrictTransportSecurity;
 pub use self::te::Te;
 pub use self::transfer_encoding::TransferEncoding;
 pub use self::upgrade::{Upgrade, Protocol, ProtocolName};
 pub use self::user_agent::UserAgent;
 pub use self::vary::Vary;
-pub use self::warning::Warning;
+//pub use self::warning::Warning;
 
-#[doc(hidden)]
-#[macro_export]
-macro_rules! bench_header(
+macro_rules! bench_header {
     ($name:ident, $ty:ty, $value:expr) => {
         #[cfg(test)]
         #[cfg(feature = "nightly")]
@@ -95,7 +94,7 @@ macro_rules! bench_header(
             }
         }
     }
-);
+}
 
 #[doc(hidden)]
 #[macro_export]
@@ -119,13 +118,11 @@ macro_rules! __hyper__deref {
     }
 }
 
-#[doc(hidden)]
-#[macro_export]
 macro_rules! __hyper__tm {
     ($id:ident, $tm:ident{$($tf:item)*}) => {
         #[allow(unused_imports)]
         #[cfg(test)]
-        mod $tm{
+        mod $tm {
             use http::Method;
             use std::str::{self, FromStr};
             use $crate::*;
@@ -137,8 +134,7 @@ macro_rules! __hyper__tm {
     }
 }
 
-#[doc(hidden)]
-#[macro_export]
+/*
 macro_rules! test_header {
     ($id:ident, $raw:expr) => {
         #[test]
@@ -188,6 +184,7 @@ macro_rules! test_header {
         }
     }
 }
+*/
 
 #[macro_export]
 macro_rules! header {
@@ -197,12 +194,26 @@ macro_rules! header {
     // $nn:expr: Nice name of the header
 
     // List header, zero or more items
-    ($(#[$a:meta])*($id:ident, $n:expr) => ($item:ty)*) => {
+    ($(#[$a:meta])*($id:ident, $n:ident) => ($item:ty)*) => {
         $(#[$a])*
         #[derive(Clone, Debug, PartialEq)]
         pub struct $id(pub Vec<$item>);
         __hyper__deref!($id => Vec<$item>);
         impl $crate::Header for $id {
+            const NAME: &'static $crate::HeaderName = & ::http::header::$n;
+
+            fn decode(values: &mut $crate::ValueIter) -> $crate::Result<Self> {
+                unimplemented!()
+                //$crate::parsing::from_comma_delimited(raw).map($id)
+            }
+
+            fn encode(&self, values: &mut $crate::ToValues) {
+
+            }
+            /*
+            fn name() -> &'static $crate::HeaderName {
+                & ::http::header::$n
+            }
             fn header_name() -> &'static str {
                 static NAME: &'static str = $n;
                 NAME
@@ -215,6 +226,7 @@ macro_rules! header {
             fn fmt_header(&self, f: &mut $crate::Formatter) -> ::std::fmt::Result {
                 f.fmt_line(self)
             }
+            */
         }
         impl ::std::fmt::Display for $id {
             #[inline]
@@ -224,12 +236,21 @@ macro_rules! header {
         }
     };
     // List header, one or more items
-    ($(#[$a:meta])*($id:ident, $n:expr) => ($item:ty)+) => {
+    ($(#[$a:meta])*($id:ident, $n:ident) => ($item:ty)+) => {
         $(#[$a])*
         #[derive(Clone, Debug, PartialEq)]
         pub struct $id(pub Vec<$item>);
         __hyper__deref!($id => Vec<$item>);
         impl $crate::Header for $id {
+            const NAME: &'static $crate::HeaderName = & ::http::header::$n;
+            fn decode(values: &mut $crate::ValueIter) -> $crate::Result<Self> {
+                unimplemented!()
+            }
+            fn encode(&self, values: &mut $crate::ToValues) {}
+            /*
+            fn name() -> &'static $crate::HeaderName {
+                & ::http::header::$n
+            }
             #[inline]
             fn header_name() -> &'static str {
                 static NAME: &'static str = $n;
@@ -243,6 +264,7 @@ macro_rules! header {
             fn fmt_header(&self, f: &mut $crate::Formatter) -> ::std::fmt::Result {
                 f.fmt_line(self)
             }
+            */
         }
         impl ::std::fmt::Display for $id {
             #[inline]
@@ -252,12 +274,22 @@ macro_rules! header {
         }
     };
     // Single value header
-    ($(#[$a:meta])*($id:ident, $n:expr) => [$value:ty]) => {
+    ($(#[$a:meta])*($id:ident, $n:ident) => [$value:ty]) => {
         $(#[$a])*
         #[derive(Clone, Debug, PartialEq)]
         pub struct $id(pub $value);
         __hyper__deref!($id => $value);
         impl $crate::Header for $id {
+            const NAME: &'static $crate::HeaderName = & $crate::header::$n;
+            fn decode(values: &mut $crate::ValueIter) -> $crate::Result<Self> {
+                unimplemented!()
+            }
+            fn encode(&self, values: &mut $crate::ToValues) {}
+
+            /*
+            fn name() -> &'static $crate::HeaderName {
+                & ::http::header::$n
+            }
             #[inline]
             fn header_name() -> &'static str {
                 static NAME: &'static str = $n;
@@ -271,34 +303,7 @@ macro_rules! header {
             fn fmt_header(&self, f: &mut $crate::Formatter) -> ::std::fmt::Result {
                 f.fmt_line(self)
             }
-        }
-        impl ::std::fmt::Display for $id {
-            #[inline]
-            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                ::std::fmt::Display::fmt(&self.0, f)
-            }
-        }
-    };
-    // Single value header (internal)
-    ($(#[$a:meta])*($id:ident, $n:expr) => danger [$value:ty]) => {
-        $(#[$a])*
-        #[derive(Clone, Debug, PartialEq)]
-        pub struct $id(pub $value);
-        __hyper__deref!($id => $value);
-        impl $crate::Header for $id {
-            #[inline]
-            fn header_name() -> &'static str {
-                static NAME: &'static str = $n;
-                NAME
-            }
-            #[inline]
-            fn parse_header(raw: &$crate::Raw) -> $crate::Result<Self> {
-                $crate::parsing::from_one_raw_str(raw).map($id)
-            }
-            #[inline]
-            fn fmt_header(&self, f: &mut $crate::Formatter) -> ::std::fmt::Result {
-                f.danger_fmt_line_without_newline_replacer(self)
-            }
+            */
         }
         impl ::std::fmt::Display for $id {
             #[inline]
@@ -308,7 +313,7 @@ macro_rules! header {
         }
     };
     // Single value cow header
-    ($(#[$a:meta])*($id:ident, $n:expr) => Cow[$value:ty]) => {
+    ($(#[$a:meta])*($id:ident, $n:ident) => Cow[$value:ty]) => {
         $(#[$a])*
         #[derive(Clone, Debug, PartialEq)]
         pub struct $id(::std::borrow::Cow<'static,$value>);
@@ -326,6 +331,11 @@ macro_rules! header {
             }
         }
         impl $crate::Header for $id {
+            const NAME: &'static $crate::HeaderName = & ::http::header::$n;
+            /*
+            fn name() -> &'static $crate::HeaderName {
+                & ::http::header::$n
+            }
             #[inline]
             fn header_name() -> &'static str {
                 static NAME: &'static str = $n;
@@ -339,6 +349,7 @@ macro_rules! header {
             fn fmt_header(&self, f: &mut $crate::Formatter) -> ::std::fmt::Result {
                 f.fmt_line(self)
             }
+            */
         }
         impl ::std::fmt::Display for $id {
             #[inline]
@@ -348,7 +359,7 @@ macro_rules! header {
         }
     };
     // List header, one or more items with "*" option
-    ($(#[$a:meta])*($id:ident, $n:expr) => {Any / ($item:ty)+}) => {
+    ($(#[$a:meta])*($id:ident, $n:ident) => {Any / ($item:ty)+}) => {
         $(#[$a])*
         #[derive(Clone, Debug, PartialEq)]
         pub enum $id {
@@ -358,6 +369,11 @@ macro_rules! header {
             Items(Vec<$item>),
         }
         impl $crate::Header for $id {
+            const NAME: &'static $crate::HeaderName = & ::http::header::$n;
+            /*
+            fn name() -> &'static $crate::HeaderName {
+                & ::http::header::$n
+            }
             #[inline]
             fn header_name() -> &'static str {
                 static NAME: &'static str = $n;
@@ -377,6 +393,7 @@ macro_rules! header {
             fn fmt_header(&self, f: &mut $crate::Formatter) -> ::std::fmt::Result {
                 f.fmt_line(self)
             }
+            */
         }
         impl ::std::fmt::Display for $id {
             #[inline]
@@ -391,7 +408,7 @@ macro_rules! header {
     };
 
     // optional test module
-    ($(#[$a:meta])*($id:ident, $n:expr) => ($item:ty)* $tm:ident{$($tf:item)*}) => {
+    ($(#[$a:meta])*($id:ident, $n:ident) => ($item:ty)* $tm:ident{$($tf:item)*}) => {
         header! {
             $(#[$a])*
             ($id, $n) => ($item)*
@@ -399,7 +416,7 @@ macro_rules! header {
 
         __hyper__tm! { $id, $tm { $($tf)* }}
     };
-    ($(#[$a:meta])*($id:ident, $n:expr) => ($item:ty)+ $tm:ident{$($tf:item)*}) => {
+    ($(#[$a:meta])*($id:ident, $n:ident) => ($item:ty)+ $tm:ident{$($tf:item)*}) => {
         header! {
             $(#[$a])*
             ($id, $n) => ($item)+
@@ -407,7 +424,7 @@ macro_rules! header {
 
         __hyper__tm! { $id, $tm { $($tf)* }}
     };
-    ($(#[$a:meta])*($id:ident, $n:expr) => [$item:ty] $tm:ident{$($tf:item)*}) => {
+    ($(#[$a:meta])*($id:ident, $n:ident) => [$item:ty] $tm:ident{$($tf:item)*}) => {
         header! {
             $(#[$a])*
             ($id, $n) => [$item]
@@ -415,15 +432,7 @@ macro_rules! header {
 
         __hyper__tm! { $id, $tm { $($tf)* }}
     };
-    ($(#[$a:meta])*($id:ident, $n:expr) => danger [$item:ty] $tm:ident{$($tf:item)*}) => {
-        header! {
-            $(#[$a])*
-            ($id, $n) => danger [$item]
-        }
-
-        __hyper__tm! { $id, $tm { $($tf)* }}
-    };
-    ($(#[$a:meta])*($id:ident, $n:expr) => Cow[$item:ty] $tm:ident{$($tf:item)*}) => {
+    ($(#[$a:meta])*($id:ident, $n:ident) => Cow[$item:ty] $tm:ident{$($tf:item)*}) => {
         header! {
             $(#[$a])*
             ($id, $n) => Cow[$item]
@@ -431,7 +440,7 @@ macro_rules! header {
 
         __hyper__tm! { $id, $tm { $($tf)* }}
     };
-    ($(#[$a:meta])*($id:ident, $n:expr) => {Any / ($item:ty)+} $tm:ident{$($tf:item)*}) => {
+    ($(#[$a:meta])*($id:ident, $n:ident) => {Any / ($item:ty)+} $tm:ident{$($tf:item)*}) => {
         header! {
             $(#[$a])*
             ($id, $n) => {Any / ($item)+}
@@ -447,56 +456,57 @@ mod accept_encoding;
 mod accept_language;
 mod accept_ranges;
 mod accept;
-mod access_control_allow_credentials;
+//mod access_control_allow_credentials;
 mod access_control_allow_headers;
 mod access_control_allow_methods;
-mod access_control_allow_origin;
+//mod access_control_allow_origin;
 mod access_control_expose_headers;
 mod access_control_max_age;
 mod access_control_request_headers;
 mod access_control_request_method;
 mod allow;
-mod authorization;
-mod cache_control;
+//mod authorization;
+//mod cache_control;
 mod connection;
-mod content_disposition;
+//mod content_disposition;
 mod content_encoding;
 mod content_language;
-mod content_length;
+//mod content_length;
 mod content_location;
 mod content_range;
 mod content_type;
-mod cookie;
+//mod cookie;
 mod date;
 mod etag;
-mod expect;
+//mod expect;
 mod expires;
 mod from;
-mod host;
+//mod host;
 mod if_match;
 mod if_modified_since;
 mod if_none_match;
-mod if_range;
+//mod if_range;
 mod if_unmodified_since;
-mod last_event_id;
+//mod last_event_id;
 mod last_modified;
-mod link;
+//mod link;
 mod location;
-mod origin;
-mod pragma;
-mod prefer;
-mod preference_applied;
-mod proxy_authorization;
-mod range;
+//mod origin;
+//mod pragma;
+//mod prefer;
+//mod preference_applied;
+//mod proxy_authorization;
+//mod range;
 mod referer;
-mod referrer_policy;
-mod retry_after;
+//mod referrer_policy;
+//mod retry_after;
 mod server;
-mod set_cookie;
-mod strict_transport_security;
+//mod set_cookie;
+//mod strict_transport_security;
 mod te;
 mod transfer_encoding;
 mod upgrade;
 mod user_agent;
 mod vary;
-mod warning;
+//mod warning;
+*/

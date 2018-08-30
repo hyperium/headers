@@ -60,7 +60,7 @@ header! {
     ///     ])
     /// );
     /// ```
-    (Te, "TE") => (QualityItem<Encoding>)*
+    (Te, TE) => (QualityItem<Encoding>)*
 
     test_te {
         // From the RFC

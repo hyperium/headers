@@ -49,7 +49,7 @@ header! {
     /// );
     /// # }
     /// ```
-    (Vary, "Vary") => {Any / (Ascii<String>)+}
+    (Vary, VARY) => {Any / (Ascii<String>)+}
 
     test_vary {
         test_header!(test1, vec![b"accept-encoding, accept-language"]);

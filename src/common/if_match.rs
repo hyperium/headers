@@ -48,7 +48,7 @@ header! {
     ///     ])
     /// );
     /// ```
-    (IfMatch, "If-Match") => {Any / (EntityTag)+}
+    (IfMatch, IF_MATCH) => {Any / (EntityTag)+}
 
     test_if_match {
         test_header!(

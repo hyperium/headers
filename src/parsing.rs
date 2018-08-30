@@ -4,31 +4,31 @@ use language_tags::LanguageTag;
 use std::str;
 use std::str::FromStr;
 use std::fmt::{self, Display};
+
+use http::header::HeaderValue;
 use percent_encoding;
 
-use Raw;
 use shared::Charset;
 
 
 /// Reads a single raw string when parsing a header.
-pub fn from_one_raw_str<T: str::FromStr>(raw: &Raw) -> ::Result<T> {
+pub fn from_one_raw_str<T: str::FromStr>(_raw: &HeaderValue) -> ::Result<T> {
+    unimplemented!("from_one_raw_str");
+    /*
     if let Some(line) = raw.one() {
         if !line.is_empty() {
             return from_raw_str(line)
         }
     }
     Err(::Error::Header)
-}
-
-/// Reads a raw string into a value.
-pub fn from_raw_str<T: str::FromStr>(raw: &[u8]) -> ::Result<T> {
-    let s = try!(str::from_utf8(raw)).trim();
-    T::from_str(s).or(Err(::Error::Header))
+    */
 }
 
 /// Reads a comma-delimited raw header into a Vec.
 #[inline]
-pub fn from_comma_delimited<T: str::FromStr>(raw: &Raw) -> ::Result<Vec<T>> {
+pub fn from_comma_delimited<T: str::FromStr>(_raw: &HeaderValue) -> ::Result<Vec<T>> {
+    unimplemented!("from_comma_delimited");
+    /*
     let mut result = Vec::new();
     for s in raw {
         let s = try!(str::from_utf8(s.as_ref()));
@@ -40,6 +40,7 @@ pub fn from_comma_delimited<T: str::FromStr>(raw: &Raw) -> ::Result<Vec<T>> {
                       .filter_map(|x| x.trim().parse().ok()))
     }
     Ok(result)
+    */
 }
 
 /// Format an array into a comma-delimited string.

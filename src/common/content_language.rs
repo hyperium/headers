@@ -54,7 +54,7 @@ header! {
     /// );
     /// # }
     /// ```
-    (ContentLanguage, "Content-Language") => (QualityItem<LanguageTag>)+
+    (ContentLanguage, CONTENT_LANGUAGE) => (QualityItem<LanguageTag>)+
 
     test_content_language {
         test_header!(test1, vec![b"da"]);

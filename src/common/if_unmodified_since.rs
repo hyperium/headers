@@ -30,7 +30,7 @@ header! {
     /// let modified = SystemTime::now() - Duration::from_secs(60 * 60 * 24);
     /// headers.set(IfUnmodifiedSince(modified.into()));
     /// ```
-    (IfUnmodifiedSince, "If-Unmodified-Since") => [HttpDate]
+    (IfUnmodifiedSince, IF_UNMODIFIED_SINCE) => [HttpDate]
 
     test_if_unmodified_since {
         // Testcase from RFC

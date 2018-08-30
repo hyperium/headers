@@ -52,7 +52,7 @@ header! {
     ///     ])
     /// );
     /// ```
-    (Upgrade, "Upgrade") => (Protocol)+
+    (Upgrade, UPGRADE) => (Protocol)+
 
     test_upgrade {
         // Testcase from the RFC

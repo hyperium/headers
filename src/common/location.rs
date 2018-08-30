@@ -33,7 +33,7 @@ header! {
     /// headers.set(Location::new("http://www.example.com/index.html"));
     /// ```
     // TODO: Use URL
-    (Location, "Location") => Cow[str]
+    (Location, LOCATION) => Cow[str]
 
     test_location {
         // Testcase from RFC

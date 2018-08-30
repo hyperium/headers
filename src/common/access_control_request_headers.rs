@@ -53,7 +53,7 @@ header! {
     /// );
     /// # }
     /// ```
-    (AccessControlRequestHeaders, "Access-Control-Request-Headers") => (Ascii<String>)*
+    (AccessControlRequestHeaders, ACCESS_CONTROL_REQUEST_HEADERS) => (Ascii<String>)*
 
     test_access_control_request_headers {
         test_header!(test1, vec![b"accept-language, date"]);

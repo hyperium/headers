@@ -29,7 +29,7 @@ header! {
     /// let expiration = SystemTime::now() + Duration::from_secs(60 * 60 * 24);
     /// headers.set(Expires(expiration.into()));
     /// ```
-    (Expires, "Expires") => [HttpDate]
+    (Expires, EXPIRES) => [HttpDate]
 
     test_expires {
         // Testcase from RFC

@@ -26,7 +26,7 @@ header! {
     /// let mut headers = Headers::new();
     /// headers.set(AccessControlRequestMethod(Method::GET));
     /// ```
-    (AccessControlRequestMethod, "Access-Control-Request-Method") => [Method]
+    (AccessControlRequestMethod, ACCESS_CONTROL_REQUEST_METHOD) => [Method]
 
     test_access_control_request_method {
         test_header!(test1, vec![b"GET"]);

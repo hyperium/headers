@@ -42,7 +42,7 @@ header! {
     ///     ])
     /// );
     /// ```
-    (ContentEncoding, "Content-Encoding") => (Encoding)+
+    (ContentEncoding, CONTENT_ENCODING) => (Encoding)+
 
     test_content_encoding {
         /// Testcase from the RFC

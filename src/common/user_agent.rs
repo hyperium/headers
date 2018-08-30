@@ -35,7 +35,7 @@ header! {
     /// let mut headers = Headers::new();
     /// headers.set(UserAgent::new("hyper/0.5.2"));
     /// ```
-    (UserAgent, "User-Agent") => Cow[str]
+    (UserAgent, USER_AGENT) => Cow[str]
 
     test_user_agent {
         // Testcase from RFC

@@ -25,7 +25,7 @@ header! {
     /// let mut headers = Headers::new();
     /// headers.set(Date(SystemTime::now().into()));
     /// ```
-    (Date, "Date") => [HttpDate]
+    (Date, DATE) => [HttpDate]
 
     test_date {
         test_header!(test1, vec![b"Tue, 15 Nov 1994 08:12:31 GMT"]);

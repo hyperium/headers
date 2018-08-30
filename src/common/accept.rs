@@ -78,7 +78,7 @@ header! {
     ///     ])
     /// );
     /// ```
-    (Accept, "Accept") => (QualityItem<Mime>)+
+    (Accept, ACCEPT) => (QualityItem<Mime>)+
 
     test_accept {
         // Tests from the RFC

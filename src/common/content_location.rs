@@ -37,7 +37,7 @@ header! {
     /// headers.set(ContentLocation("http://www.example.org/hypertext/Overview.html".to_owned()));
     /// ```
     // TODO: use URL
-    (ContentLocation, "Content-Location") => [String]
+    (ContentLocation, CONTENT_LOCATION) => [String]
 
     test_content_location {
         test_header!(partial_query, vec![b"/hypertext/Overview.html?q=tim"]);

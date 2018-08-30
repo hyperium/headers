@@ -52,7 +52,7 @@ header! {
     /// );
     /// # }
     /// ```
-    (AcceptLanguage, "Accept-Language") => (QualityItem<LanguageTag>)+
+    (AcceptLanguage, ACCEPT_LANGUAGE) => (QualityItem<LanguageTag>)+
 
     test_accept_language {
         // From the RFC

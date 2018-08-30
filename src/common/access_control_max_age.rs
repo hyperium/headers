@@ -23,7 +23,7 @@ header! {
     /// let mut headers = Headers::new();
     /// headers.set(AccessControlMaxAge(1728000u32));
     /// ```
-    (AccessControlMaxAge, "Access-Control-Max-Age") => [u32]
+    (AccessControlMaxAge, ACCESS_CONTROL_MAX_AGE) => [u32]
 
     test_access_control_max_age {
         test_header!(test1, vec![b"531"]);

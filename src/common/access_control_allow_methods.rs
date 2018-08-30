@@ -48,7 +48,7 @@ header! {
     ///     ])
     /// );
     /// ```
-    (AccessControlAllowMethods, "Access-Control-Allow-Methods") => (Method)*
+    (AccessControlAllowMethods, ACCESS_CONTROL_ALLOW_METHODS) => (Method)*
 
     test_access_control_allow_methods {
         test_header!(test1, vec![b"PUT, DELETE, XMODIFY"]);

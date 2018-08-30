@@ -4,7 +4,7 @@ use std::str::FromStr;
 header! {
     /// `Content-Range` header, defined in
     /// [RFC7233](http://tools.ietf.org/html/rfc7233#section-4.2)
-    (ContentRange, "Content-Range") => [ContentRangeSpec]
+    (ContentRange, CONTENT_RANGE) => [ContentRangeSpec]
 
     test_content_range {
         test_header!(test_bytes,

@@ -29,7 +29,7 @@ header! {
     /// let modified = SystemTime::now() - Duration::from_secs(60 * 60 * 24);
     /// headers.set(LastModified(modified.into()));
     /// ```
-    (LastModified, "Last-Modified") => [HttpDate]
+    (LastModified, LAST_MODIFIED) => [HttpDate]
 
     test_last_modified {
         // Testcase from RFC

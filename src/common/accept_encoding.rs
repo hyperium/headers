@@ -57,7 +57,7 @@ header! {
     ///     ])
     /// );
     /// ```
-    (AcceptEncoding, "Accept-Encoding") => (QualityItem<Encoding>)*
+    (AcceptEncoding, ACCEPT_ENCODING) => (QualityItem<Encoding>)*
 
     test_accept_encoding {
         // From the RFC

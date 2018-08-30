@@ -55,7 +55,7 @@ header! {
     /// );
     /// # }
     /// ```
-    (AccessControlExposeHeaders, "Access-Control-Expose-Headers") => (Ascii<String>)*
+    (AccessControlExposeHeaders, ACCESS_CONTROL_EXPOSE_HEADERS) => (Ascii<String>)*
 
     test_access_control_expose_headers {
         test_header!(test1, vec![b"etag, content-length"]);

@@ -96,7 +96,7 @@ header! {
     /// );
     /// # }
     /// ```
-    (Connection, "Connection") => (ConnectionOption)+
+    (Connection, CONNECTION) => (ConnectionOption)+
 
     test_connection {
         test_header!(test1, vec![b"close"]);

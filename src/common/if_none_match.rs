@@ -50,7 +50,7 @@ header! {
     ///     ])
     /// );
     /// ```
-    (IfNoneMatch, "If-None-Match") => {Any / (EntityTag)+}
+    (IfNoneMatch, IF_NONE_MATCH) => {Any / (EntityTag)+}
 
     test_if_none_match {
         test_header!(test1, vec![b"\"xyzzy\""]);

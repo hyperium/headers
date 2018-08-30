@@ -48,7 +48,7 @@ header! {
     ///     ])
     /// );
     /// ```
-    (AcceptRanges, "Accept-Ranges") => (RangeUnit)+
+    (AcceptRanges, ACCEPT_RANGES) => (RangeUnit)+
 
     test_acccept_ranges {
         test_header!(test1, vec![b"bytes"]);

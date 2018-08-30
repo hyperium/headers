@@ -27,7 +27,7 @@ header! {
     /// headers.set(Server::new("hyper/0.5.2"));
     /// ```
     // TODO: Maybe parse as defined in the spec?
-    (Server, "Server") => Cow[str]
+    (Server, SERVER) => Cow[str]
 
     test_server {
         // Testcase from RFC
