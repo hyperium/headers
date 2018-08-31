@@ -79,8 +79,12 @@
 //!     }
 //! }
 //! ```
+
+/*
 extern crate base64;
 extern crate bytes;
+#[macro_use]
+extern crate headers_derive;
 extern crate http;
 extern crate httparse;
 extern crate language_tags;
@@ -89,6 +93,8 @@ extern crate mime;
 extern crate percent_encoding;
 extern crate unicase;
 extern crate time;
+
+pub use headers_derive::*;
 
 pub use http::header::{self, HeaderName, HeaderValue};
 
@@ -147,6 +153,7 @@ pub trait Header {
 
 pub struct ToValues;
 pub type ValueIter<'a> = http::header::ValueIter<'a, http::header::HeaderValue>;
+*/
 
 /*
 #[cfg(test)]

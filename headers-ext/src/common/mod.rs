@@ -6,47 +6,46 @@
 //! strongly-typed theme, the [mime](https://docs.rs/mime) crate
 //! is used, such as `ContentType(pub Mime)`.
 
-/*
-pub use self::accept_charset::AcceptCharset;
-pub use self::accept_encoding::AcceptEncoding;
-pub use self::accept_language::AcceptLanguage;
-pub use self::accept_ranges::{AcceptRanges, RangeUnit};
-pub use self::accept::Accept;
+//pub use self::accept_charset::AcceptCharset;
+//pub use self::accept_encoding::AcceptEncoding;
+//pub use self::accept_language::AcceptLanguage;
+//pub use self::accept_ranges::{AcceptRanges, RangeUnit};
+//pub use self::accept::Accept;
 //pub use self::access_control_allow_credentials::AccessControlAllowCredentials;
-pub use self::access_control_allow_headers::AccessControlAllowHeaders;
-pub use self::access_control_allow_methods::AccessControlAllowMethods;
+//pub use self::access_control_allow_headers::AccessControlAllowHeaders;
+//pub use self::access_control_allow_methods::AccessControlAllowMethods;
 //pub use self::access_control_allow_origin::AccessControlAllowOrigin;
-pub use self::access_control_expose_headers::AccessControlExposeHeaders;
-pub use self::access_control_max_age::AccessControlMaxAge;
-pub use self::access_control_request_headers::AccessControlRequestHeaders;
-pub use self::access_control_request_method::AccessControlRequestMethod;
-pub use self::allow::Allow;
+//pub use self::access_control_expose_headers::AccessControlExposeHeaders;
+//pub use self::access_control_max_age::AccessControlMaxAge;
+//pub use self::access_control_request_headers::AccessControlRequestHeaders;
+//pub use self::access_control_request_method::AccessControlRequestMethod;
+//pub use self::allow::Allow;
 //pub use self::authorization::{Authorization, Scheme, Basic, Bearer};
 //pub use self::cache_control::{CacheControl, CacheDirective};
-pub use self::connection::{Connection, ConnectionOption};
+//pub use self::connection::{Connection, ConnectionOption};
 //pub use self::content_disposition::{ContentDisposition, DispositionType, DispositionParam};
-pub use self::content_encoding::ContentEncoding;
-pub use self::content_language::ContentLanguage;
-//pub use self::content_length::ContentLength;
-pub use self::content_location::ContentLocation;
-pub use self::content_range::{ContentRange, ContentRangeSpec};
-pub use self::content_type::ContentType;
+//pub use self::content_encoding::ContentEncoding;
+//pub use self::content_language::ContentLanguage;
+pub use self::content_length::ContentLength;
+//pub use self::content_location::ContentLocation;
+//pub use self::content_range::{ContentRange, ContentRangeSpec};
+//pub use self::content_type::ContentType;
 //pub use self::cookie::{Cookie, CookieIter};
-pub use self::date::Date;
-pub use self::etag::ETag;
+//pub use self::date::Date;
+//pub use self::etag::ETag;
 //pub use self::expect::Expect;
-pub use self::expires::Expires;
-pub use self::from::From;
-//pub use self::host::Host;
-pub use self::if_match::IfMatch;
-pub use self::if_modified_since::IfModifiedSince;
-pub use self::if_none_match::IfNoneMatch;
+//pub use self::expires::Expires;
+//pub use self::from::From;
+pub use self::host::Host;
+//pub use self::if_match::IfMatch;
+//pub use self::if_modified_since::IfModifiedSince;
+//pub use self::if_none_match::IfNoneMatch;
 //pub use self::if_range::IfRange;
-pub use self::if_unmodified_since::IfUnmodifiedSince;
+//pub use self::if_unmodified_since::IfUnmodifiedSince;
 //pub use self::last_event_id::LastEventId;
-pub use self::last_modified::LastModified;
+//pub use self::last_modified::LastModified;
 //pub use self::link::{Link, LinkValue, RelationType, MediaDesc};
-pub use self::location::Location;
+//pub use self::location::Location;
 //pub use self::origin::Origin;
 //pub use self::pragma::Pragma;
 //pub use self::prefer::{Prefer, Preference};
@@ -56,68 +55,17 @@ pub use self::location::Location;
 pub use self::referer::Referer;
 //pub use self::referrer_policy::ReferrerPolicy;
 //pub use self::retry_after::RetryAfter;
-pub use self::server::Server;
+//pub use self::server::Server;
 //pub use self::set_cookie::SetCookie;
 //pub use self::strict_transport_security::StrictTransportSecurity;
-pub use self::te::Te;
-pub use self::transfer_encoding::TransferEncoding;
-pub use self::upgrade::{Upgrade, Protocol, ProtocolName};
-pub use self::user_agent::UserAgent;
-pub use self::vary::Vary;
+//pub use self::te::Te;
+//pub use self::transfer_encoding::TransferEncoding;
+//pub use self::upgrade::{Upgrade, Protocol, ProtocolName};
+//pub use self::user_agent::UserAgent;
+//pub use self::vary::Vary;
 //pub use self::warning::Warning;
 
-macro_rules! bench_header {
-    ($name:ident, $ty:ty, $value:expr) => {
-        #[cfg(test)]
-        #[cfg(feature = "nightly")]
-        mod $name {
-            use test::Bencher;
-            use super::*;
-
-            use {Header};
-
-            #[bench]
-            fn bench_parse(b: &mut Bencher) {
-                let val = $value.into();
-                b.iter(|| {
-                    let _: $ty = Header::parse_header(&val).unwrap();
-                });
-            }
-
-            #[bench]
-            fn bench_format(b: &mut Bencher) {
-                let raw = $value.into();
-                let val: $ty = Header::parse_header(&raw).unwrap();
-                b.iter(|| {
-                    format!("{}", val);
-                });
-            }
-        }
-    }
-}
-
-#[doc(hidden)]
-#[macro_export]
-macro_rules! __hyper__deref {
-    ($from:ty => $to:ty) => {
-        impl ::std::ops::Deref for $from {
-            type Target = $to;
-
-            #[inline]
-            fn deref(&self) -> &$to {
-                &self.0
-            }
-        }
-
-        impl ::std::ops::DerefMut for $from {
-            #[inline]
-            fn deref_mut(&mut self) -> &mut $to {
-                &mut self.0
-            }
-        }
-    }
-}
-
+/*
 macro_rules! __hyper__tm {
     ($id:ident, $tm:ident{$($tf:item)*}) => {
         #[allow(unused_imports)]
@@ -449,48 +397,49 @@ macro_rules! header {
         __hyper__tm! { $id, $tm { $($tf)* }}
     };
 }
+*/
 
 
-mod accept_charset;
-mod accept_encoding;
-mod accept_language;
-mod accept_ranges;
-mod accept;
+//mod accept_charset;
+//mod accept_encoding;
+//mod accept_language;
+//mod accept_ranges;
+//mod accept;
 //mod access_control_allow_credentials;
-mod access_control_allow_headers;
-mod access_control_allow_methods;
+//mod access_control_allow_headers;
+//mod access_control_allow_methods;
 //mod access_control_allow_origin;
-mod access_control_expose_headers;
-mod access_control_max_age;
-mod access_control_request_headers;
-mod access_control_request_method;
-mod allow;
+//mod access_control_expose_headers;
+//mod access_control_max_age;
+//mod access_control_request_headers;
+//mod access_control_request_method;
+//mod allow;
 //mod authorization;
 //mod cache_control;
-mod connection;
+//mod connection;
 //mod content_disposition;
-mod content_encoding;
-mod content_language;
-//mod content_length;
-mod content_location;
-mod content_range;
-mod content_type;
+//mod content_encoding;
+//mod content_language;
+mod content_length;
+//mod content_location;
+//mod content_range;
+//mod content_type;
 //mod cookie;
-mod date;
-mod etag;
+//mod date;
+//mod etag;
 //mod expect;
-mod expires;
-mod from;
-//mod host;
-mod if_match;
-mod if_modified_since;
-mod if_none_match;
+//mod expires;
+//mod from;
+mod host;
+//mod if_match;
+//mod if_modified_since;
+//mod if_none_match;
 //mod if_range;
-mod if_unmodified_since;
+//mod if_unmodified_since;
 //mod last_event_id;
-mod last_modified;
+//mod last_modified;
 //mod link;
-mod location;
+//mod location;
 //mod origin;
 //mod pragma;
 //mod prefer;
@@ -500,13 +449,12 @@ mod location;
 mod referer;
 //mod referrer_policy;
 //mod retry_after;
-mod server;
+//mod server;
 //mod set_cookie;
 //mod strict_transport_security;
-mod te;
-mod transfer_encoding;
-mod upgrade;
-mod user_agent;
-mod vary;
+//mod te;
+//mod transfer_encoding;
+//mod upgrade;
+//mod user_agent;
+//mod vary;
 //mod warning;
-*/

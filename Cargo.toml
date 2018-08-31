@@ -1,8 +1,7 @@
 [package]
-
 name = "headers"
-version = "0.12.5" # don't forget to update html_root_url
-description = "A fast and correct HTTP library."
+version = "0.0.0" # don't forget to update html_root_url
+description = "typed HTTP headers"
 readme = "README.md"
 homepage = "https://hyper.rs"
 license = "MIT"
@@ -18,9 +17,18 @@ include = [
   "src/**/*"
 ]
 
+[workspace]
+members = [
+    "./",
+    "headers-core",
+    "headers-derive",
+    "headers-ext",
+]
+
 [dependencies]
 base64 = "0.9"
 bytes = "0.4.4"
+headers-derive = { path = "./headers-derive" }
 http = "0.1.7"
 httparse = "1.3"
 language-tags = "0.2"

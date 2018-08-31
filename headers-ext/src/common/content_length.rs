@@ -1,6 +1,4 @@
-use std::fmt;
-
-use {Header, Raw, parsing};
+use {Header, ToValues, Values};
 
 /// `Content-Length` header, defined in
 /// [RFC7230](http://tools.ietf.org/html/rfc7230#section-3.3.2)
@@ -43,45 +41,41 @@ use {Header, Raw, parsing};
 pub struct ContentLength(pub u64);
 
 impl Header for ContentLength {
-    #[inline]
-    fn header_name() -> &'static str {
-        static NAME: &'static str = "Content-Length";
-        NAME
-    }
+    const NAME: &'static ::http::header::HeaderName = &::http::header::CONTENT_LENGTH;
 
-    fn parse_header(raw: &Raw) -> ::Result<ContentLength> {
+    fn decode(values: &mut Values) -> ::headers_core::Result<Self> {
         // If multiple Content-Length headers were sent, everything can still
         // be alright if they all contain the same value, and all parse
         // correctly. If not, then it's an error.
-        raw.iter()
-            .map(parsing::from_raw_str)
-            .fold(None, |prev, x| {
-                match (prev, x) {
-                    (None, x) => Some(x),
-                    (e @ Some(Err(_)), _ ) => e,
-                    (Some(Ok(prev)), Ok(x)) if prev == x => Some(Ok(prev)),
-                    _ => Some(Err(::Error::Header)),
+        let mut len = None;
+        for value in values {
+            let parsed = value
+                .to_str()?
+                .parse::<u64>()
+                .map_err(|_| ::headers_core::Error::invalid())?;
+
+            if let Some(prev) = len {
+                if prev != parsed {
+                    return Err(::headers_core::Error::invalid());
                 }
-            })
-            .unwrap_or(Err(::Error::Header))
-            .map(ContentLength)
+            } else {
+                len = Some(parsed);
+            }
+        }
+
+        if let Some(len) = len {
+            Ok(ContentLength(len))
+        } else {
+            Err(::headers_core::Error::empty())
+        }
     }
 
-    #[inline]
-    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
-        f.danger_fmt_line_without_newline_replacer(self)
+    fn encode(&self, values: &mut ToValues) {
+        values.append(self.0.into());
     }
 }
 
-impl fmt::Display for ContentLength {
-    #[inline]
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Display::fmt(&self.0, f)
-    }
-}
-
-__hyper__deref!(ContentLength => u64);
-
+/*
 __hyper__tm!(ContentLength, tests {
     // Testcase from RFC
     test_header!(test1, vec![b"3495"], Some(HeaderField(3495)));
@@ -99,5 +93,5 @@ __hyper__tm!(ContentLength, tests {
 
     test_header!(test_duplicates_vary, vec![b"5", b"6", b"5"], None);
 });
+*/
 
-bench_header!(bench, ContentLength, { vec![b"42349984".to_vec()] });

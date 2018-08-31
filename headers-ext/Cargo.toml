@@ -1,0 +1,12 @@
+[package]
+
+name = "headers-ext"
+version = "0.0.0" # don't forget to update html_root_url
+description = "typed HTTP headers"
+authors = ["Sean McArthur <sean@seanmonstar.com>"]
+license = "MIT"
+
+[dependencies]
+headers-core = { path = "../headers-core" }
+headers-derive = { path = "../headers-derive" }
+http = "0.1.7"

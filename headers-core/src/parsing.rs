@@ -1,32 +1,26 @@
 //! Utility functions for Header implementations.
 
-use language_tags::LanguageTag;
-use std::str;
-use std::str::FromStr;
-use std::fmt::{self, Display};
-
+//use language_tags::LanguageTag;
+use http::HttpTryFrom;
 use http::header::HeaderValue;
-use percent_encoding;
+//use percent_encoding;
 
-use shared::Charset;
+//use shared::Charset;
 
 
 /// Reads a single raw string when parsing a header.
-pub fn from_one_raw_str<T: str::FromStr>(_raw: &HeaderValue) -> ::Result<T> {
-    unimplemented!("from_one_raw_str");
-    /*
-    if let Some(line) = raw.one() {
-        if !line.is_empty() {
-            return from_raw_str(line)
-        }
+pub fn from_one_value<'a, T: HttpTryFrom<&'a HeaderValue>>(values: &mut ::Values<'a>) -> ::Result<T> {
+    if let Some(value) = values.next() {
+        HttpTryFrom::try_from(value)
+            .map_err(|_| ::Error::invalid())
+    } else {
+        Err(::Error::empty())
     }
-    Err(::Error::Header)
-    */
 }
 
 /// Reads a comma-delimited raw header into a Vec.
 #[inline]
-pub fn from_comma_delimited<T: str::FromStr>(_raw: &HeaderValue) -> ::Result<Vec<T>> {
+pub fn from_comma_delimited<T: ::std::str::FromStr, E: ::std::iter::FromIterator<T>>(_values: &mut ::Values) -> ::Result<E> {
     unimplemented!("from_comma_delimited");
     /*
     let mut result = Vec::new();
@@ -43,6 +37,7 @@ pub fn from_comma_delimited<T: str::FromStr>(_raw: &HeaderValue) -> ::Result<Vec
     */
 }
 
+/*
 /// Format an array into a comma-delimited string.
 pub fn fmt_comma_delimited<T: Display>(f: &mut fmt::Formatter, parts: &[T]) -> fmt::Result {
     let mut iter = parts.iter();
@@ -55,7 +50,9 @@ pub fn fmt_comma_delimited<T: Display>(f: &mut fmt::Formatter, parts: &[T]) -> f
     }
     Ok(())
 }
+*/
 
+/*
 /// An extended header parameter value (i.e., tagged with a character set and optionally,
 /// a language), as defined in [RFC 5987](https://tools.ietf.org/html/rfc5987#section-3.2).
 #[derive(Clone, Debug, PartialEq)]
@@ -248,3 +245,4 @@ mod tests {
                    format!("{}", extended_value));
     }
 }
+*/

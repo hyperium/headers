@@ -1,3 +1,6 @@
+#[derive(Debug, Clone, PartialEq, Header)]
+pub struct Referer(String);
+/*
 header! {
     /// `Referer` header, defined in
     /// [RFC7231](http://tools.ietf.org/html/rfc7231#section-5.5.2)
@@ -43,3 +46,4 @@ header! {
 }
 
 bench_header!(bench, Referer, { vec![b"http://foo.com/hello:3000".to_vec()] });
+*/
