@@ -19,23 +19,22 @@ use {Header, ToValues, Values};
 /// > A sender MUST NOT send a Content-Length header field in any message
 /// > that contains a Transfer-Encoding header field.
 ///
-/// # ABNF
+/// ## ABNF
 ///
 /// ```text
 /// Content-Length = 1*DIGIT
 /// ```
 ///
-/// # Example values
+/// ## Example values
 ///
 /// * `3495`
 ///
 /// # Example
 ///
 /// ```
-/// use headers::{Headers, ContentLength};
+/// use headers::ContentLength;
 ///
-/// let mut headers = Headers::new();
-/// headers.set(ContentLength(1024u64));
+/// let len = ContentLength(1_000);
 /// ```
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ContentLength(pub u64);

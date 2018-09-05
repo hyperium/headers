@@ -20,37 +20,28 @@ pub fn from_one_value<'a, T: HttpTryFrom<&'a HeaderValue>>(values: &mut ::Values
 
 /// Reads a comma-delimited raw header into a Vec.
 #[inline]
-pub fn from_comma_delimited<T: ::std::str::FromStr, E: ::std::iter::FromIterator<T>>(_values: &mut ::Values) -> ::Result<E> {
-    unimplemented!("from_comma_delimited");
-    /*
-    let mut result = Vec::new();
-    for s in raw {
-        let s = try!(str::from_utf8(s.as_ref()));
-        result.extend(s.split(',')
-                      .filter_map(|x| match x.trim() {
-                          "" => None,
-                          y => Some(y)
-                      })
-                      .filter_map(|x| x.trim().parse().ok()))
-    }
-    Ok(result)
-    */
+pub fn from_comma_delimited<T, E>(values: &mut ::Values) -> ::Result<E>
+where
+    T: ::std::str::FromStr,
+    E: ::std::iter::FromIterator<T>,
+{
+    values
+        .flat_map(|value| {
+            value
+                .to_str()
+                .into_iter()
+                .flat_map(|string| {
+                    string
+                        .split(',')
+                        .filter_map(|x| match x.trim() {
+                            "" => None,
+                            y => Some(y)
+                        })
+                        .map(|x| x.parse().map_err(|_| ::Error::invalid()))
+                })
+        })
+        .collect()
 }
-
-/*
-/// Format an array into a comma-delimited string.
-pub fn fmt_comma_delimited<T: Display>(f: &mut fmt::Formatter, parts: &[T]) -> fmt::Result {
-    let mut iter = parts.iter();
-    if let Some(part) = iter.next() {
-        try!(Display::fmt(part, f));
-    }
-    for part in iter {
-        try!(f.write_str(", "));
-        try!(Display::fmt(part, f));
-    }
-    Ok(())
-}
-*/
 
 /*
 /// An extended header parameter value (i.e., tagged with a character set and optionally,

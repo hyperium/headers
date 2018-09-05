@@ -1,9 +1,12 @@
 extern crate http;
 
+use std::fmt;
+
 pub use http::header::{self, HeaderName, HeaderValue};
 
 mod error;
-pub mod parsing;
+pub mod decode;
+pub mod encode;
 
 pub use self::error::{Error, Result};
 
@@ -72,10 +75,23 @@ impl<'a> ToValues<'a> {
         };
         self.state = State::Latter(entry);
     }
+
+    pub fn append_fmt<T: fmt::Display>(&mut self, fmt: T) {
+        let s = fmt.to_string();
+        let value = match HeaderValue::from_shared(s.into()) {
+            Ok(val) => val,
+            Err(err) => panic!("illegal HeaderValue; error = {:?}, fmt = \"{}\"", err, fmt),
+        };
+        self.append(value);
+    }
 }
 
 pub trait HeaderMapExt: self::sealed::Sealed {
     fn typed_insert<H>(&mut self, header: H)
+    where
+        H: Header;
+
+    fn typed_get<H>(&self) -> Option<H>
     where
         H: Header;
 }
@@ -92,6 +108,17 @@ impl HeaderMapExt for http::HeaderMap {
             state: State::First(entry),
         };
         header.encode(&mut values);
+    }
+
+    fn typed_get<H>(&self) -> Option<H>
+    where
+        H: Header,
+    {
+        let all = self.get_all(H::NAME).iter();
+        match H::decode(&mut Values { inner: all }) {
+            Ok(header) => Some(header),
+            Err(_) => None,
+        }
     }
 }
 

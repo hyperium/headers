@@ -28,10 +28,11 @@ fn impl_header(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
     let encode = fns.encode;
 
     let ty = &ast.ident;
+    let hname = Ident::new(&ty.to_string().to_uppercase(), Span::call_site());
     let dummy_const = Ident::new(&format!("_IMPL_HEADER_FOR_{}", ty), Span::call_site());
     let impl_block = quote! {
         impl __hc::Header for #ty {
-            const NAME: &'static __hc::HeaderName = &__hc::header::HOST;
+            const NAME: &'static __hc::HeaderName = &__hc::header::#hname;
             fn decode(values: &mut __hc::Values) -> __hc::Result<Self> {
                 #decode
             }
@@ -77,10 +78,10 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
                 .expect("just checked for len() == 1");
 
             let decode = quote! {
-                unimplemented!()
+                unimplemented!("derive(Header) decode for named fields")
             };
             let encode = quote! {
-
+                unimplemented!("derive(Header) encode for named fields")
             };
 
             Ok(Fns {
@@ -94,11 +95,11 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
             }
 
             let decode = quote! {
-                __hc::parsing::from_one_value(values)
+                __hc::decode::from_one_value(values)
                     .map(#ty)
             };
             let encode = quote! {
-
+                values.append((&self.0).into());
             };
 
             Ok(Fns {
