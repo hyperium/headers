@@ -9,4 +9,4 @@ license = "MIT"
 [dependencies]
 headers-core = { path = "../headers-core" }
 headers-derive = { path = "../headers-derive" }
-http = "0.1.7"
+http = "0.1.11"
