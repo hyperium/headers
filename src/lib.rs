@@ -80,80 +80,13 @@
 //! }
 //! ```
 
-/*
-extern crate base64;
-extern crate bytes;
-#[macro_use]
+extern crate headers_core;
 extern crate headers_derive;
-extern crate http;
-extern crate httparse;
-extern crate language_tags;
-extern crate mime;
-#[macro_use]
-extern crate percent_encoding;
-extern crate unicase;
-extern crate time;
+extern crate headers_ext;
 
+pub use headers_core::*;
 pub use headers_derive::*;
-
-pub use http::header::{self, HeaderName, HeaderValue};
-
-pub use self::error::{Error, Result};
-pub use self::shared::*;
-pub use self::common::*;
-//use bytes::Bytes;
-
-mod common;
-mod error;
-mod shared;
-pub mod parsing;
-
-
-/// A trait for any object that will represent a header field and value.
-///
-/// This trait represents the construction and identification of headers,
-/// and contains trait-object unsafe methods.
-pub trait Header {
-    /// Returns the name of the header field this belongs to.
-    ///
-    /// This will become an associated constant once available.
-    const NAME: &'static HeaderName;
-    //fn name() -> &'static HeaderName;
-
-    fn decode(values: &mut ValueIter) -> Result<Self>
-    where
-        Self: Sized;
-    fn encode(&self, values: &mut ToValues);
-    /*
-    /// Parse a header from a raw stream of bytes.
-    ///
-    /// It's possible that a request can include a header field more than once,
-    /// and in that case, the slice will have a length greater than 1. However,
-    /// it's not necessarily the case that a Header is *allowed* to have more
-    /// than one field value. If that's the case, you **should** return `None`
-    /// if `raw.len() > 1`.
-    fn parse_header(raw: &Raw) -> ::Result<Self> where Self: Sized;
-    /// Format a header to outgoing stream.
-    ///
-    /// Most headers should be formatted on one line, and so a common pattern
-    /// would be to implement `std::fmt::Display` for this type as well, and
-    /// then just call `f.fmt_line(self)`.
-    ///
-    /// ## Note
-    ///
-    /// This has the ability to format a header over multiple lines.
-    ///
-    /// The main example here is `Set-Cookie`, which requires that every
-    /// cookie being set be specified in a separate line. Almost every other
-    /// case should only format as 1 single line.
-    #[inline]
-    fn fmt_header(&self, f: &mut Formatter) -> fmt::Result;
-    */
-}
-
-pub struct ToValues;
-pub type ValueIter<'a> = http::header::ValueIter<'a, http::header::HeaderValue>;
-*/
+pub use headers_ext::*;
 
 /*
 #[cfg(test)]
