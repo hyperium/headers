@@ -37,4 +37,3 @@ headers-ext = { path = "./headers-ext" }
 #mime = "0.3"
 #percent-encoding = "1.0"
 #unicase = "2.1"
-#time = "0.1"

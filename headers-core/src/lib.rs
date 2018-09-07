@@ -36,6 +36,17 @@ pub struct Values<'a> {
     inner: http::header::ValueIter<'a, http::header::HeaderValue>,
 }
 
+impl<'a> Values<'a> {
+    /// Get the next value, or return an `Error`.
+    pub fn next_or_empty(&mut self) -> ::Result<&'a HeaderValue> {
+        self
+            .inner
+            .next()
+            .map(Ok)
+            .unwrap_or_else(|| Err(::Error::empty()))
+    }
+}
+
 impl<'a> Iterator for Values<'a> {
     type Item = &'a HeaderValue;
 

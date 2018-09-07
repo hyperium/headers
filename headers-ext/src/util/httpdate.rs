@@ -2,6 +2,8 @@ use std::fmt::{self, Display};
 use std::str::FromStr;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+use bytes::Bytes;
+use http::header::HeaderValue;
 use time;
 
 /// A timestamp with HTTP formatting and parsing
@@ -27,20 +29,45 @@ use time;
 //   header field that contains one or more timestamps defined as
 //   HTTP-date, the sender MUST generate those timestamps in the
 //   IMF-fixdate format.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct HttpDate(time::Tm);
+
+impl ::headers_core::decode::TryFromValues for HttpDate {
+    fn try_from_values(values: &mut ::Values) -> ::Result<Self> {
+        values
+            .next_or_empty()?
+            .to_str()?
+            .parse()
+    }
+}
+
+impl From<HttpDate> for HeaderValue {
+    fn from(date: HttpDate) -> HeaderValue {
+        (&date).into()
+    }
+}
+
+impl<'a> From<&'a HttpDate> for HeaderValue {
+    fn from(date: &'a HttpDate) -> HeaderValue {
+        // TODO: could be just BytesMut instead of String
+        let s = date.to_string();
+        let bytes = Bytes::from(s);
+        HeaderValue::from_shared(bytes)
+            .expect("HttpDate always is a valid value")
+    }
+}
 
 impl FromStr for HttpDate {
     type Err = ::Error;
     fn from_str(s: &str) -> ::Result<HttpDate> {
-        match time::strptime(s, "%a, %d %b %Y %T %Z").or_else(|_| {
-            time::strptime(s, "%A, %d-%b-%y %T %Z")
+        time::strptime(s, "%a, %d %b %Y %T %Z")
+            .or_else(|_| {
+                time::strptime(s, "%A, %d-%b-%y %T %Z")
             }).or_else(|_| {
                 time::strptime(s, "%c")
-                }) {
-                    Ok(t) => Ok(HttpDate(t)),
-                    Err(_) => Err(::Error::Header),
-                    }
+            })
+            .map(HttpDate)
+            .map_err(|_| ::Error::invalid())
     }
 }
 
