@@ -28,7 +28,7 @@ fn impl_header(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
     let encode = fns.encode;
 
     let ty = &ast.ident;
-    let hname = Ident::new(&ty.to_string().to_uppercase(), Span::call_site());
+    let hname = Ident::new(&to_header_name(&ty.to_string()), Span::call_site());
     let dummy_const = Ident::new(&format!("_IMPL_HEADER_FOR_{}", ty), Span::call_site());
     let impl_block = quote! {
         impl __hc::Header for #ty {
@@ -112,3 +112,21 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
         }
     }
 }
+
+fn to_header_name(ty_name: &str) -> String {
+    let mut out = String::new();
+    let mut first = true;
+    for c in ty_name.chars() {
+        if first {
+            out.push(c.to_ascii_uppercase());
+            first = false;
+        } else {
+            if c.is_uppercase() {
+                out.push('_');
+            }
+            out.push(c.to_ascii_uppercase());
+        }
+    }
+    out
+}
+
