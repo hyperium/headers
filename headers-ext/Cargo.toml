@@ -11,4 +11,5 @@ bytes = "0.4"
 headers-core = { path = "../headers-core" }
 headers-derive = { path = "../headers-derive" }
 http = "0.1.11"
+#language_tags = "0.2.2"
 time = "0.1"
