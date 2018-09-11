@@ -61,7 +61,7 @@ pub use self::server::Server;
 //pub use self::te::Te;
 //pub use self::transfer_encoding::TransferEncoding;
 //pub use self::upgrade::{Upgrade, Protocol, ProtocolName};
-//pub use self::user_agent::UserAgent;
+pub use self::user_agent::UserAgent;
 //pub use self::vary::Vary;
 //pub use self::warning::Warning;
 
@@ -130,6 +130,6 @@ mod server;
 //mod te;
 //mod transfer_encoding;
 //mod upgrade;
-//mod user_agent;
+mod user_agent;
 //mod vary;
 //mod warning;
