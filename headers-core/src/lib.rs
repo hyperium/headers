@@ -1,13 +1,16 @@
+extern crate bytes;
 extern crate http;
 
 use std::fmt;
 
 pub use http::header::{self, HeaderName, HeaderValue};
 
-mod error;
+mod csv;
 pub mod decode;
 pub mod encode;
+mod error;
 
+pub use self::csv::CommaDelimited;
 pub use self::error::{Error, Result};
 
 /// A trait for any object that will represent a header field and value.

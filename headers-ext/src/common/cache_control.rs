@@ -1,7 +1,5 @@
 use std::fmt;
 use std::str::FromStr;
-use {Header, ToValues, Values};
-use headers_core::{decode, encode};
 
 /// `Cache-Control` header, defined in [RFC7234](https://tools.ietf.org/html/rfc7234#section-5.2)
 ///
@@ -30,7 +28,8 @@ use headers_core::{decode, encode};
 ///
 /// let cc = CacheControl::new([CacheDirective::NO_CACHE]);
 /// ```
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone, Debug, Header)]
+#[header(csv)]
 pub struct CacheControl {
     directives: Vec<CacheDirective>,
 }
@@ -47,30 +46,6 @@ impl CacheControl {
         CacheControl {
             directives,
         }
-    }
-}
-
-impl Header for CacheControl {
-    const NAME: &'static ::http::header::HeaderName = &::http::header::CACHE_CONTROL;
-
-    fn decode(values: &mut Values) -> ::headers_core::Result<CacheControl> {
-        decode::from_comma_delimited(values)
-            .map(|directives: Vec<CacheDirective>| {
-                debug_assert!(!directives.is_empty());
-                CacheControl {
-                    directives,
-                }
-            })
-    }
-
-    fn encode(&self, values: &mut ToValues) {
-        values.append_fmt(self)
-    }
-}
-
-impl fmt::Display for CacheControl {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        encode::comma_delimited(f, self.directives.iter())
     }
 }
 

@@ -6,4 +6,5 @@ authors = ["Sean McArthur <sean@seanmonstar.com>"]
 license = "MIT"
 
 [dependencies]
+bytes = "0.4"
 http = "0.1.11"

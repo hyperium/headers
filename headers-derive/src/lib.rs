@@ -6,7 +6,7 @@ extern crate syn;
 
 use proc_macro::TokenStream;
 use proc_macro2::Span;
-use syn::{Data, Fields, Ident};
+use syn::{Data, Fields, Ident, Meta, NestedMeta};
 
 #[proc_macro_derive(Header, attributes(header))]
 pub fn derive_header(input: TokenStream) -> TokenStream {
@@ -58,6 +58,8 @@ struct Fns {
 
 fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
     let ty = &ast.ident;
+
+    // Only structs are allowed...
     let st = match ast.data {
         Data::Struct(ref st) => st,
         _ => {
@@ -65,29 +67,88 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
         }
     };
 
-    match st.fields {
+    // Check attributes for `#[header(...)]` that may influence the code
+    // that is generated...
+    let mut is_csv = false;
+    for attr in &ast.attrs {
+        if attr.path.segments.len() != 1 {
+            continue;
+        }
+        if attr.path.segments[0].ident != "header" {
+            continue;
+        }
+
+        match attr.interpret_meta() {
+            Some(Meta::List(list)) => {
+                for meta in &list.nested {
+                    match meta {
+                        NestedMeta::Meta(Meta::Word(ref word)) if word == "csv" => {
+                            is_csv = true;
+
+                        },
+                        _ => {
+                            return Err("illegal option in #[header(..)] attribute".into())
+                        }
+
+                    }
+                }
+
+            },
+            Some(Meta::NameValue(_)) => {
+                return Err("illegal #[header = ..] attribute".into())
+            },
+            Some(Meta::Word(_)) => {
+                return Err("empty #[header] attributes do nothing".into())
+            },
+            None => {
+                // TODO stringify attribute to return better error
+                return Err("illegal #[header ??] attribute".into())
+            }
+        }
+    }
+
+    let decode_res = if is_csv {
+        quote! {
+            __hc::decode::from_comma_delimited(values)
+        }
+    } else {
+        quote! {
+            __hc::decode::TryFromValues::try_from_values(values)
+        }
+    };
+
+    let (decode, encode_name) = match st.fields {
         Fields::Named(ref fields) => {
             if fields.named.len() != 1 {
                 return Err("derive(Header) doesn't support multiple fields".into());
             }
 
-            let _field = fields
+            let field = fields
                 .named
                 .iter()
                 .next()
                 .expect("just checked for len() == 1");
+            let field_name = field.ident.as_ref().unwrap();
 
             let decode = quote! {
-                unimplemented!("derive(Header) decode for named fields")
-            };
-            let encode = quote! {
-                unimplemented!("derive(Header) encode for named fields")
+                #decode_res
+                    .map(|inner| #ty {
+                        #field_name: inner,
+                    })
             };
 
-            Ok(Fns {
+            let encode_name = Ident::new(&field_name.to_string(), Span::call_site());
+            (decode, Value::Named(encode_name))
+            /*
+            let encode = quote! {
+                &self.#field_name
+            };
+
+            Fns {
                 decode,
                 encode,
-            })
+            }
+            */
         },
         Fields::Unnamed(ref fields) => {
             if fields.unnamed.len() != 1 {
@@ -98,19 +159,62 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
                 __hc::decode::TryFromValues::try_from_values(values)
                     .map(#ty)
             };
+
+            (decode, Value::Unnamed)
+                /*
             let encode = quote! {
-                values.append((&self.0).into());
+                &self.0
             };
 
-            Ok(Fns {
+            Fns {
                 decode,
                 encode,
-            })
+            }
+            */
         },
         Fields::Unit => {
-            Err("ah".into())
+            return Err("derive(Header) doesn't support unit structs".into())
         }
-    }
+    };
+
+    let encode = if is_csv {
+        let field = if let Value::Named(field) = encode_name {
+            quote! {
+                (&(self.0).#field)
+            }
+        } else {
+            quote! {
+                (&(self.0).0)
+            }
+        };
+        quote! {
+            struct __HeaderFmt<'hfmt>(&'hfmt #ty);
+            impl<'hfmt> ::std::fmt::Display for __HeaderFmt<'hfmt> {
+                fn fmt(&self, hfmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                    __hc::encode::comma_delimited(hfmt, (#field).into_iter())
+                }
+            }
+            values.append_fmt(&__HeaderFmt(self));
+        }
+    } else {
+        let field = if let Value::Named(field) = encode_name {
+            quote! {
+                (&self.#field)
+            }
+        } else {
+            quote! {
+                (&self.0)
+            }
+        };
+        quote! {
+            values.append((#field).into());
+        }
+    };
+
+    Ok(Fns {
+        decode,
+        encode,
+    })
 }
 
 fn to_header_name(ty_name: &str) -> String {
@@ -128,5 +232,10 @@ fn to_header_name(ty_name: &str) -> String {
         }
     }
     out
+}
+
+enum Value {
+    Named(Ident),
+    Unnamed,
 }
 
