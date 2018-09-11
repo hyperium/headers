@@ -22,10 +22,9 @@ use http::header::HeaderValue;
 /// # Example
 ///
 /// ```
-/// use headers::{Headers, Server};
+/// use headers::Server;
 ///
-/// let mut headers = Headers::new();
-/// headers.set(Server::new("hyper/0.5.2"));
+/// let server = Server::from_static("hyper/0.12.2");
 /// ```
 #[derive(Debug, Header)]
 pub struct Server(HeaderValue);
@@ -38,5 +37,11 @@ impl Server {
     /// Panics if the static string is not a legal header value.
     pub fn from_static(s: &'static str) -> Server {
         Server(HeaderValue::from_static(s))
+    }
+}
+
+impl From<HeaderValue> for Server {
+    fn from(value: HeaderValue) -> Server {
+        Server(value)
     }
 }

@@ -1,7 +1,4 @@
-use std::fmt::{self, Display};
-use std::str;
-use unicase;
-use {Header, Raw};
+use ::{Header, HeaderName, HeaderValue};
 
 /// `Access-Control-Allow-Credentials` header, part of
 /// [CORS](http://www.w3.org/TR/cors/#access-control-allow-headers-response-header)
@@ -28,62 +25,27 @@ use {Header, Raw};
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
-/// # fn main() {
+/// use headers::AccessControlAllowCredentials;
 ///
-/// use headers::{Headers, AccessControlAllowCredentials};
-///
-/// let mut headers = Headers::new();
-/// headers.set(AccessControlAllowCredentials);
-/// # }
+/// let allow_creds = AccessControlAllowCredentials;
 /// ```
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct AccessControlAllowCredentials;
 
-const ACCESS_CONTROL_ALLOW_CREDENTIALS_TRUE: &'static str = "true";
-
 impl Header for AccessControlAllowCredentials {
-    fn header_name() -> &'static str {
-        static NAME: &'static str = "Access-Control-Allow-Credentials";
-        NAME
-    }
+    const NAME: &'static HeaderName = &::http::header::ACCESS_CONTROL_ALLOW_CREDENTIALS;
 
-    fn parse_header(raw: &Raw) -> ::Result<AccessControlAllowCredentials> {
-        if let Some(line) = raw.one() {
-            let text = unsafe {
-                // safe because:
-                // 1. we don't actually care if it's utf8, we just want to
-                //    compare the bytes with the "case" normalized. If it's not
-                //    utf8, then the byte comparison will fail, and we'll return
-                //    None. No big deal.
-                str::from_utf8_unchecked(line)
-            };
-            if unicase::eq_ascii(text, ACCESS_CONTROL_ALLOW_CREDENTIALS_TRUE) {
-                return Ok(AccessControlAllowCredentials);
-            }
+    fn decode(values: &mut ::Values) -> ::Result<Self> {
+        let value = values.next_or_empty()?;
+        if value.as_bytes().eq_ignore_ascii_case(b"true") {
+            Ok(AccessControlAllowCredentials)
+        } else {
+            Err(::Error::invalid())
         }
-        Err(::Error::Header)
     }
 
-    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
-        f.fmt_line(self)
-    }
-}
-
-impl Display for AccessControlAllowCredentials {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        f.write_str("true")
+    fn encode(&self, values: &mut ::ToValues) {
+        values.append(HeaderValue::from_static("true"))
     }
 }
 
-#[cfg(test)]
-mod test_access_control_allow_credentials {
-    use std::str;
-    use *;
-    use super::AccessControlAllowCredentials as HeaderField;
-    test_header!(works,        vec![b"true"], Some(HeaderField));
-    test_header!(ignores_case, vec![b"True"]);
-    test_header!(not_bool,     vec![b"false"], None);
-    test_header!(only_single,  vec![b"true", b"true"], None);
-    test_header!(no_gibberish, vec!["\u{645}\u{631}\u{62d}\u{628}\u{627}".as_bytes()], None);
-}

@@ -12,6 +12,10 @@ use headers_core::{
     ToValues,
     Values,
 };
+use http::header::{
+    HeaderName,
+    HeaderValue,
+};
 
 mod common;
 mod util;

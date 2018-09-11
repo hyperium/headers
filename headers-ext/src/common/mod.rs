@@ -11,7 +11,7 @@
 //pub use self::accept_language::AcceptLanguage;
 //pub use self::accept_ranges::{AcceptRanges, RangeUnit};
 //pub use self::accept::Accept;
-//pub use self::access_control_allow_credentials::AccessControlAllowCredentials;
+pub use self::access_control_allow_credentials::AccessControlAllowCredentials;
 //pub use self::access_control_allow_headers::AccessControlAllowHeaders;
 pub use self::access_control_allow_methods::AccessControlAllowMethods;
 //pub use self::access_control_allow_origin::AccessControlAllowOrigin;
@@ -80,7 +80,7 @@ fn test_decode<T: ::headers_core::Header>(values: &[&str]) -> Option<T> {
 //mod accept_language;
 //mod accept_ranges;
 //mod accept;
-//mod access_control_allow_credentials;
+mod access_control_allow_credentials;
 //mod access_control_allow_headers;
 mod access_control_allow_methods;
 //mod access_control_allow_origin;
