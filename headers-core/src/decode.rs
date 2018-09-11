@@ -1,7 +1,6 @@
 //! Utility functions for Header implementations.
 
 //use language_tags::LanguageTag;
-use http::HttpTryFrom;
 use http::header::HeaderValue;
 //use percent_encoding;
 
@@ -20,18 +19,6 @@ impl TryFromValues for HeaderValue {
             .map(Clone::clone)
     }
 }
-
-/*
-/// Reads a single raw string when parsing a header.
-pub fn from_one_value<'a, T: HttpTryFrom<&'a HeaderValue>>(values: &mut ::Values<'a>) -> ::Result<T> {
-    if let Some(value) = values.next() {
-        HttpTryFrom::try_from(value)
-            .map_err(|_| ::Error::invalid())
-    } else {
-        Err(::Error::empty())
-    }
-}
-*/
 
 /// Reads a comma-delimited raw header into a Vec.
 #[inline]

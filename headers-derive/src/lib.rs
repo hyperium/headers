@@ -28,11 +28,12 @@ fn impl_header(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
     let encode = fns.encode;
 
     let ty = &ast.ident;
-    let hname = Ident::new(&to_header_name(&ty.to_string()), Span::call_site());
-    let dummy_const = Ident::new(&format!("_IMPL_HEADER_FOR_{}", ty), Span::call_site());
+    let hname = to_header_name(&ty.to_string());
+    let hname_ident = Ident::new(&hname, Span::call_site());
+    let dummy_const = Ident::new(&format!("_IMPL_HEADER_FOR_{}", hname), Span::call_site());
     let impl_block = quote! {
         impl __hc::Header for #ty {
-            const NAME: &'static __hc::HeaderName = &__hc::header::#hname;
+            const NAME: &'static __hc::HeaderName = &__hc::header::#hname_ident;
             fn decode(values: &mut __hc::Values) -> __hc::Result<Self> {
                 #decode
             }
@@ -84,7 +85,6 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
                     match meta {
                         NestedMeta::Meta(Meta::Word(ref word)) if word == "csv" => {
                             is_csv = true;
-
                         },
                         _ => {
                             return Err("illegal option in #[header(..)] attribute".into())
@@ -139,16 +139,6 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
 
             let encode_name = Ident::new(&field_name.to_string(), Span::call_site());
             (decode, Value::Named(encode_name))
-            /*
-            let encode = quote! {
-                &self.#field_name
-            };
-
-            Fns {
-                decode,
-                encode,
-            }
-            */
         },
         Fields::Unnamed(ref fields) => {
             if fields.unnamed.len() != 1 {
@@ -161,16 +151,6 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
             };
 
             (decode, Value::Unnamed)
-                /*
-            let encode = quote! {
-                &self.0
-            };
-
-            Fns {
-                decode,
-                encode,
-            }
-            */
         },
         Fields::Unit => {
             return Err("derive(Header) doesn't support unit structs".into())

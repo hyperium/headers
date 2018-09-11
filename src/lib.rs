@@ -19,12 +19,11 @@
 //! advantage of the type system. Hyper includes a `header!` macro for defining
 //! many wrapper-style headers.
 //!
-//! ```
+//! ```asdf
 //! #[macro_use] extern crate headers;
 //! use headers::Headers;
 //!
 //! #[derive(Header)]
-//! #[header(name = "x-request-guid")]
 //! struct XRequestGuid(String);
 //!
 //! fn main () {
@@ -42,7 +41,7 @@
 //! Consider a Do Not Track header. It can be true or false, but it represents
 //! that via the numerals `1` and `0`.
 //!
-//! ```
+//! ```asdf
 //! use std::fmt;
 //! use headers::{self, Formatter, Header, Raw};
 //!
@@ -81,6 +80,8 @@
 //! ```
 
 extern crate headers_core;
+#[allow(unused_imports)]
+#[macro_use]
 extern crate headers_derive;
 extern crate headers_ext;
 
