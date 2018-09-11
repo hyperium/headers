@@ -146,7 +146,7 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
             }
 
             let decode = quote! {
-                __hc::decode::TryFromValues::try_from_values(values)
+                #decode_res
                     .map(#ty)
             };
 
