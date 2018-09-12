@@ -7,9 +7,6 @@ pub use http::header::{self, HeaderName, HeaderValue};
 
 pub mod decode;
 pub mod encode;
-mod error;
-
-pub use self::error::{Error, Result};
 
 /// A trait for any object that will represent a header field and value.
 ///
@@ -20,7 +17,7 @@ pub trait Header {
     const NAME: &'static HeaderName;
 
     /// Decode this type from a `HeaderValue`.
-    fn decode(values: &mut Values) -> Result<Self>
+    fn decode(values: &mut Values) -> Option<Self>
     where
         Self: Sized;
 
@@ -35,17 +32,6 @@ pub trait Header {
 #[derive(Debug)]
 pub struct Values<'a> {
     inner: http::header::ValueIter<'a, http::header::HeaderValue>,
-}
-
-impl<'a> Values<'a> {
-    /// Get the next value, or return an `Error`.
-    pub fn next_or_empty(&mut self) -> ::Result<&'a HeaderValue> {
-        self
-            .inner
-            .next()
-            .map(Ok)
-            .unwrap_or_else(|| Err(::Error::empty()))
-    }
 }
 
 impl<'a> Iterator for Values<'a> {
@@ -129,19 +115,15 @@ impl HeaderMapExt for http::HeaderMap {
         let mut values = Values {
             inner: self.get_all(H::NAME).iter(),
         };
-        match H::decode(&mut values) {
-            Ok(header) => {
-                // Check the iterator was consumed. Various headers are only
-                // allowed to have a single value, so if there were extra
-                // values that the implementation didn't use, it's safer
-                // to error out.
-                if values.next().is_none() {
-                    Some(header)
-                } else {
-                    None
-                }
-            },
-            Err(_) => None,
+        let header = H::decode(&mut values)?;
+        // Check the iterator was consumed. Various headers are only
+        // allowed to have a single value, so if there were extra
+        // values that the implementation didn't use, it's safer
+        // to error out.
+        if values.next().is_none() {
+            Some(header)
+        } else {
+            None
         }
     }
 }

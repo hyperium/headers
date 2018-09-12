@@ -34,7 +34,7 @@ fn impl_header(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
     let impl_block = quote! {
         impl __hc::Header for #ty {
             const NAME: &'static __hc::HeaderName = &__hc::header::#hname_ident;
-            fn decode(values: &mut __hc::Values) -> __hc::Result<Self> {
+            fn decode(values: &mut __hc::Values) -> Option<Self> {
                 #decode
             }
 

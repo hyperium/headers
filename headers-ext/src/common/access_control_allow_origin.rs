@@ -55,11 +55,11 @@ impl AccessControlAllowOrigin {
 }
 
 impl TryFromValues for OriginOrAny {
-    fn try_from_values(values: &mut ::Values) -> ::Result<Self> {
-        let value = values.next_or_empty()?;
+    fn try_from_values(values: &mut ::Values) -> Option<Self> {
+        let value = values.next()?;
 
         if value == "*" {
-            return Ok(OriginOrAny::Any);
+            return Some(OriginOrAny::Any);
         }
 
         Origin::try_from_value(value)

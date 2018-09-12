@@ -9,20 +9,20 @@ use http::header::HeaderValue;
 /// A helper trait for use when deriving `Header`.
 pub trait TryFromValues: Sized {
     /// Try to convert from the values into an instance of `Self`.
-    fn try_from_values(values: &mut ::Values) -> ::Result<Self>;
+    fn try_from_values(values: &mut ::Values) -> Option<Self>;
 }
 
 impl TryFromValues for HeaderValue {
-    fn try_from_values(values: &mut ::Values) -> ::Result<Self> {
+    fn try_from_values(values: &mut ::Values) -> Option<Self> {
         values
-            .next_or_empty()
-            .map(Clone::clone)
+            .next()
+            .cloned()
     }
 }
 
 /// Reads a comma-delimited raw header into a Vec.
 #[inline]
-pub fn from_comma_delimited<T, E>(values: &mut ::Values) -> ::Result<E>
+pub fn from_comma_delimited<T, E>(values: &mut ::Values) -> Option<E>
 where
     T: ::std::str::FromStr,
     E: ::std::iter::FromIterator<T>,
@@ -39,10 +39,11 @@ where
                             "" => None,
                             y => Some(y)
                         })
-                        .map(|x| x.parse().map_err(|_| ::Error::invalid()))
+                        .map(|x| x.parse().map_err(|_| ()))
                 })
         })
-        .collect()
+        .collect::<Result<E, ()>>()
+        .ok()
 }
 
 /*

@@ -42,31 +42,28 @@ pub struct ContentLength(pub u64);
 impl Header for ContentLength {
     const NAME: &'static ::http::header::HeaderName = &::http::header::CONTENT_LENGTH;
 
-    fn decode(values: &mut Values) -> ::headers_core::Result<Self> {
+    fn decode(values: &mut Values) -> Option<Self> {
         // If multiple Content-Length headers were sent, everything can still
         // be alright if they all contain the same value, and all parse
         // correctly. If not, then it's an error.
         let mut len = None;
         for value in values {
             let parsed = value
-                .to_str()?
+                .to_str()
+                .ok()?
                 .parse::<u64>()
-                .map_err(|_| ::headers_core::Error::invalid())?;
+                .ok()?;
 
             if let Some(prev) = len {
                 if prev != parsed {
-                    return Err(::headers_core::Error::invalid());
+                    return None;
                 }
             } else {
                 len = Some(parsed);
             }
         }
 
-        if let Some(len) = len {
-            Ok(ContentLength(len))
-        } else {
-            Err(::headers_core::Error::empty())
-        }
+        len.map(ContentLength)
     }
 
     fn encode(&self, values: &mut ToValues) {

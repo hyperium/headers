@@ -32,12 +32,17 @@ use time;
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct HttpDate(time::Tm);
 
+#[derive(Debug)]
+pub struct Error(());
+
 impl ::headers_core::decode::TryFromValues for HttpDate {
-    fn try_from_values(values: &mut ::Values) -> ::Result<Self> {
+    fn try_from_values(values: &mut ::Values) -> Option<Self> {
         values
-            .next_or_empty()?
-            .to_str()?
+            .next()?
+            .to_str()
+            .ok()?
             .parse()
+            .ok()
     }
 }
 
@@ -58,8 +63,8 @@ impl<'a> From<&'a HttpDate> for HeaderValue {
 }
 
 impl FromStr for HttpDate {
-    type Err = ::Error;
-    fn from_str(s: &str) -> ::Result<HttpDate> {
+    type Err = Error;
+    fn from_str(s: &str) -> Result<HttpDate, Error> {
         time::strptime(s, "%a, %d %b %Y %T %Z")
             .or_else(|_| {
                 time::strptime(s, "%A, %d-%b-%y %T %Z")
@@ -67,7 +72,7 @@ impl FromStr for HttpDate {
                 time::strptime(s, "%c")
             })
             .map(HttpDate)
-            .map_err(|_| ::Error::invalid())
+            .map_err(|_| Error(()))
     }
 }
 

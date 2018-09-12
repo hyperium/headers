@@ -6,9 +6,7 @@ extern crate http;
 extern crate time;
 
 use headers_core::{
-    Error,
     Header,
-    Result,
     ToValues,
     Values,
 };

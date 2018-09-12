@@ -41,7 +41,7 @@ impl Origin {
     }
 
     // Used in AccessControlAllowOrigin
-    pub(super) fn try_from_value(value: &HeaderValue) -> ::Result<Self> {
+    pub(super) fn try_from_value(value: &HeaderValue) -> Option<Self> {
         OriginOrNull::try_from_value(value)
             .map(Origin)
     }
@@ -52,15 +52,14 @@ impl Origin {
 }
 
 impl OriginOrNull {
-    fn try_from_value(value: &HeaderValue) -> ::Result<Self> {
+    fn try_from_value(value: &HeaderValue) -> Option<Self> {
         if value == "null" {
-            return Ok(OriginOrNull::Null);
+            return Some(OriginOrNull::Null);
         }
 
         let bytes = Bytes::from(value.clone());
 
-        let uri = Uri::from_shared(bytes)
-            .map_err(|_| ::Error::invalid())?;
+        let uri = Uri::from_shared(bytes).ok()?;
 
         let (scheme, auth) = match uri.into_parts() {
             uri::Parts {
@@ -70,18 +69,19 @@ impl OriginOrNull {
                 ..
             } => (scheme, auth),
             _ => {
-                return Err(::Error::invalid());
+                return None;
             }
         };
 
-        Ok(OriginOrNull::Origin(scheme, auth))
+        Some(OriginOrNull::Origin(scheme, auth))
     }
 }
 
 impl TryFromValues for OriginOrNull {
-    fn try_from_values(values: &mut ::Values) -> ::Result<OriginOrNull> {
-        let value = values.next_or_empty()?;
-        OriginOrNull::try_from_value(value)
+    fn try_from_values(values: &mut ::Values) -> Option<OriginOrNull> {
+        values
+            .next()
+            .and_then(OriginOrNull::try_from_value)
     }
 }
 

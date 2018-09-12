@@ -27,11 +27,11 @@ impl Expect {
 impl ::Header for Expect {
     const NAME: &'static ::HeaderName = &::http::header::EXPECT;
 
-    fn decode(values: &mut ::Values) -> ::Result<Expect> {
-        if values.next_or_empty()? == "100-continue" {
-            Ok(Expect::CONTINUE)
+    fn decode(values: &mut ::Values) -> Option<Expect> {
+        if values.next()? == "100-continue" {
+            Some(Expect::CONTINUE)
         } else {
-            Err(::Error::invalid())
+            None
         }
     }
 
