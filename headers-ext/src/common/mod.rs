@@ -14,7 +14,7 @@
 pub use self::access_control_allow_credentials::AccessControlAllowCredentials;
 //pub use self::access_control_allow_headers::AccessControlAllowHeaders;
 pub use self::access_control_allow_methods::AccessControlAllowMethods;
-//pub use self::access_control_allow_origin::AccessControlAllowOrigin;
+pub use self::access_control_allow_origin::AccessControlAllowOrigin;
 //pub use self::access_control_expose_headers::AccessControlExposeHeaders;
 //pub use self::access_control_max_age::AccessControlMaxAge;
 //pub use self::access_control_request_headers::AccessControlRequestHeaders;
@@ -83,7 +83,7 @@ fn test_decode<T: ::headers_core::Header>(values: &[&str]) -> Option<T> {
 mod access_control_allow_credentials;
 //mod access_control_allow_headers;
 mod access_control_allow_methods;
-//mod access_control_allow_origin;
+mod access_control_allow_origin;
 //mod access_control_expose_headers;
 //mod access_control_max_age;
 //mod access_control_request_headers;

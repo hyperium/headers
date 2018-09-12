@@ -1,7 +1,6 @@
-use std::fmt::{self, Display};
-use std::str;
-
-use {Header, Raw};
+use headers_core::decode::TryFromValues;
+use ::{HeaderValue};
+use super::origin::{Origin};
 
 /// The `Access-Control-Allow-Origin` response header,
 /// part of [CORS](http://www.w3.org/TR/cors/#access-control-allow-origin-response-header)
@@ -10,89 +9,70 @@ use {Header, Raw};
 /// can be shared based by returning the value of the Origin request header,
 /// `*`, or `null` in the response.
 ///
-/// # ABNF
+/// ## ABNF
 ///
 /// ```text
 /// Access-Control-Allow-Origin = "Access-Control-Allow-Origin" ":" origin-list-or-null | "*"
 /// ```
 ///
-/// # Example values
+/// ## Example values
 /// * `null`
 /// * `*`
 /// * `http://google.com/`
 ///
 /// # Examples
-/// ```
-/// use headers::{Headers, AccessControlAllowOrigin};
 ///
-/// let mut headers = Headers::new();
-/// headers.set(
-///     AccessControlAllowOrigin::Any
-/// );
 /// ```
-/// ```
-/// use headers::{Headers, AccessControlAllowOrigin};
+/// use headers::AccessControlAllowOrigin;
 ///
-/// let mut headers = Headers::new();
-/// headers.set(
-///     AccessControlAllowOrigin::Null,
-/// );
+/// let any_origin = AccessControlAllowOrigin::ANY;
 /// ```
-/// ```
-/// use headers::{Headers, AccessControlAllowOrigin};
 ///
-/// let mut headers = Headers::new();
-/// headers.set(
-///     AccessControlAllowOrigin::Value("http://hyper.rs".to_owned())
-/// );
 /// ```
-#[derive(Clone, PartialEq, Debug)]
-pub enum AccessControlAllowOrigin {
+/// use headers::AccessControlAllowOrigin;
+///
+/// let null_origin = AccessControlAllowOrigin::NULL;
+/// ```
+///
+/// ```
+/// use headers::AccessControlAllowOrigin;
+///
+/// //let allow_origin = AccessControlAllowOrigin::
+/// ```
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Header)]
+pub struct AccessControlAllowOrigin(OriginOrAny);
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+enum OriginOrAny {
+    Origin(Origin),
     /// Allow all origins
     Any,
-    /// A hidden origin
-    Null,
-    /// Allow one particular origin
-    Value(String),
 }
 
-impl Header for AccessControlAllowOrigin {
-    fn header_name() -> &'static str {
-        "Access-Control-Allow-Origin"
-    }
+impl AccessControlAllowOrigin {
+    pub const ANY: AccessControlAllowOrigin = AccessControlAllowOrigin(OriginOrAny::Any);
+    pub const NULL: AccessControlAllowOrigin = AccessControlAllowOrigin(OriginOrAny::Origin(Origin::NULL));
+}
 
-    fn parse_header(raw: &Raw) -> ::Result<AccessControlAllowOrigin> {
-        if let Some(line) = raw.one() {
-            Ok(match line {
-                b"*" => AccessControlAllowOrigin::Any,
-                b"null" => AccessControlAllowOrigin::Null,
-                _ => AccessControlAllowOrigin::Value(try!(str::from_utf8(line)).into())
-            })
-        } else {
-            Err(::Error::Header)
+impl TryFromValues for OriginOrAny {
+    fn try_from_values(values: &mut ::Values) -> ::Result<Self> {
+        let value = values.next_or_empty()?;
+
+        if value == "*" {
+            return Ok(OriginOrAny::Any);
         }
-    }
 
-    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
-        f.fmt_line(self)
+        Origin::try_from_value(value)
+            .map(OriginOrAny::Origin)
     }
 }
 
-impl Display for AccessControlAllowOrigin {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        match *self {
-            AccessControlAllowOrigin::Any => f.write_str("*"),
-            AccessControlAllowOrigin::Null => f.write_str("null"),
-            AccessControlAllowOrigin::Value(ref url) => Display::fmt(url, f),
+impl<'a> From<&'a OriginOrAny> for HeaderValue {
+    fn from(origin: &'a OriginOrAny) -> HeaderValue {
+        match origin {
+            OriginOrAny::Origin(ref origin) => origin.into_value(),
+            OriginOrAny::Any => HeaderValue::from_static("*"),
         }
     }
 }
 
-#[cfg(test)]
-mod test_access_control_allow_origin {
-    use *;
-    use super::AccessControlAllowOrigin as HeaderField;
-    test_header!(test1, vec![b"null"]);
-    test_header!(test2, vec![b"*"]);
-    test_header!(test3, vec![b"http://google.com/"]);
-}

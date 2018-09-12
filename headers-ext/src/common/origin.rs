@@ -39,11 +39,20 @@ impl Origin {
             _ => false,
         }
     }
+
+    // Used in AccessControlAllowOrigin
+    pub(super) fn try_from_value(value: &HeaderValue) -> ::Result<Self> {
+        OriginOrNull::try_from_value(value)
+            .map(Origin)
+    }
+
+    pub(super) fn into_value(&self) -> HeaderValue {
+        (&self.0).into()
+    }
 }
 
-impl TryFromValues for OriginOrNull {
-    fn try_from_values(values: &mut ::Values) -> ::Result<OriginOrNull> {
-        let value = values.next_or_empty()?;
+impl OriginOrNull {
+    fn try_from_value(value: &HeaderValue) -> ::Result<Self> {
         if value == "null" {
             return Ok(OriginOrNull::Null);
         }
@@ -66,6 +75,13 @@ impl TryFromValues for OriginOrNull {
         };
 
         Ok(OriginOrNull::Origin(scheme, auth))
+    }
+}
+
+impl TryFromValues for OriginOrNull {
+    fn try_from_values(values: &mut ::Values) -> ::Result<OriginOrNull> {
+        let value = values.next_or_empty()?;
+        OriginOrNull::try_from_value(value)
     }
 }
 
