@@ -1,8 +1,7 @@
-use {Header, Raw, Host};
-use std::borrow::Cow;
-use std::fmt;
-use std::str::FromStr;
-use parsing::from_one_raw_str;
+use bytes::Bytes;
+use headers_core::decode::TryFromValues;
+use http::uri::{self, Authority, Scheme, Uri};
+use ::{HeaderValue};
 
 /// The `Origin` header.
 ///
@@ -17,154 +16,81 @@ use parsing::from_one_raw_str;
 /// # Examples
 ///
 /// ```
-/// use headers::{Headers, Origin};
+/// use headers::Origin;
 ///
-/// let mut headers = Headers::new();
-/// headers.set(
-///     Origin::new("http", "hyper.rs", None)
-/// );
+/// //let origin = Origin::from_static("https://hyper.rs");
 /// ```
-///
-/// ```
-/// use headers::{Headers, Origin};
-///
-/// let mut headers = Headers::new();
-/// headers.set(
-///     Origin::new("https", "wikipedia.org", Some(443))
-/// );
-/// ```
-#[derive(PartialEq, Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Header)]
 pub struct Origin(OriginOrNull);
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 enum OriginOrNull {
-    Origin {
-        /// The scheme, such as http or https
-        scheme: Cow<'static,str>,
-        /// The host, such as Host{hostname: "hyper.rs".to_owned(), port: None}
-        host: Host,
-    },
+    Origin(Scheme, Authority),
     Null,
 }
 
 impl Origin {
-    /// Creates a new `Origin` header.
-    pub fn new<S: Into<Cow<'static,str>>, H: Into<Cow<'static,str>>>(scheme: S, hostname: H, port: Option<u16>) -> Origin{
-        Origin(OriginOrNull::Origin {
-            scheme: scheme.into(),
-            host: Host::new(hostname, port),
-        })
-    }
+    pub const NULL: Origin = Origin(OriginOrNull::Null);
 
-    /// Creates a `Null` `Origin` header.
-    pub fn null() -> Origin {
-        Origin(OriginOrNull::Null)
-    }
-
-    /// Checks if `Origin` is `Null`.
+    /// Checks if `Origin` is `null`.
     pub fn is_null(&self) -> bool {
         match self {
             &Origin(OriginOrNull::Null) => true,
             _ => false,
         }
     }
-
-    /// The scheme, such as http or https.
-    ///
-    /// ```
-    /// use headers::Origin;
-    /// let origin = Origin::new("https", "foo.com", Some(443));
-    /// assert_eq!(origin.scheme(), Some("https"));
-    /// ```
-    pub fn scheme(&self) -> Option<&str> {
-        match self {
-            &Origin(OriginOrNull::Origin { ref scheme, .. }) => Some(&scheme),
-            _ => None,
-        }
-    }
-
-    /// The host, such as `Host { hostname: "hyper.rs".to_owned(), port: None}`.
-    ///
-    /// ```
-    /// use headers::{Origin,Host};
-    /// let origin = Origin::new("https", "foo.com", Some(443));
-    /// assert_eq!(origin.host(), Some(&Host::new("foo.com", Some(443))));
-    /// ```
-    pub fn host(&self) -> Option<&Host> {
-        match self {
-            &Origin(OriginOrNull::Origin { ref host, .. }) => Some(&host),
-            _ => None,
-        }
-    }
 }
 
-impl Header for Origin {
-    fn header_name() -> &'static str {
-        static NAME: &'static str = "Origin";
-        NAME
-    }
+impl TryFromValues for OriginOrNull {
+    fn try_from_values(values: &mut ::Values) -> ::Result<OriginOrNull> {
+        let value = values.next_or_empty()?;
+        if value == "null" {
+            return Ok(OriginOrNull::Null);
+        }
 
-    fn parse_header(raw: &Raw) -> ::Result<Origin> {
-        from_one_raw_str(raw)
-    }
+        let bytes = Bytes::from(value.clone());
 
-    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
-        f.fmt_line(self)
-    }
-}
+        let uri = Uri::from_shared(bytes)
+            .map_err(|_| ::Error::invalid())?;
 
-static HTTP : &'static str = "http";
-static HTTPS : &'static str = "https";
-
-impl FromStr for Origin {
-    type Err = ::Error;
-
-    fn from_str(s: &str) -> ::Result<Origin> {
-        let idx = match s.find("://") {
-            Some(idx) => idx,
-            None => return Err(::Error::Header)
-        };
-        // idx + 3 because that's how long "://" is
-        let (scheme, etc) = (&s[..idx], &s[idx + 3..]);
-        let host = try!(Host::from_str(etc));
-        let scheme = match scheme {
-            "http"  => Cow::Borrowed(HTTP),
-            "https" => Cow::Borrowed(HTTPS),
-            s       => Cow::Owned(s.to_owned())
+        let (scheme, auth) = match uri.into_parts() {
+            uri::Parts {
+                scheme: Some(scheme),
+                authority: Some(auth),
+                path_and_query: None,
+                ..
+            } => (scheme, auth),
+            _ => {
+                return Err(::Error::invalid());
+            }
         };
 
-        Ok(Origin(OriginOrNull::Origin {
-            scheme: scheme,
-            host: host
-        }))
+        Ok(OriginOrNull::Origin(scheme, auth))
     }
 }
 
-impl fmt::Display for Origin {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.0 {
-            OriginOrNull::Origin { ref scheme, ref host } => write!(f, "{}://{}", scheme, host),
+impl<'a> From<&'a OriginOrNull> for HeaderValue {
+    fn from(origin: &'a OriginOrNull) -> HeaderValue {
+        match origin {
+            OriginOrNull::Origin(ref scheme, ref auth) => {
+                let s = format!("{}://{}", scheme, auth);
+                let bytes = Bytes::from(s);
+                HeaderValue::from_shared(bytes)
+                    .expect("Scheme and Authority are valid header values")
+            },
             // Serialized as "null" per ASCII serialization of an origin
             // https://html.spec.whatwg.org/multipage/browsers.html#ascii-serialisation-of-an-origin
-            OriginOrNull::Null => f.write_str("null")
+            OriginOrNull::Null => HeaderValue::from_static("null"),
         }
     }
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use super::Origin;
     use Header;
     use std::borrow::Cow;
-
-    macro_rules! assert_borrowed{
-        ($expr : expr) => {
-            match $expr {
-                Cow::Owned(ref v) => panic!("assertion failed: `{}` owns {:?}", stringify!($expr), v),
-                _ => {}
-            }
-        }
-    }
 
     #[test]
     fn test_origin() {
@@ -177,5 +103,4 @@ mod tests {
         assert_borrowed!(origin.scheme().unwrap().into());
     }
 }
-
-bench_header!(bench, Origin, { vec![b"https://foo.com".to_vec()] });
+*/
