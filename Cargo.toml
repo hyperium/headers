@@ -27,13 +27,12 @@ members = [
 
 [dependencies]
 #base64 = "0.9"
-#bytes = "0.4.4"
 headers-core = { path = "./headers-core" }
 headers-derive = { path = "./headers-derive" }
 headers-ext = { path = "./headers-ext" }
 #http = "0.1.7"
-#language-tags = "0.2"
-#log = "0.4"
 #mime = "0.3"
 #percent-encoding = "1.0"
-#unicase = "2.1"
+
+[patch.crates-io]
+http = { git = "https://github.com/hyperium/http" }
