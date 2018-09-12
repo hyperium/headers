@@ -1,10 +1,3 @@
-use std::fmt;
-use std::str;
-
-use unicase;
-
-use {Header, Raw};
-
 /// The `Expect` header.
 ///
 /// > The "Expect" header field in a request indicates a certain set of
@@ -15,50 +8,32 @@ use {Header, Raw};
 /// >    Expect  = "100-continue"
 ///
 /// # Example
+///
 /// ```
-/// use headers::{Headers, Expect};
-/// let mut headers = Headers::new();
-/// headers.set(Expect::Continue);
+/// use headers::Expect;
+///
+/// let expect = Expect::CONTINUE;
 /// ```
-#[derive(Copy, Clone, PartialEq, Debug)]
-pub enum Expect {
-    /// The value `100-continue`.
-    Continue
+#[derive(Clone, PartialEq, Debug)]
+pub struct Expect(());
+
+impl Expect {
+    /// "100-continue"
+    pub const CONTINUE: Expect = Expect(());
 }
 
-impl Header for Expect {
-    fn header_name() -> &'static str {
-        static NAME: &'static str = "Expect";
-        NAME
-    }
+impl ::Header for Expect {
+    const NAME: &'static ::HeaderName = &::http::header::EXPECT;
 
-    fn parse_header(raw: &Raw) -> ::Result<Expect> {
-        if let Some(line) = raw.one() {
-            let text = unsafe {
-                // safe because:
-                // 1. we don't actually care if it's utf8, we just want to
-                //    compare the bytes with the "case" normalized. If it's not
-                //    utf8, then the byte comparison will fail, and we'll return
-                //    None. No big deal.
-                str::from_utf8_unchecked(line)
-            };
-            if unicase::eq_ascii(text, "100-continue") {
-                Ok(Expect::Continue)
-            } else {
-                Err(::Error::Header)
-            }
+    fn decode(values: &mut ::Values) -> ::Result<Expect> {
+        if values.next_or_empty()? == "100-continue" {
+            Ok(Expect::CONTINUE)
         } else {
-            Err(::Error::Header)
+            Err(::Error::invalid())
         }
     }
 
-    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
-        f.fmt_line(self)
-    }
-}
-
-impl fmt::Display for Expect {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str("100-continue")
+    fn encode(&self, values: &mut ::ToValues) {
+        values.append(::HeaderValue::from_static("100-continue"));
     }
 }
