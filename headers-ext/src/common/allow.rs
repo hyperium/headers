@@ -29,6 +29,7 @@ use http::Method;
 /// let allow = Allow::new([Method::GET]);
 /// ```
 #[derive(Clone, Debug, PartialEq, Header)]
+#[header(csv)]
 pub struct Allow(Vec<Method>);
 
 impl Allow {
