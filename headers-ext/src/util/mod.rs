@@ -1,12 +1,12 @@
 //pub use self::charset::Charset;
 //pub use self::encoding::Encoding;
 //pub use self::entity::EntityTag;
-pub use self::httpdate::HttpDate;
+pub use self::http_date::HttpDate;
 //pub use language_tags::LanguageTag;
-//pub use self::quality_item::{Quality, QualityItem, qitem, q};
+//pub use self::quality_value::{Quality, QualityValue};
 
 //mod charset;
 //mod encoding;
 //mod entity;
-mod httpdate;
-//mod quality_item;
+mod http_date;
+//mod quality_value;
