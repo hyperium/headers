@@ -1,3 +1,5 @@
+use std::fmt;
+
 /// The `Expect` header.
 ///
 /// > The "Expect" header field in a request indicates a certain set of
@@ -14,7 +16,7 @@
 ///
 /// let expect = Expect::CONTINUE;
 /// ```
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq)]
 pub struct Expect(());
 
 impl Expect {
@@ -35,5 +37,43 @@ impl ::Header for Expect {
 
     fn encode(&self, values: &mut ::ToValues) {
         values.append(::HeaderValue::from_static("100-continue"));
+    }
+}
+
+impl fmt::Debug for Expect {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_tuple("Expect")
+            .field(&"100-continue")
+            .finish()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Expect;
+    use super::super::test_decode;
+
+    #[test]
+    fn expect_continue() {
+        assert_eq!(
+            test_decode::<Expect>(&["100-continue"]),
+            Some(Expect::CONTINUE),
+        );
+    }
+
+    #[test]
+    fn expectation_failed() {
+        assert_eq!(
+            test_decode::<Expect>(&["sandwich"]),
+            None,
+        );
+    }
+
+    #[test]
+    fn too_many_values() {
+        assert_eq!(
+            test_decode::<Expect>(&["100-continue", "100-continue"]),
+            None,
+        );
     }
 }

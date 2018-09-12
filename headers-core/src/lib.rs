@@ -126,9 +126,21 @@ impl HeaderMapExt for http::HeaderMap {
     where
         H: Header,
     {
-        let all = self.get_all(H::NAME).iter();
-        match H::decode(&mut Values { inner: all }) {
-            Ok(header) => Some(header),
+        let mut values = Values {
+            inner: self.get_all(H::NAME).iter(),
+        };
+        match H::decode(&mut values) {
+            Ok(header) => {
+                // Check the iterator was consumed. Various headers are only
+                // allowed to have a single value, so if there were extra
+                // values that the implementation didn't use, it's safer
+                // to error out.
+                if values.next().is_none() {
+                    Some(header)
+                } else {
+                    None
+                }
+            },
             Err(_) => None,
         }
     }
