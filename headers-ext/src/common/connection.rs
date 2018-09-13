@@ -1,4 +1,7 @@
-use ::HeaderName;
+use std::iter::FromIterator;
+
+use util::FlatCsv;
+use ::{HeaderName, HeaderValue};
 
 /// `Connection` header, defined in
 /// [RFC7230](http://tools.ietf.org/html/rfc7230#section-6.1)
@@ -24,46 +27,52 @@ use ::HeaderName;
 /// # Examples
 ///
 /// ```
+/// # extern crate headers_ext as headers;
 /// use headers::Connection;
 ///
 /// let keep_alive = Connection::keep_alive();
 /// ```
 ///
 /// ```
-/// # extern crate headers;
+/// # extern crate headers_ext as headers;
 /// # extern crate http;
 /// use headers::Connection;
-/// use http::header::HeaderName;
+/// use http::header::UPGRADE;
 /// # fn main() {
 ///
-/// let connection = Connection::new([HeaderName::from_static("upgrade")]);
+/// let connection = [UPGRADE]
+///     .into_iter()
+///     .collect::<Connection>();
 /// # }
 /// ```
+// This is frequently just 1 or 2 values, so optimize for that case.
 #[derive(Clone, Debug, Header)]
-#[header(csv)]
-pub struct Connection(Vec<HeaderName>);
+pub struct Connection(FlatCsv);
 
 impl Connection {
-    pub fn new<I>(iter: I) -> Self
-    where
-        I: IntoIterator<Item=HeaderName>,
-    {
-        let headers = iter
-            .into_iter()
-            .collect();
-        Connection(headers)
-    }
-
     /// A constructor to easily create a `Connection: close` header.
     #[inline]
     pub fn close() -> Connection {
-        Connection(vec![HeaderName::from_static("close")])
+        Connection(HeaderValue::from_static("close").into())
     }
 
     /// A constructor to easily create a `Connection: keep-alive` header.
     #[inline]
     pub fn keep_alive() -> Connection {
-        Connection(vec![HeaderName::from_static("keep-alive")])
+        Connection(HeaderValue::from_static("keep-alive").into())
+    }
+}
+
+impl FromIterator<HeaderName> for Connection {
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = HeaderName>,
+    {
+        let flat = iter
+            .into_iter()
+            .map(HeaderValue::from)
+            .collect();
+        Connection(flat)
     }
 }
 
