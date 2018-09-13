@@ -1,8 +1,4 @@
-use std::fmt;
-#[allow(unused, deprecated)]
-use std::ascii::AsciiExt;
-
-use {Header, Raw, parsing};
+use ::HeaderValue;
 
 /// The `Pragma` header defined by HTTP/1.0.
 ///
@@ -22,64 +18,39 @@ use {Header, Raw, parsing};
 /// # Examples
 ///
 /// ```
-/// use headers::{Headers, Pragma};
+/// # extern crate headers_ext as headers;
+/// use headers::Pragma;
 ///
-/// let mut headers = Headers::new();
-/// headers.set(Pragma::NoCache);
+/// let pragma = Pragma::no_cache();
 /// ```
-///
-/// ```
-/// use headers::{Headers, Pragma};
-///
-/// let mut headers = Headers::new();
-/// headers.set(Pragma::Ext("foobar".to_owned()));
-/// ```
-#[derive(Clone, PartialEq, Debug)]
-pub enum Pragma {
-    /// Corresponds to the `no-cache` value.
-    NoCache,
-    /// Every value other than `no-cache`.
-    Ext(String),
-}
+#[derive(Clone, Debug, PartialEq, Header)]
+pub struct Pragma(HeaderValue);
 
-impl Header for Pragma {
-    fn header_name() -> &'static str {
-        static NAME: &'static str = "Pragma";
-        NAME
+impl Pragma {
+    /// Construct the literal `no-cache` Pragma header.
+    pub fn no_cache() -> Pragma {
+        Pragma(HeaderValue::from_static("no-cache"))
     }
 
-    fn parse_header(raw: &Raw) -> ::Result<Pragma> {
-        parsing::from_one_raw_str(raw).and_then(|s: String| {
-            let slice = &s.to_ascii_lowercase()[..];
-            match slice {
-                "no-cache" => Ok(Pragma::NoCache),
-                _ => Ok(Pragma::Ext(s)),
-            }
-        })
-    }
-
-    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
-        f.fmt_line(self)
+    /// Return whether this pragma is `no-cache`.
+    pub fn is_no_cache(&self) -> bool {
+        self.0 == "no-cache"
     }
 }
 
-impl fmt::Display for Pragma {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(match *self {
-            Pragma::NoCache => "no-cache",
-            Pragma::Ext(ref string) => &string[..],
-        })
-    }
-}
+#[cfg(test)]
+mod tests {
+    use super::Pragma;
+    use super::super::test_decode;
 
-#[test]
-fn test_parse_header() {
-    let a: Pragma = Header::parse_header(&"no-cache".into()).unwrap();
-    let b = Pragma::NoCache;
-    assert_eq!(a, b);
-    let c: Pragma = Header::parse_header(&"FoObar".into()).unwrap();
-    let d = Pragma::Ext("FoObar".to_owned());
-    assert_eq!(c, d);
-    let e: ::Result<Pragma> = Header::parse_header(&"".into());
-    assert_eq!(e.ok(), None);
+    #[test]
+    fn no_cache_is_no_cache() {
+        assert!(Pragma::no_cache().is_no_cache());
+    }
+
+    #[test]
+    fn etc_is_not_no_cache() {
+        let ext = test_decode::<Pragma>(&["dexter"]).unwrap();
+        assert!(!ext.is_no_cache());
+    }
 }

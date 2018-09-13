@@ -30,6 +30,7 @@ enum OriginOrNull {
 }
 
 impl Origin {
+    /// The literal `null` Origin header.
     pub const NULL: Origin = Origin(OriginOrNull::Null);
 
     /// Checks if `Origin` is `null`.
