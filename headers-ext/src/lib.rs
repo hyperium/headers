@@ -3,6 +3,7 @@ extern crate headers_core;
 #[macro_use]
 extern crate headers_derive;
 extern crate http;
+extern crate mime;
 extern crate time;
 
 use headers_core::{

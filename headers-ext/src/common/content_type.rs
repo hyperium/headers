@@ -1,79 +1,47 @@
 use mime::{self, Mime};
 
-header! {
-    /// `Content-Type` header, defined in
-    /// [RFC7231](http://tools.ietf.org/html/rfc7231#section-3.1.1.5)
-    ///
-    /// The `Content-Type` header field indicates the media type of the
-    /// associated representation: either the representation enclosed in the
-    /// message payload or the selected representation, as determined by the
-    /// message semantics.  The indicated media type defines both the data
-    /// format and how that data is intended to be processed by a recipient,
-    /// within the scope of the received message semantics, after any content
-    /// codings indicated by Content-Encoding are decoded.
-    ///
-    /// Although the `mime` crate allows the mime options to be any slice, this crate
-    /// forces the use of Vec. This is to make sure the same header can't have more than 1 type. If
-    /// this is an issue, it's possible to implement `Header` on a custom struct.
-    ///
-    /// # ABNF
-    ///
-    /// ```text
-    /// Content-Type = media-type
-    /// ```
-    ///
-    /// # Example values
-    ///
-    /// * `text/html; charset=utf-8`
-    /// * `application/json`
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # extern crate headers;
-    /// use headers::{Headers, ContentType};
-    ///
-    /// let mut headers = Headers::new();
-    ///
-    /// headers.set(
-    ///     ContentType::json()
-    /// );
-    /// ```
-    ///
-    /// ```
-    /// # extern crate headers;
-    /// extern crate mime;
-    /// use headers::{Headers, ContentType};
-    ///
-    /// let mut headers = Headers::new();
-    ///
-    /// headers.set(
-    ///     ContentType(mime::TEXT_HTML)
-    /// );
-    /// ```
-    (ContentType, CONTENT_TYPE) => [Mime]
-
-    test_content_type {
-        test_header!(
-            test1,
-            vec![b"text/html"],
-            Some(HeaderField(TEXT_HTML)));
-    }
-}
+/// `Content-Type` header, defined in
+/// [RFC7231](http://tools.ietf.org/html/rfc7231#section-3.1.1.5)
+///
+/// The `Content-Type` header field indicates the media type of the
+/// associated representation: either the representation enclosed in the
+/// message payload or the selected representation, as determined by the
+/// message semantics.  The indicated media type defines both the data
+/// format and how that data is intended to be processed by a recipient,
+/// within the scope of the received message semantics, after any content
+/// codings indicated by Content-Encoding are decoded.
+///
+/// Although the `mime` crate allows the mime options to be any slice, this crate
+/// forces the use of Vec. This is to make sure the same header can't have more than 1 type. If
+/// this is an issue, it's possible to implement `Header` on a custom struct.
+///
+/// # ABNF
+///
+/// ```text
+/// Content-Type = media-type
+/// ```
+///
+/// # Example values
+///
+/// * `text/html; charset=utf-8`
+/// * `application/json`
+///
+/// # Examples
+///
+/// ```
+/// # extern crate headers_ext as headers;
+/// use headers::ContentType;
+///
+/// let ct = ContentType::json();
+/// ```
+#[derive(Clone, Debug, PartialEq)]
+pub struct ContentType(Mime);
 
 impl ContentType {
     /// A constructor  to easily create a `Content-Type: application/json` header.
     #[inline]
     pub fn json() -> ContentType {
         ContentType(mime::APPLICATION_JSON)
-    }
-
-    // Kind of deprecated, `text()` and `text_utf8()` are better.
-    // But don't bother with an actual #[deprecated], because the whole
-    // header system is changing in 0.12 anyways.
-    #[doc(hidden)]
-    pub fn plaintext() -> ContentType {
-        ContentType(mime::TEXT_PLAIN_UTF_8)
     }
 
     /// A constructor  to easily create a `Content-Type: text/plain` header.
@@ -124,6 +92,40 @@ impl ContentType {
     }
 }
 
-impl Eq for ContentType {}
+impl ::Header for ContentType {
+    const NAME: &'static ::HeaderName = &::http::header::CONTENT_TYPE;
 
-bench_header!(bench, ContentType, { vec![b"application/json".to_vec()] });
+    fn decode(values: &mut ::Values) -> Option<Self> {
+        values
+            .next()?
+            .to_str()
+            .ok()?
+            .parse()
+            .ok()
+            .map(ContentType)
+    }
+
+    fn encode(&self, values: &mut ::ToValues) {
+        let value = self
+            .0
+            .as_ref()
+            .parse()
+            .expect("Mime is always a valid HeaderValue");
+        values.append(value);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ContentType;
+    use super::super::test_decode;
+
+    #[test]
+    fn json() {
+        assert_eq!(
+            test_decode::<ContentType>(&["application/json"]),
+            Some(ContentType::json()),
+        );
+    }
+}
+//bench_header!(bench, ContentType, { vec![b"application/json".to_vec()] });
