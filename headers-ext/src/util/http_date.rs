@@ -30,7 +30,7 @@ use time;
 //   HTTP-date, the sender MUST generate those timestamps in the
 //   IMF-fixdate format.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct HttpDate(time::Tm);
+pub(crate) struct HttpDate(time::Tm);
 
 #[derive(Debug)]
 pub struct Error(());

@@ -2,7 +2,7 @@
 //pub use self::encoding::Encoding;
 //pub use self::entity::EntityTag;
 pub(crate) use self::flat_csv::FlatCsv;
-pub use self::http_date::HttpDate;
+pub(crate) use self::http_date::HttpDate;
 //pub use language_tags::LanguageTag;
 //pub use self::quality_value::{Quality, QualityValue};
 
