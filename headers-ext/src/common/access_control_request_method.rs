@@ -18,7 +18,7 @@ use ::{Header, HeaderName, HeaderValue};
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
+/// # extern crate headers_ext as headers;
 /// extern crate http;
 /// use headers::AccessControlRequestMethod;
 /// use http::Method;

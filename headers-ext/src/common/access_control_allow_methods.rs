@@ -19,12 +19,15 @@ use http::Method;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
+/// # extern crate headers_ext as headers;
 /// extern crate http;
-/// use headers::AccessControlAllowMethods;
 /// use http::Method;
+/// use headers::AccessControlAllowMethods;
 ///
-/// let allow_methods = AccessControlAllowMethods::new([Method::GET]);
+/// let allow_methods = AccessControlAllowMethods::new(vec![
+///     Method::GET,
+///     Method::PUT,
+/// ]);
 /// ```
 #[derive(Clone, Debug, PartialEq, Header)]
 #[header(csv)]

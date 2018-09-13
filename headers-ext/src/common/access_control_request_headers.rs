@@ -23,7 +23,7 @@
 /// use http::header::{ACCEPT_LANGUAGE, DATE};
 /// use headers::AccessControlRequestHeaders;
 ///
-/// let req_headers = AccessControlRequestHeaders::new([
+/// let req_headers = AccessControlRequestHeaders::new(vec![
 ///     ACCEPT_LANGUAGE,
 ///     DATE,
 /// ]);

@@ -23,21 +23,12 @@ use super::origin::{Origin};
 /// # Examples
 ///
 /// ```
+/// # extern crate headers_ext as headers;
 /// use headers::AccessControlAllowOrigin;
 ///
 /// let any_origin = AccessControlAllowOrigin::ANY;
-/// ```
-///
-/// ```
-/// use headers::AccessControlAllowOrigin;
-///
 /// let null_origin = AccessControlAllowOrigin::NULL;
-/// ```
-///
-/// ```
-/// use headers::AccessControlAllowOrigin;
-///
-/// //let allow_origin = AccessControlAllowOrigin::
+/// # //let allow_origin = AccessControlAllowOrigin::
 /// ```
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Header)]
 pub struct AccessControlAllowOrigin(OriginOrAny);

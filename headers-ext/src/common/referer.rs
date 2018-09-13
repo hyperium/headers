@@ -22,7 +22,8 @@ use http::header::HeaderValue;
 /// # Examples
 ///
 /// ```
-/// use headers::{Referer};
+/// # extern crate headers_ext as headers;
+/// use headers::Referer;
 ///
 /// let r = Referer::from_static("/People.html#tim");
 /// ```

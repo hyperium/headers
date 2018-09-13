@@ -19,6 +19,7 @@ use util::HttpDate;
 /// # Example
 ///
 /// ```
+/// # extern crate headers_ext as headers;
 /// use headers::Date;
 /// use std::time::SystemTime;
 ///

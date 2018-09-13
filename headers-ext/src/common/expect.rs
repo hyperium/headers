@@ -12,6 +12,7 @@ use std::fmt;
 /// # Example
 ///
 /// ```
+/// # extern crate headers_ext as headers;
 /// use headers::Expect;
 ///
 /// let expect = Expect::CONTINUE;

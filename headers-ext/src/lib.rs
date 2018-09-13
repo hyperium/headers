@@ -11,7 +11,8 @@ use headers_core::{
     ToValues,
     Values,
 };
-use http::header::{
+
+pub use http::header::{
     HeaderName,
     HeaderValue,
 };

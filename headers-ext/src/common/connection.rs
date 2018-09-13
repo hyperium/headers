@@ -32,19 +32,6 @@ use ::{HeaderName, HeaderValue};
 ///
 /// let keep_alive = Connection::keep_alive();
 /// ```
-///
-/// ```
-/// # extern crate headers_ext as headers;
-/// # extern crate http;
-/// use headers::Connection;
-/// use http::header::UPGRADE;
-/// # fn main() {
-///
-/// let connection = [UPGRADE]
-///     .into_iter()
-///     .collect::<Connection>();
-/// # }
-/// ```
 // This is frequently just 1 or 2 values, so optimize for that case.
 #[derive(Clone, Debug, Header)]
 pub struct Connection(FlatCsv);

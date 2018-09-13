@@ -16,9 +16,10 @@ use ::{HeaderValue};
 /// # Examples
 ///
 /// ```
+/// # extern crate headers_ext as headers;
 /// use headers::Origin;
 ///
-/// //let origin = Origin::from_static("https://hyper.rs");
+/// let origin = Origin::NULL;
 /// ```
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Header)]
 pub struct Origin(OriginOrNull);

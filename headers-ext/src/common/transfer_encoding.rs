@@ -33,7 +33,7 @@ use ::HeaderValue;
 /// # extern crate headers_ext as headers;
 /// use headers::TransferEncoding;
 ///
-/// let transfer = TranferEncoding::chunked();
+/// let transfer = TransferEncoding::chunked();
 /// ```
 // This currently is just a `HeaderValue`, instead of a `Vec<Encoding>`, since
 // the most common by far instance is simply the string `chunked`. It'd be a

@@ -22,8 +22,9 @@ use util::HttpDate;
 /// # Example
 ///
 /// ```
+/// # extern crate headers_ext as headers;
 /// use headers::LastModified;
-/// use std::time::{SystemTime, Duration};
+/// use std::time::{Duration, SystemTime};
 ///
 /// let modified = LastModified::from(
 ///     SystemTime::now() - Duration::from_secs(60 * 60 * 24)

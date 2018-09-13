@@ -25,6 +25,7 @@ use ::{Header, HeaderName, HeaderValue};
 /// # Examples
 ///
 /// ```
+/// # extern crate headers_ext as headers;
 /// use headers::AccessControlAllowCredentials;
 ///
 /// let allow_creds = AccessControlAllowCredentials;

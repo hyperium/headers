@@ -31,6 +31,7 @@ use http::header::HeaderValue;
 /// # Example
 ///
 /// ```
+/// # extern crate headers_ext as headers;
 /// use headers::{HeaderValue, UserAgent};
 ///
 /// let ua = UserAgent::from(HeaderValue::from_static("hyper/0.12.2"));

@@ -19,12 +19,12 @@
 /// # extern crate headers_ext as headers;
 /// extern crate http;
 /// # fn main() {
-/// use http::header::{CONTENT_LENGTH, E_TAG};
+/// use http::header::{CONTENT_LENGTH, ETAG};
 /// use headers::AccessControlExposeHeaders;
 ///
-/// let expose = AccessControlExposeHeaders::new([
+/// let expose = AccessControlExposeHeaders::new(vec![
 ///     CONTENT_LENGTH,
-///     E_TAG,
+///     ETAG,
 /// ]);
 /// # }
 /// ```

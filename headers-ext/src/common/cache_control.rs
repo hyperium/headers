@@ -24,9 +24,10 @@ use std::str::FromStr;
 /// # Example
 ///
 /// ```
+/// # extern crate headers_ext as headers;
 /// use headers::{CacheControl, CacheDirective};
 ///
-/// let cc = CacheControl::new([CacheDirective::NO_CACHE]);
+/// let cc = CacheControl::new(vec![CacheDirective::NO_CACHE]);
 /// ```
 #[derive(PartialEq, Clone, Debug, Header)]
 #[header(csv)]

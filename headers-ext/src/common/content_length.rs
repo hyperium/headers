@@ -32,6 +32,7 @@ use {Header, ToValues, Values};
 /// # Example
 ///
 /// ```
+/// # extern crate headers_ext as headers;
 /// use headers::ContentLength;
 ///
 /// let len = ContentLength(1_000);

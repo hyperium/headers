@@ -19,38 +19,14 @@ use http::header::HeaderName;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
-/// # extern crate unicase;
-/// # fn main() {
-/// // extern crate unicase;
+/// # extern crate headers_ext as headers;
+/// extern crate http;
+/// use http::header::DATE;
+/// use headers::AccessControlAllowHeaders;
 ///
-/// use headers::{Headers, AccessControlAllowHeaders};
-/// use unicase::Ascii;
-///
-/// let mut headers = Headers::new();
-/// headers.set(
-///     AccessControlAllowHeaders(vec![Ascii::new("date".to_owned())])
-/// );
-/// # }
-/// ```
-///
-/// ```
-/// # extern crate headers;
-/// # extern crate unicase;
-/// # fn main() {
-/// // extern crate unicase;
-///
-/// use headers::{Headers, AccessControlAllowHeaders};
-/// use unicase::Ascii;
-///
-/// let mut headers = Headers::new();
-/// headers.set(
-///     AccessControlAllowHeaders(vec![
-///         Ascii::new("accept-language".to_owned()),
-///         Ascii::new("date".to_owned()),
-///     ])
-/// );
-/// # }
+/// let allow_headers = AccessControlAllowHeaders::new(vec![
+///     DATE,
+/// ]);
 /// ```
 #[derive(Clone, Debug, PartialEq, Header)]
 #[header(csv)]

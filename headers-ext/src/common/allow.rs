@@ -21,12 +21,12 @@ use http::Method;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
+/// # extern crate headers_ext as headers;
 /// extern crate http;
 /// use headers::Allow;
 /// use http::Method;
 ///
-/// let allow = Allow::new([Method::GET]);
+/// let allow = Allow::new(vec![Method::GET]);
 /// ```
 #[derive(Clone, Debug, PartialEq, Header)]
 #[header(csv)]

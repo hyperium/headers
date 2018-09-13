@@ -20,19 +20,6 @@ use ::HeaderValue;
 ///
 /// # Examples
 ///
-/// ```
-/// use headers::{Headers, Location};
-///
-/// let mut headers = Headers::new();
-/// headers.set(Location::new("/People.html#tim"));
-/// ```
-///
-/// ```
-/// use headers::{Headers, Location};
-///
-/// let mut headers = Headers::new();
-/// headers.set(Location::new("http://www.example.com/index.html"));
-/// ```
 //TODO: make this a `Uri`?
 #[derive(Clone, Debug, PartialEq, Header)]
 pub struct Location(HeaderValue);

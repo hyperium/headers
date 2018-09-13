@@ -22,6 +22,7 @@ use http::header::HeaderValue;
 /// # Example
 ///
 /// ```
+/// # extern crate headers_ext as headers;
 /// use headers::Server;
 ///
 /// let server = Server::from_static("hyper/0.12.2");

@@ -22,12 +22,12 @@ use util::HttpDate;
 /// # Example
 ///
 /// ```
-/// use headers::{Headers, IfModifiedSince};
-/// use std::time::{SystemTime, Duration};
+/// # extern crate headers_ext as headers;
+/// use headers::IfModifiedSince;
+/// use std::time::{Duration, SystemTime};
 ///
-/// let mut headers = Headers::new();
-/// let modified = SystemTime::now() - Duration::from_secs(60 * 60 * 24);
-/// headers.set(IfModifiedSince(modified.into()));
+/// let time = SystemTime::now() - Duration::from_secs(60 * 60 * 24);
+/// let if_mod = IfModifiedSince::from(time);
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Header)]
 pub struct IfModifiedSince(HttpDate);
