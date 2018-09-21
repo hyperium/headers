@@ -1,5 +1,7 @@
-use std::fmt::{self, Display};
-use {Header, Raw, EntityTag, HttpDate};
+use std::time::SystemTime;
+
+use util::{EntityTag, HttpDate};
+use ::HeaderValue;
 
 /// `If-Range` header, defined in [RFC7233](http://tools.ietf.org/html/rfc7233#section-3.2)
 ///
@@ -30,61 +32,62 @@ use {Header, Raw, EntityTag, HttpDate};
 /// # Examples
 ///
 /// ```
-/// use headers::{Headers, IfRange, EntityTag};
-///
-/// let mut headers = Headers::new();
-/// headers.set(IfRange::EntityTag(EntityTag::new(false, "xyzzy".to_owned())));
-/// ```
-///
-/// ```
-/// use headers::{Headers, IfRange};
+/// use headers::IfRange;
 /// use std::time::{SystemTime, Duration};
 ///
-/// let mut headers = Headers::new();
 /// let fetched = SystemTime::now() - Duration::from_secs(60 * 60 * 24);
-/// headers.set(IfRange::Date(fetched.into()));
+/// let if_range = IfRange::date(fetched);
 /// ```
+#[derive(Clone, Debug, PartialEq, Header)]
+pub struct IfRange(IfRange_);
+
+impl IfRange {
+    /// Create an `IfRange` header with an entity tag.
+    pub fn etag(tag: super::ETag) -> IfRange {
+        IfRange(IfRange_::EntityTag(tag.0))
+    }
+
+    /// Create an `IfRange` header with a date value.
+    pub fn date(time: SystemTime) -> IfRange {
+        IfRange(IfRange_::Date(time.into()))
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
-pub enum IfRange {
+enum IfRange_ {
     /// The entity-tag the client has of the resource
     EntityTag(EntityTag),
     /// The date when the client retrieved the resource
     Date(HttpDate),
 }
 
-impl Header for IfRange {
-    fn header_name() -> &'static str {
-        static NAME: &'static str = "If-Range";
-        NAME
-    }
-    fn parse_header(raw: &Raw) -> ::Result<IfRange> {
-        let etag: ::Result<EntityTag> = ::parsing::from_one_raw_str(raw);
-        if let Ok(etag) = etag {
-            return Ok(IfRange::EntityTag(etag));
-        }
-        let date: ::Result<HttpDate> = ::parsing::from_one_raw_str(raw);
-        if let Ok(date) = date {
-            return Ok(IfRange::Date(date));
-        }
-        Err(::Error::Header)
-    }
+impl ::headers_core::decode::TryFromValues for IfRange_ {
+    fn try_from_values(values: &mut ::Values) -> Option<Self> {
+        let val = values.next()?;
 
-    fn fmt_header(&self, f: &mut ::Formatter) -> ::std::fmt::Result {
-        f.fmt_line(self)
+        if let Some(tag) = EntityTag::from_val(val) {
+            return Some(IfRange_::EntityTag(tag));
+        }
+
+        let date = HttpDate::from_val(val)?;
+        Some(IfRange_::Date(date))
     }
 }
 
-impl Display for IfRange {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            IfRange::EntityTag(ref x) => Display::fmt(x, f),
-            IfRange::Date(ref x) => Display::fmt(x, f),
+impl<'a> From<&'a IfRange_> for HeaderValue {
+    fn from(if_range: &'a IfRange_) -> HeaderValue {
+        match *if_range {
+            IfRange_::EntityTag(ref tag) => tag.into(),
+            IfRange_::Date(ref date) => date.into(),
         }
     }
 }
 
+
+
+/*
 #[cfg(test)]
-mod test_if_range {
+mod tests {
     use std::str;
     use *;
     use super::IfRange as HeaderField;
@@ -92,3 +95,4 @@ mod test_if_range {
     test_header!(test2, vec![b"\"xyzzy\""]);
     test_header!(test3, vec![b"this-is-invalid"], None::<IfRange>);
 }
+*/

@@ -61,7 +61,7 @@ impl EntityTag {
 
     pub fn from_static(bytes: &'static str) -> EntityTag {
         let val = HeaderValue::from_static(bytes);
-        match from_val(&val) {
+        match EntityTag::from_val(&val) {
             Some(tag) => tag,
             None => {
                 panic!("invalid static string for EntityTag: {:?}", bytes);
@@ -109,11 +109,41 @@ impl EntityTag {
     pub fn weak_ne(&self, other: &EntityTag) -> bool {
         !self.weak_eq(other)
     }
+
+    pub(crate) fn from_val(val: &HeaderValue) -> Option<EntityTag> {
+        let slice = val.as_bytes();
+        let length = slice.len();
+
+        // Early exits if it doesn't terminate in a DQUOTE.
+        if length < 2  || slice[length - 1] != b'"' {
+            return None;
+        }
+
+        let start = match slice[0] {
+            // "<tag>"
+            b'"' => 1,
+            // W/"<tag>"
+            b'W' => {
+                if length >= 4 && slice[1] == b'/' && slice[2] == b'"' {
+                    3
+                } else {
+                    return None;
+                }
+            },
+            _ => return None,
+        };
+
+        if check_slice_validity(&slice[start..length-1]) {
+            Some(EntityTag(val.clone()))
+        } else {
+            None
+        }
+    }
 }
 
 impl ::headers_core::decode::TryFromValues for EntityTag {
     fn try_from_values(values: &mut ::Values) -> Option<Self> {
-        from_val(values.next()?)
+        EntityTag::from_val(values.next()?)
     }
 }
 
@@ -123,35 +153,6 @@ impl<'a> From<&'a EntityTag> for HeaderValue {
     }
 }
 
-fn from_val(val: &HeaderValue) -> Option<EntityTag> {
-    let slice = val.as_bytes();
-    let length = slice.len();
-
-    // Early exits if it doesn't terminate in a DQUOTE.
-    if length < 2  || slice[length - 1] != b'"' {
-        return None;
-    }
-
-    let start = match slice[0] {
-        // "<tag>"
-        b'"' => 1,
-        // W/"<tag>"
-        b'W' => {
-            if length >= 4 && slice[1] == b'/' && slice[2] == b'"' {
-                3
-            } else {
-                return None;
-            }
-        },
-        _ => return None,
-    };
-
-    if check_slice_validity(&slice[start..length-1]) {
-        Some(EntityTag(val.clone()))
-    } else {
-        None
-    }
-}
 
 /// check that each char in the slice is either:
 /// 1. `%x21`, or
@@ -178,7 +179,7 @@ mod tests {
 
     fn parse(slice: &[u8]) -> Option<EntityTag> {
         let val = HeaderValue::from_bytes(slice).ok()?;
-        from_val(&val)
+        EntityTag::from_val(&val)
     }
     
     #[test]

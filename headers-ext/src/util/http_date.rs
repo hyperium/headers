@@ -32,17 +32,23 @@ use time;
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct HttpDate(time::Tm);
 
+impl HttpDate {
+    pub(crate) fn from_val(val: &HeaderValue) -> Option<Self> {
+        val.to_str()
+            .ok()?
+            .parse()
+            .ok()
+
+    }
+}
+
+// TODO: remove this and FromStr?
 #[derive(Debug)]
 pub struct Error(());
 
 impl ::headers_core::decode::TryFromValues for HttpDate {
     fn try_from_values(values: &mut ::Values) -> Option<Self> {
-        values
-            .next()?
-            .to_str()
-            .ok()?
-            .parse()
-            .ok()
+        HttpDate::from_val(values.next()?)
     }
 }
 
