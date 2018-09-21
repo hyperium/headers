@@ -6,7 +6,7 @@ extern crate syn;
 
 use proc_macro::TokenStream;
 use proc_macro2::Span;
-use syn::{Data, Fields, Ident, Meta, NestedMeta};
+use syn::{Data, Fields, Ident, Lit, Meta, NestedMeta};
 
 #[proc_macro_derive(Header, attributes(header))]
 pub fn derive_header(input: TokenStream) -> TokenStream {
@@ -28,7 +28,9 @@ fn impl_header(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
     let encode = fns.encode;
 
     let ty = &ast.ident;
-    let hname = to_header_name(&ty.to_string());
+    let hname = fns.name.unwrap_or_else(|| {
+        to_header_name(&ty.to_string())
+    });
     let hname_ident = Ident::new(&hname, Span::call_site());
     let dummy_const = Ident::new(&format!("_IMPL_HEADER_FOR_{}", hname), Span::call_site());
     let impl_block = quote! {
@@ -55,6 +57,7 @@ fn impl_header(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
 struct Fns {
     encode: proc_macro2::TokenStream,
     decode: proc_macro2::TokenStream,
+    name: Option<String>,
 }
 
 fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
@@ -71,6 +74,7 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
     // Check attributes for `#[header(...)]` that may influence the code
     // that is generated...
     let mut is_csv = false;
+    let mut name = None;
     for attr in &ast.attrs {
         if attr.path.segments.len() != 1 {
             continue;
@@ -86,6 +90,18 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
                         NestedMeta::Meta(Meta::Word(ref word)) if word == "csv" => {
                             is_csv = true;
                         },
+
+                        NestedMeta::Meta(Meta::NameValue(ref kv)) if kv.ident == "name" => {
+                            if name.is_some() {
+                                return Err("repeated 'name' option in #[header] attribute".into());
+                            }
+                            name = match kv.lit {
+                                Lit::Str(ref s) => Some(s.value()),
+                                _ => {
+                                    return Err("illegal literal in #[header(name = ..)] attribute".into());
+                                }
+                            };
+                        }
                         _ => {
                             return Err("illegal option in #[header(..)] attribute".into())
                         }
@@ -194,6 +210,7 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
     Ok(Fns {
         decode,
         encode,
+        name,
     })
 }
 
