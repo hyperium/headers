@@ -32,6 +32,7 @@ use ::HeaderValue;
 /// # Examples
 ///
 /// ```
+/// # extern crate headers_ext as headers;
 /// use headers::IfRange;
 /// use std::time::{SystemTime, Duration};
 ///

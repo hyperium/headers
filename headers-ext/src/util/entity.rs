@@ -147,6 +147,12 @@ impl ::headers_core::decode::TryFromValues for EntityTag {
     }
 }
 
+impl From<EntityTag> for HeaderValue {
+    fn from(tag: EntityTag) -> HeaderValue {
+        tag.0
+    }
+}
+
 impl<'a> From<&'a EntityTag> for HeaderValue {
     fn from(tag: &'a EntityTag) -> HeaderValue {
         tag.0.clone()
