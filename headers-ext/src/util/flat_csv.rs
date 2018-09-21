@@ -11,6 +11,22 @@ pub(crate) struct FlatCsv {
     pub(crate) value: HeaderValue,
 }
 
+impl FlatCsv {
+    pub(crate) fn iter(&self) -> impl Iterator<Item = &str> {
+        self
+            .value
+            .to_str()
+            .ok()
+            .into_iter()
+            .map(|value_str| {
+                value_str
+                    .split(',')
+                    .map(|item| item.trim())
+            })
+            .flatten()
+    }
+}
+
 impl TryFromValues for FlatCsv {
     fn try_from_values(values: &mut ::Values) -> Option<Self> {
         Some(values.collect())

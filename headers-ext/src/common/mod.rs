@@ -62,7 +62,7 @@ pub use self::strict_transport_security::StrictTransportSecurity;
 pub use self::transfer_encoding::TransferEncoding;
 pub use self::upgrade::Upgrade;
 pub use self::user_agent::UserAgent;
-//pub use self::vary::Vary;
+pub use self::vary::Vary;
 //pub use self::warning::Warning;
 
 #[cfg(test)]
@@ -131,5 +131,5 @@ mod strict_transport_security;
 mod transfer_encoding;
 mod upgrade;
 mod user_agent;
-//mod vary;
+mod vary;
 //mod warning;

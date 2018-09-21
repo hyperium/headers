@@ -1,4 +1,6 @@
-use ::{HeaderName};
+use util::FlatCsv;
+
+use {HeaderValue};
 
 /// `Vary` header, defined in [RFC7231](https://tools.ietf.org/html/rfc7231#section-7.1.4)
 ///
@@ -22,70 +24,28 @@ use ::{HeaderName};
 /// # Example
 ///
 /// ```
-/// use headers::{Headers, Vary};
+/// # extern crate headers_ext as headers;
+/// use headers::Vary;
 ///
-/// let mut headers = Headers::new();
-/// headers.set(Vary::Any);
-/// ```
-///
-/// # Example
-///
-/// ```
-/// # extern crate headers;
-/// # extern crate unicase;
-/// # fn main() {
-/// // extern crate unicase;
-///
-/// use headers::{Headers, Vary};
-/// use unicase::Ascii;
-///
-/// let mut headers = Headers::new();
-/// headers.set(
-///     Vary::Items(vec![
-///         Ascii::new("accept-encoding".to_owned()),
-///         Ascii::new("accept-language".to_owned()),
-///     ])
-/// );
-/// # }
+/// let vary = Vary::any();
 /// ```
 #[derive(Debug, Clone, PartialEq, Header)]
-#[header(csv)]
-pub struct Vary(Vary_);
-
-#[derive(Debug, Clone, PartialEq)]
-enum Vary_ {
-    Any,
-    Items(Vec<HeaderName>),
-}
-
-enum Iter<'a> {
-    Any(Option<()>),
-    Items(::std::slice::Iter<'a, HeaderName>),
-}
+pub struct Vary(FlatCsv);
 
 impl Vary {
-    pub const ANY: Vary = Vary(Vary_::Any);
-}
-
-impl Vary_ {
-    fn into_iter(&self) -> Iter {
-        match self {
-            Vary_::Any => Iter::Any(Some(())),
-            Vary_::Items(ref items) => Iter::Items(items.into_iter()),
-        }
-
+    /// Create a new `Very: *` header.
+    pub fn any() -> Vary {
+        Vary(HeaderValue::from_static("*").into())
     }
-}
 
+    /// Check if this includes `*`.
+    pub fn is_any(&self) -> bool {
+        self.0.iter().any(|val| val == "*")
+    }
 
-impl<'a> Iterator for Iter<'a> {
-    type Item = &'a &'a str;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        match self {
-            Iter::Any(ref mut star) => star.take().map(|_| &"*"),
-            Iter::Items(ref mut items) => items.next().map(|val| &val.as_str()),
-        }
+    /// Iterate the header names of this `Vary`.
+    pub fn iter_strs(&self) -> impl Iterator<Item = &str> {
+        self.0.iter()
     }
 }
 
@@ -107,3 +67,13 @@ test_vary {
     }
 }
 */
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn any_is_any() {
+        assert!(Vary::any().is_any());
+    }
+}
