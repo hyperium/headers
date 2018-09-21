@@ -1,8 +1,4 @@
-use std::fmt::{self, Display};
-use std::str::FromStr;
-
-use {Header, Raw};
-use parsing::{from_one_raw_str};
+use std::ops::Bound;
 
 /// `Range` header, defined in [RFC7233](https://tools.ietf.org/html/rfc7233#section-3.1)
 ///
@@ -33,52 +29,57 @@ use parsing::{from_one_raw_str};
 /// * `bytes=-2000`
 /// * `bytes=0-1,30-40`
 /// * `bytes=0-10,20-90,-100`
-/// * `custom_unit=0-123`
-/// * `custom_unit=xxx-yyy`
 ///
 /// # Examples
 ///
 /// ```
-/// use headers::{Headers, Range, ByteRangeSpec};
-///
-/// let mut headers = Headers::new();
-/// headers.set(Range::Bytes(
-///     vec![ByteRangeSpec::FromTo(1, 100), ByteRangeSpec::AllFrom(200)]
-/// ));
-///
-/// headers.clear();
-/// headers.set(Range::Unregistered("letters".to_owned(), "a-f".to_owned()));
 /// ```
-///
-/// ```
-/// use headers::{Headers, Range};
-///
-/// let mut headers = Headers::new();
-/// headers.set(Range::bytes(1, 100));
-///
-/// headers.clear();
-/// headers.set(Range::bytes_multi(vec![(1, 100), (200, 300)]));
-/// ```
-#[derive(PartialEq, Clone, Debug)]
-pub enum Range {
-    /// Byte range
-    Bytes(Vec<ByteRangeSpec>),
-    /// Custom range, with unit not registered at IANA
-    /// (`other-range-unit`: String , `other-range-set`: String)
-    Unregistered(String, String)
+#[derive(Clone, Debug, PartialEq)]
+pub struct Range(::HeaderValue);
+
+impl Range {
+    /// Iterate the range sets as a tuple of bounds.
+    pub fn iter<'a>(&'a self) -> impl Iterator<Item=(Bound<u64>, Bound<u64>)> + 'a {
+        let s = self.0
+            .to_str()
+            .expect("valid string checked in Header::decode()");
+
+        s["bytes=".len()..]
+            .split(',')
+            .filter_map(|spec| {
+                let mut iter = spec.trim().splitn(2, '-');
+                Some((parse_bound(iter.next()?)?, parse_bound(iter.next()?)?))
+            })
+    }
 }
 
-/// Each `Range::Bytes` header can contain one or more `ByteRangeSpecs`.
-/// Each `ByteRangeSpec` defines a range of bytes to fetch
-#[derive(PartialEq, Clone, Debug)]
-pub enum ByteRangeSpec {
-    /// Get all bytes between x and y ("x-y")
-    FromTo(u64, u64),
-    /// Get all bytes starting from x ("x-")
-    AllFrom(u64),
-    /// Get last x bytes ("-x")
-    Last(u64)
+fn parse_bound(s: &str) -> Option<Bound<u64>> {
+    if s.is_empty() {
+        return Some(Bound::Unbounded);
+    }
+
+    s.parse().ok().map(Bound::Included)
 }
+
+impl ::Header for Range {
+    const NAME: &'static ::HeaderName = &::http::header::RANGE;
+
+    fn decode(values: &mut ::Values) -> Option<Self> {
+        let val = values.next()?;
+
+        if val.to_str().ok()?.starts_with("bytes=") {
+            Some(Range(val.clone()))
+        } else {
+            None
+        }
+    }
+
+    fn encode(&self, values: &mut ::ToValues) {
+        values.append(self.0.clone());
+    }
+}
+
+/*
 
 impl ByteRangeSpec {
     /// Given the full length of the entity, attempt to normalize the byte range
@@ -387,3 +388,4 @@ fn test_byte_range_spec_to_satisfiable_range() {
 
 bench_header!(bytes_multi, Range, { vec![b"bytes=1-1001,2001-3001,10001-".to_vec()]});
 bench_header!(custom_unit, Range, { vec![b"other=0-100000".to_vec()]});
+*/
