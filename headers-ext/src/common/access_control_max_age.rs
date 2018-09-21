@@ -1,31 +1,37 @@
-header! {
-    /// `Access-Control-Max-Age` header, part of
-    /// [CORS](http://www.w3.org/TR/cors/#access-control-max-age-response-header)
-    ///
-    /// The `Access-Control-Max-Age` header indicates how long the results of a
-    /// preflight request can be cached in a preflight result cache.
-    ///
-    /// # ABNF
-    ///
-    /// ```text
-    /// Access-Control-Max-Age = \"Access-Control-Max-Age\" \":\" delta-seconds
-    /// ```
-    ///
-    /// # Example values
-    ///
-    /// * `531`
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use headers::{Headers, AccessControlMaxAge};
-    ///
-    /// let mut headers = Headers::new();
-    /// headers.set(AccessControlMaxAge(1728000u32));
-    /// ```
-    (AccessControlMaxAge, ACCESS_CONTROL_MAX_AGE) => [u32]
+use std::time::Duration;
 
-    test_access_control_max_age {
-        test_header!(test1, vec![b"531"]);
+use util::Seconds;
+
+/// `Access-Control-Max-Age` header, part of
+/// [CORS](http://www.w3.org/TR/cors/#access-control-max-age-response-header)
+///
+/// The `Access-Control-Max-Age` header indicates how long the results of a
+/// preflight request can be cached in a preflight result cache.
+///
+/// # ABNF
+///
+/// ```text
+/// Access-Control-Max-Age = \"Access-Control-Max-Age\" \":\" delta-seconds
+/// ```
+///
+/// # Example values
+///
+/// * `531`
+///
+/// # Examples
+///
+/// ```
+/// # extern crate headers_ext as headers;
+/// use std::time::Duration;
+/// use headers::AccessControlMaxAge;
+///
+/// let max_age = AccessControlMaxAge::from(Duration::from_secs(531));
+/// ```
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Header)]
+pub struct AccessControlMaxAge(Seconds);
+
+impl From<Duration> for AccessControlMaxAge {
+    fn from(dur: Duration) -> AccessControlMaxAge {
+        AccessControlMaxAge(dur.into())
     }
 }
