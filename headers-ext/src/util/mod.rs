@@ -1,6 +1,6 @@
 //pub use self::charset::Charset;
 //pub use self::encoding::Encoding;
-//pub use self::entity::EntityTag;
+pub(crate) use self::entity::EntityTag;
 pub(crate) use self::flat_csv::FlatCsv;
 pub(crate) use self::http_date::HttpDate;
 //pub use language_tags::LanguageTag;
@@ -8,7 +8,7 @@ pub(crate) use self::http_date::HttpDate;
 
 //mod charset;
 //mod encoding;
-//mod entity;
+mod entity;
 mod flat_csv;
 mod http_date;
 //mod quality_value;

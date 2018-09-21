@@ -1,46 +1,36 @@
-use EntityTag;
+use util::EntityTag;
 
-header! {
-    /// `ETag` header, defined in [RFC7232](http://tools.ietf.org/html/rfc7232#section-2.3)
-    ///
-    /// The `ETag` header field in a response provides the current entity-tag
-    /// for the selected representation, as determined at the conclusion of
-    /// handling the request.  An entity-tag is an opaque validator for
-    /// differentiating between multiple representations of the same
-    /// resource, regardless of whether those multiple representations are
-    /// due to resource state changes over time, content negotiation
-    /// resulting in multiple representations being valid at the same time,
-    /// or both.  An entity-tag consists of an opaque quoted string, possibly
-    /// prefixed by a weakness indicator.
-    ///
-    /// # ABNF
-    ///
-    /// ```text
-    /// ETag       = entity-tag
-    /// ```
-    ///
-    /// # Example values
-    ///
-    /// * `"xyzzy"`
-    /// * `W/"xyzzy"`
-    /// * `""`
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use headers::{Headers, ETag, EntityTag};
-    ///
-    /// let mut headers = Headers::new();
-    /// headers.set(ETag(EntityTag::new(false, "xyzzy".to_owned())));
-    /// ```
-    /// ```
-    /// use headers::{Headers, ETag, EntityTag};
-    ///
-    /// let mut headers = Headers::new();
-    /// headers.set(ETag(EntityTag::new(true, "xyzzy".to_owned())));
-    /// ```
-    (ETag, ETAG) => [EntityTag]
+/// `ETag` header, defined in [RFC7232](http://tools.ietf.org/html/rfc7232#section-2.3)
+///
+/// The `ETag` header field in a response provides the current entity-tag
+/// for the selected representation, as determined at the conclusion of
+/// handling the request.  An entity-tag is an opaque validator for
+/// differentiating between multiple representations of the same
+/// resource, regardless of whether those multiple representations are
+/// due to resource state changes over time, content negotiation
+/// resulting in multiple representations being valid at the same time,
+/// or both.  An entity-tag consists of an opaque quoted string, possibly
+/// prefixed by a weakness indicator.
+///
+/// # ABNF
+///
+/// ```text
+/// ETag       = entity-tag
+/// ```
+///
+/// # Example values
+///
+/// * `"xyzzy"`
+/// * `W/"xyzzy"`
+/// * `""`
+///
+/// # Examples
+///
+#[derive(Clone, Debug, PartialEq, Eq, Header)]
+#[header(name = "ETAG")]
+pub struct ETag(EntityTag);
 
+    /*
     test_etag {
         // From the RFC
         test_header!(test1,
@@ -90,6 +80,5 @@ header! {
             vec![b"\""],
             None::<ETag>);
     }
-}
+    */
 
-bench_header!(bench, ETag, { vec![b"W/\"nonemptytag\"".to_vec()] });

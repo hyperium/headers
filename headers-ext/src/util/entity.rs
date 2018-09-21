@@ -1,14 +1,5 @@
-use std::str::FromStr;
-use std::fmt::{self, Display};
+use {HeaderValue};
 
-/// check that each char in the slice is either:
-/// 1. `%x21`, or
-/// 2. in the range `%x23` to `%x7E`, or
-/// 3. above `%x80`
-fn check_slice_validity(slice: &str) -> bool {
-    slice.bytes().all(|c|
-        c == b'\x21' || (c >= b'\x23' && c <= b'\x7e') | (c >= b'\x80'))
-}
 
 /// An entity tag, defined in [RFC7232](https://tools.ietf.org/html/rfc7232#section-2.3)
 ///
@@ -41,14 +32,10 @@ fn check_slice_validity(slice: &str) -> bool {
 /// | `W/"1"` | `"1"`   | no match          | match           |
 /// | `"1"`   | `"1"`   | match             | match           |
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct EntityTag {
-    /// Weakness indicator for the tag
-    pub weak: bool,
-    /// The opaque string in between the DQUOTEs
-    tag: String
-}
+pub(crate) struct EntityTag(HeaderValue);
 
 impl EntityTag {
+    /*
     /// Constructs a new EntityTag.
     /// # Panics
     /// If the tag contains invalid characters.
@@ -70,31 +57,47 @@ impl EntityTag {
     pub fn strong(tag: String) -> EntityTag {
         EntityTag::new(false, tag)
     }
+    */
 
-    /// Get the tag.
-    pub fn tag(&self) -> &str {
-        self.tag.as_ref()
+    pub fn from_static(bytes: &'static str) -> EntityTag {
+        let val = HeaderValue::from_static(bytes);
+        match from_val(&val) {
+            Some(tag) => tag,
+            None => {
+                panic!("invalid static string for EntityTag: {:?}", bytes);
+            }
+        }
     }
 
-    /// Set the tag.
-    /// # Panics
-    /// If the tag contains invalid characters.
-    pub fn set_tag(&mut self, tag: String) {
-        assert!(check_slice_validity(&tag), "Invalid tag: {:?}", tag);
-        self.tag = tag
+    /// Get the tag.
+    pub fn tag(&self) -> &[u8] {
+        let bytes = self.0.as_bytes();
+        let end = bytes.len() - 1;
+        if bytes[0] == b'W' {
+            // W/"<tag>"
+            &bytes[3..end]
+        } else {
+            // "<tag>"
+            &bytes[1..end]
+        }
+    }
+
+    /// Return if this is a "weak" tag.
+    pub fn is_weak(&self) -> bool {
+        self.0.as_bytes()[0] == b'W'
     }
 
     /// For strong comparison two entity-tags are equivalent if both are not weak and their
     /// opaque-tags match character-by-character.
     pub fn strong_eq(&self, other: &EntityTag) -> bool {
-        !self.weak && !other.weak && self.tag == other.tag
+        !self.is_weak() && !other.is_weak() && self.tag() == other.tag()
     }
 
     /// For weak comparison two entity-tags are equivalent if their
     /// opaque-tags match character-by-character, regardless of either or
     /// both being tagged as "weak".
     pub fn weak_eq(&self, other: &EntityTag) -> bool {
-        self.tag == other.tag
+        self.tag() == other.tag()
     }
 
     /// The inverse of `EntityTag.strong_eq()`.
@@ -108,68 +111,107 @@ impl EntityTag {
     }
 }
 
-impl Display for EntityTag {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.weak {
-            write!(f, "W/\"{}\"", self.tag)
-        } else {
-            write!(f, "\"{}\"", self.tag)
-        }
+impl ::headers_core::decode::TryFromValues for EntityTag {
+    fn try_from_values(values: &mut ::Values) -> Option<Self> {
+        from_val(values.next()?)
     }
 }
 
-impl FromStr for EntityTag {
-    type Err = ::Error;
-    fn from_str(s: &str) -> ::Result<EntityTag> {
-        let length: usize = s.len();
-        let slice = &s[..];
-        // Early exits if it doesn't terminate in a DQUOTE.
-        if !slice.ends_with('"') || slice.len() < 2 {
-            return Err(::Error::Header);
-        }
-        // The etag is weak if its first char is not a DQUOTE.
-        if slice.len() >= 2 && slice.starts_with('"')
-                && check_slice_validity(&slice[1..length-1]) {
-            // No need to check if the last char is a DQUOTE,
-            // we already did that above.
-            return Ok(EntityTag { weak: false, tag: slice[1..length-1].to_owned() });
-        } else if slice.len() >= 4 && slice.starts_with("W/\"")
-                && check_slice_validity(&slice[3..length-1]) {
-            return Ok(EntityTag { weak: true, tag: slice[3..length-1].to_owned() });
-        }
-        Err(::Error::Header)
+impl<'a> From<&'a EntityTag> for HeaderValue {
+    fn from(tag: &'a EntityTag) -> HeaderValue {
+        tag.0.clone()
     }
+}
+
+fn from_val(val: &HeaderValue) -> Option<EntityTag> {
+    let slice = val.as_bytes();
+    let length = slice.len();
+
+    // Early exits if it doesn't terminate in a DQUOTE.
+    if length < 2  || slice[length - 1] != b'"' {
+        return None;
+    }
+
+    let start = match slice[0] {
+        // "<tag>"
+        b'"' => 1,
+        // W/"<tag>"
+        b'W' => {
+            if length >= 4 && slice[1] == b'/' && slice[2] == b'"' {
+                3
+            } else {
+                return None;
+            }
+        },
+        _ => return None,
+    };
+
+    if check_slice_validity(&slice[start..length-1]) {
+        Some(EntityTag(val.clone()))
+    } else {
+        None
+    }
+}
+
+/// check that each char in the slice is either:
+/// 1. `%x21`, or
+/// 2. in the range `%x23` to `%x7E`, or
+/// 3. above `%x80`
+fn check_slice_validity(slice: &[u8]) -> bool {
+    slice.iter().all(|&c| {
+        // HeaderValue already validates that this doesnt contain control
+        // characters, so we only need to look for DQUOTE (`"`).
+        //
+        // The debug_assert is just in case we use check_slice_validity in
+        // some new context that didnt come from a HeaderValue.
+        debug_assert!(
+            (c >= b'\x21' && c <= b'\x7e') | (c >= b'\x80'),
+            "EntityTag expects HeaderValue to have check for control characters"
+        );
+        c != b'"'
+    })
 }
 
 #[cfg(test)]
 mod tests {
-    use super::EntityTag;
+    use super::*;
 
+    fn parse(slice: &[u8]) -> Option<EntityTag> {
+        let val = HeaderValue::from_bytes(slice).ok()?;
+        from_val(&val)
+    }
+    
     #[test]
     fn test_etag_parse_success() {
         // Expected success
-        assert_eq!("\"foobar\"".parse::<EntityTag>().unwrap(),
-            EntityTag::strong("foobar".to_owned()));
-        assert_eq!("\"\"".parse::<EntityTag>().unwrap(),
-            EntityTag::strong("".to_owned()));
-        assert_eq!("W/\"weaktag\"".parse::<EntityTag>().unwrap(),
-            EntityTag::weak("weaktag".to_owned()));
-        assert_eq!("W/\"\x65\x62\"".parse::<EntityTag>().unwrap(),
-            EntityTag::weak("\x65\x62".to_owned()));
-        assert_eq!("W/\"\"".parse::<EntityTag>().unwrap(), EntityTag::weak("".to_owned()));
+        let tag = parse(b"\"foobar\"").unwrap();
+        assert!(!tag.is_weak());
+        assert_eq!(tag.tag(), b"foobar");
+
+        let weak = parse(b"W/\"weaktag\"").unwrap();
+        assert!(weak.is_weak());
+        assert_eq!(weak.tag(), b"weaktag");
     }
 
     #[test]
     fn test_etag_parse_failures() {
         // Expected failures
-        assert!("no-dquotes".parse::<EntityTag>().is_err());
-        assert!("w/\"the-first-w-is-case-sensitive\"".parse::<EntityTag>().is_err());
-        assert!("".parse::<EntityTag>().is_err());
-        assert!("\"unmatched-dquotes1".parse::<EntityTag>().is_err());
-        assert!("unmatched-dquotes2\"".parse::<EntityTag>().is_err());
-        assert!("matched-\"dquotes\"".parse::<EntityTag>().is_err());
+        macro_rules! fails {
+            ($slice:expr) => {
+                assert_eq!(parse($slice), None);
+            }
+        }
+
+        fails!(b"no-dquote");
+        fails!(b"w/\"the-first-w-is-case sensitive\"");
+        fails!(b"W/\"");
+        fails!(b"");
+        fails!(b"\"unmatched-dquotes1");
+        fails!(b"unmatched-dquotes2\"");
+        fails!(b"\"inner\"quotes\"");
     }
 
+    /*
     #[test]
     fn test_etag_fmt() {
         assert_eq!(format!("{}", EntityTag::strong("foobar".to_owned())), "\"foobar\"");
@@ -178,6 +220,7 @@ mod tests {
         assert_eq!(format!("{}", EntityTag::weak("\u{0065}".to_owned())), "W/\"\x65\"");
         assert_eq!(format!("{}", EntityTag::weak("".to_owned())), "W/\"\"");
     }
+    */
 
     #[test]
     fn test_cmp() {
@@ -187,29 +230,26 @@ mod tests {
         // | `W/"1"` | `W/"2"` | no match          | no match        |
         // | `W/"1"` | `"1"`   | no match          | match           |
         // | `"1"`   | `"1"`   | match             | match           |
-        let mut etag1 = EntityTag::weak("1".to_owned());
-        let mut etag2 = EntityTag::weak("1".to_owned());
+        let mut etag1 = EntityTag::from_static("W/\"1\"");
+        let mut etag2 = etag1.clone();
         assert!(!etag1.strong_eq(&etag2));
         assert!(etag1.weak_eq(&etag2));
         assert!(etag1.strong_ne(&etag2));
         assert!(!etag1.weak_ne(&etag2));
 
-        etag1 = EntityTag::weak("1".to_owned());
-        etag2 = EntityTag::weak("2".to_owned());
+        etag2 = EntityTag::from_static("W/\"2\"");
         assert!(!etag1.strong_eq(&etag2));
         assert!(!etag1.weak_eq(&etag2));
         assert!(etag1.strong_ne(&etag2));
         assert!(etag1.weak_ne(&etag2));
 
-        etag1 = EntityTag::weak("1".to_owned());
-        etag2 = EntityTag::strong("1".to_owned());
+        etag2 = EntityTag::from_static("\"1\"");
         assert!(!etag1.strong_eq(&etag2));
         assert!(etag1.weak_eq(&etag2));
         assert!(etag1.strong_ne(&etag2));
         assert!(!etag1.weak_ne(&etag2));
 
-        etag1 = EntityTag::strong("1".to_owned());
-        etag2 = EntityTag::strong("1".to_owned());
+        etag1 = EntityTag::from_static("\"1\"");
         assert!(etag1.strong_eq(&etag2));
         assert!(etag1.weak_eq(&etag2));
         assert!(!etag1.strong_ne(&etag2));
