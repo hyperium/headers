@@ -32,7 +32,7 @@ use std::fmt;
 /// # extern crate headers_ext as headers;
 /// use headers::StrictTransportSecurity;
 ///
-/// let sts = StrictTransportSecurity::including_subdomains(31_536_000)
+/// let sts = StrictTransportSecurity::including_subdomains(31_536_000);
 /// ```
 #[derive(Clone, Debug, PartialEq)]
 pub struct StrictTransportSecurity {
