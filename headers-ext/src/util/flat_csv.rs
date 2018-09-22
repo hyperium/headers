@@ -1,5 +1,6 @@
 use std::fmt;
 use std::iter::FromIterator;
+use std::marker::PhantomData;
 
 use bytes::{Bytes, BytesMut};
 use headers_core::decode::TryFromValues;
@@ -7,11 +8,30 @@ use ::HeaderValue;
 
 // A single `HeaderValue` that can flatten multiple values with commas.
 #[derive(Clone, PartialEq, Eq, Hash)]
-pub(crate) struct FlatCsv {
+pub(crate) struct FlatCsv<Sep = Comma> {
     pub(crate) value: HeaderValue,
+    _marker: PhantomData<Sep>,
 }
 
-impl FlatCsv {
+pub(crate) trait Separator {
+    const SEP: u8;
+}
+
+#[derive(Clone, PartialEq, Eq, Hash)]
+pub(crate) enum Comma {}
+
+impl Separator for Comma {
+    const SEP: u8 = b',';
+}
+
+#[derive(Clone, PartialEq, Eq, Hash)]
+pub(crate) enum SemiColon {}
+
+impl Separator for SemiColon {
+    const SEP: u8 = b';';
+}
+
+impl<Sep: Separator> FlatCsv<Sep> {
     pub(crate) fn iter(&self) -> impl Iterator<Item = &str> {
         self
             .value
@@ -20,41 +40,42 @@ impl FlatCsv {
             .into_iter()
             .map(|value_str| {
                 value_str
-                    .split(',')
+                    .split(Sep::SEP as char)
                     .map(|item| item.trim())
             })
             .flatten()
     }
 }
 
-impl TryFromValues for FlatCsv {
+impl<Sep: Separator> TryFromValues for FlatCsv<Sep> {
     fn try_from_values(values: &mut ::Values) -> Option<Self> {
         Some(values.collect())
     }
 }
 
-impl From<HeaderValue> for FlatCsv {
-    fn from(value: HeaderValue) -> FlatCsv {
+impl<Sep> From<HeaderValue> for FlatCsv<Sep> {
+    fn from(value: HeaderValue) -> Self {
         FlatCsv {
             value,
+            _marker: PhantomData,
         }
     }
 }
 
 
-impl<'a> From<&'a FlatCsv> for HeaderValue {
-    fn from(flat: &'a FlatCsv) -> HeaderValue {
+impl<'a, Sep> From<&'a FlatCsv<Sep>> for HeaderValue {
+    fn from(flat: &'a FlatCsv<Sep>) -> HeaderValue {
         flat.value.clone()
     }
 }
 
-impl fmt::Debug for FlatCsv {
+impl<Sep> fmt::Debug for FlatCsv<Sep> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         fmt::Debug::fmt(&self.value, f)
     }
 }
 
-impl<'a> FromIterator<&'a HeaderValue> for FlatCsv {
+impl<'a, Sep: Separator> FromIterator<&'a HeaderValue> for FlatCsv<Sep> {
     fn from_iter<I>(iter: I) -> Self
     where
         I: IntoIterator<Item = &'a HeaderValue>,
@@ -80,7 +101,7 @@ impl<'a> FromIterator<&'a HeaderValue> for FlatCsv {
         let mut buf = BytesMut::from(bytes);
 
         for val in values {
-            buf.extend_from_slice(b", ");
+            buf.extend_from_slice(&[Sep::SEP, b' ']);
             buf.extend_from_slice(val.as_bytes());
         }
 
@@ -92,7 +113,7 @@ impl<'a> FromIterator<&'a HeaderValue> for FlatCsv {
 }
 
 // TODO: would be great if there was a way to de-dupe these with above
-impl FromIterator<HeaderValue> for FlatCsv {
+impl<Sep: Separator> FromIterator<HeaderValue> for FlatCsv<Sep> {
     fn from_iter<I>(iter: I) -> Self
     where
         I: IntoIterator<Item = HeaderValue>,
@@ -116,7 +137,7 @@ impl FromIterator<HeaderValue> for FlatCsv {
         let mut buf = BytesMut::from(bytes);
 
         for val in values {
-            buf.extend_from_slice(b", ");
+            buf.extend_from_slice(&[Sep::SEP, b' ']);
             buf.extend_from_slice(val.as_bytes());
         }
 
