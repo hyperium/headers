@@ -6,36 +6,7 @@
 // Browser conformance tests at: http://greenbytes.de/tech/tc2231/
 // IANA assignment: http://www.iana.org/assignments/cont-disp/cont-disp.xhtml
 
-use language_tags::LanguageTag;
-use std::fmt;
-use unicase;
-
-use {Header, Raw, parsing};
-use parsing::{parse_extended_value, http_percent_encode};
-use shared::Charset;
-
-/// The implied disposition of the content of the HTTP body.
-#[derive(Clone, Debug, PartialEq)]
-pub enum DispositionType {
-    /// Inline implies default processing
-    Inline,
-    /// Attachment implies that the recipient should prompt the user to save the response locally,
-    /// rather than process it normally (as per its media type).
-    Attachment,
-    /// Extension type.  Should be handled by recipients the same way as Attachment
-    Ext(String)
-}
-
-/// A parameter to the disposition type.
-#[derive(Clone, Debug, PartialEq)]
-pub enum DispositionParam {
-    /// A Filename consisting of a Charset, an optional LanguageTag, and finally a sequence of
-    /// bytes representing the filename
-    Filename(Charset, Option<LanguageTag>, Vec<u8>),
-    /// Extension type consisting of token and value.  Recipients should ignore unrecognized
-    /// parameters.
-    Ext(String, String)
-}
+use bytes::Bytes;
 
 /// A `Content-Disposition` header, (re)defined in [RFC6266](https://tools.ietf.org/html/rfc6266).
 ///
@@ -69,18 +40,73 @@ pub enum DispositionParam {
 /// # Example
 ///
 /// ```
-/// use headers::{Headers, ContentDisposition, DispositionType, DispositionParam, Charset};
+/// # extern crate headers_ext as headers;
+/// use headers::ContentDisposition;
 ///
-/// let mut headers = Headers::new();
-/// headers.set(ContentDisposition {
-///     disposition: DispositionType::Attachment,
-///     parameters: vec![DispositionParam::Filename(
-///       Charset::Iso_8859_1, // The character set for the bytes of the filename
-///       None, // The optional language tag (see `language-tag` crate)
-///       b"\xa9 Copyright 1989.txt".to_vec() // the actual bytes of the filename
-///     )]
-/// });
+/// let cd = ContentDisposition::attachment("image.png");
 /// ```
+#[derive(Clone, Debug)]
+pub struct ContentDisposition(::HeaderValue);
+
+impl ContentDisposition {
+    pub fn attachment(filename: &str) -> ContentDisposition {
+        let full = Bytes::from(format!("attachment; filename={}", filename));
+        match ::HeaderValue::from_shared(full) {
+            Ok(val) => ContentDisposition(val),
+            Err(_) => {
+                unimplemented!("filename that isn't ASCII");
+            }
+        }
+    }
+}
+
+impl ::Header for ContentDisposition {
+    const NAME: &'static ::HeaderName = &::http::header::CONTENT_DISPOSITION;
+
+    fn decode(values: &mut ::Values) -> Option<Self> {
+        //TODO: parse harder
+        values
+            .next()
+            .cloned()
+            .map(ContentDisposition)
+    }
+
+    fn encode(&self, values: &mut ::ToValues) {
+        values.append(self.0.clone());
+    }
+}
+/*
+use language_tags::LanguageTag;
+use std::fmt;
+use unicase;
+
+use {Header, Raw, parsing};
+use parsing::{parse_extended_value, http_percent_encode};
+use shared::Charset;
+
+/// The implied disposition of the content of the HTTP body.
+#[derive(Clone, Debug, PartialEq)]
+pub enum DispositionType {
+    /// Inline implies default processing
+    Inline,
+    /// Attachment implies that the recipient should prompt the user to save the response locally,
+    /// rather than process it normally (as per its media type).
+    Attachment,
+    /// Extension type.  Should be handled by recipients the same way as Attachment
+    Ext(String)
+}
+
+/// A parameter to the disposition type.
+#[derive(Clone, Debug, PartialEq)]
+pub enum DispositionParam {
+    /// A Filename consisting of a Charset, an optional LanguageTag, and finally a sequence of
+    /// bytes representing the filename
+    Filename(Charset, Option<LanguageTag>, Vec<u8>),
+    /// Extension type consisting of token and value.  Recipients should ignore unrecognized
+    /// parameters.
+    Ext(String, String)
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct ContentDisposition {
     /// The disposition
@@ -262,3 +288,4 @@ mod tests {
         assert_eq!("attachment; filename=\"colourful.csv\"".to_owned(), display_rendered);
     }
 }
+*/
