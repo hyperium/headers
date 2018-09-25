@@ -1,4 +1,7 @@
 use std::fmt;
+use std::time::Duration;
+
+use util::Seconds;
 
 /// `StrictTransportSecurity` header, defined in [RFC6797](https://tools.ietf.org/html/rfc6797)
 ///
@@ -30,9 +33,10 @@ use std::fmt;
 ///
 /// ```
 /// # extern crate headers_ext as headers;
+/// use std::time::Duration;
 /// use headers::StrictTransportSecurity;
 ///
-/// let sts = StrictTransportSecurity::including_subdomains(31_536_000);
+/// let sts = StrictTransportSecurity::including_subdomains(Duration::from_secs(31_536_000));
 /// ```
 #[derive(Clone, Debug, PartialEq)]
 pub struct StrictTransportSecurity {
@@ -43,22 +47,26 @@ pub struct StrictTransportSecurity {
     /// Specifies the number of seconds, after the reception of the STS header
     /// field, during which the UA regards the host (from whom the message was
     /// received) as a Known HSTS Host.
-    max_age: u64,
+    max_age: Seconds,
 }
 
 impl StrictTransportSecurity {
+    // NOTE: The two constructors exist to make a user *have* to decide if
+    // subdomains can be included or not, instead of forgetting due to an
+    // incorrect assumption about a default.
+
     /// Create an STS header that includes subdomains
-    pub fn including_subdomains(max_age: u64) -> StrictTransportSecurity {
+    pub fn including_subdomains(max_age: Duration) -> StrictTransportSecurity {
         StrictTransportSecurity {
-            max_age,
+            max_age: max_age.into(),
             include_subdomains: true
         }
     }
 
     /// Create an STS header that excludes subdomains
-    pub fn excluding_subdomains(max_age: u64) -> StrictTransportSecurity {
+    pub fn excluding_subdomains(max_age: Duration) -> StrictTransportSecurity {
         StrictTransportSecurity {
-            max_age,
+            max_age: max_age.into(),
             include_subdomains: false
         }
     }
@@ -100,7 +108,7 @@ fn from_str(s: &str) -> Option<StrictTransportSecurity> {
         })
         .and_then(|res| match res {
             (Some(age), sub) => Some(StrictTransportSecurity {
-                max_age: age,
+                max_age: Duration::from_secs(age).into(),
                 include_subdomains: sub.is_some()
             }),
             _ => None
@@ -139,6 +147,7 @@ impl ::Header for StrictTransportSecurity {
 
 #[cfg(test)]
 mod tests {
+    use std::time::Duration;
     use super::StrictTransportSecurity;
     use super::super::test_decode;
 
@@ -147,7 +156,7 @@ mod tests {
         let h = test_decode::<StrictTransportSecurity>(&["max-age=31536000"]).unwrap();
         assert_eq!(h, StrictTransportSecurity {
             include_subdomains: false,
-            max_age: 31536000,
+            max_age: Duration::from_secs(31536000).into(),
         });
     }
 
@@ -164,7 +173,7 @@ mod tests {
         let h = test_decode::<StrictTransportSecurity>(&["max-age=\"31536000\""]).unwrap();
         assert_eq!(h, StrictTransportSecurity {
             include_subdomains: false,
-            max_age: 31536000,
+            max_age: Duration::from_secs(31536000).into(),
         });
     }
 
@@ -173,7 +182,7 @@ mod tests {
         let h = test_decode::<StrictTransportSecurity>(&["max-age = 31536000"]).unwrap();
         assert_eq!(h, StrictTransportSecurity {
             include_subdomains: false,
-            max_age: 31536000,
+            max_age: Duration::from_secs(31536000).into(),
         });
     }
 
@@ -182,7 +191,7 @@ mod tests {
         let h = test_decode::<StrictTransportSecurity>(&["max-age=15768000 ; includeSubDomains"]).unwrap();
         assert_eq!(h, StrictTransportSecurity {
             include_subdomains: true,
-            max_age: 15768000,
+            max_age: Duration::from_secs(15768000).into(),
         });
     }
 

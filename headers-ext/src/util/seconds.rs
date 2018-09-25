@@ -1,8 +1,9 @@
+use std::fmt;
 use std::time::Duration;
 
 use {HeaderValue};
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Seconds(Duration);
 
 impl Seconds {
@@ -32,5 +33,17 @@ impl<'a> From<&'a Seconds> for HeaderValue {
 impl From<Duration> for Seconds {
     fn from(dur: Duration) -> Seconds {
         Seconds(dur)
+    }
+}
+
+impl fmt::Debug for Seconds {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}s", self.0.as_secs())
+    }
+}
+
+impl fmt::Display for Seconds {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self.0.as_secs(), f)
     }
 }
