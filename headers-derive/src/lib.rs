@@ -91,14 +91,14 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
                             is_csv = true;
                         },
 
-                        NestedMeta::Meta(Meta::NameValue(ref kv)) if kv.ident == "name" => {
+                        NestedMeta::Meta(Meta::NameValue(ref kv)) if kv.ident == "name_const" => {
                             if name.is_some() {
-                                return Err("repeated 'name' option in #[header] attribute".into());
+                                return Err("repeated 'name_const' option in #[header] attribute".into());
                             }
                             name = match kv.lit {
                                 Lit::Str(ref s) => Some(s.value()),
                                 _ => {
-                                    return Err("illegal literal in #[header(name = ..)] attribute".into());
+                                    return Err("illegal literal in #[header(name_const = ..)] attribute".into());
                                 }
                             };
                         }
