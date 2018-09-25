@@ -20,7 +20,7 @@ pub use self::access_control_max_age::AccessControlMaxAge;
 pub use self::access_control_request_headers::AccessControlRequestHeaders;
 pub use self::access_control_request_method::AccessControlRequestMethod;
 pub use self::allow::Allow;
-//pub use self::authorization::{Authorization, Scheme, Basic, Bearer};
+pub use self::authorization::{Authorization, Credentials, Basic, Bearer};
 pub use self::cache_control::{CacheControl, CacheDirective};
 pub use self::connection::Connection;
 pub use self::content_disposition::ContentDisposition;
@@ -75,6 +75,14 @@ fn test_decode<T: ::headers_core::Header>(values: &[&str]) -> Option<T> {
     map.typed_get()
 }
 
+#[cfg(test)]
+fn test_encode<T: ::headers_core::Header>(header: T) -> ::http::HeaderMap {
+    use ::headers_core::HeaderMapExt;
+    let mut map = ::http::HeaderMap::new();
+    map.typed_insert(header);
+    map
+}
+
 //mod accept_charset;
 //mod accept_encoding;
 //mod accept_language;
@@ -89,7 +97,7 @@ mod access_control_max_age;
 mod access_control_request_headers;
 mod access_control_request_method;
 mod allow;
-//mod authorization;
+mod authorization;
 mod cache_control;
 mod connection;
 mod content_disposition;

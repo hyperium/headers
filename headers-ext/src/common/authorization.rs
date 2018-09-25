@@ -1,9 +1,6 @@
-use std::any::Any;
-use std::fmt::{self, Display};
-use std::str::{FromStr, from_utf8};
-use std::ops::{Deref, DerefMut};
-use base64::{encode, decode};
-use {Header, Raw};
+use base64;
+use bytes::Bytes;
+use {HeaderValue};
 
 /// `Authorization` header, defined in [RFC7235](https://tools.ietf.org/html/rfc7235#section-4.2)
 ///
@@ -26,274 +23,220 @@ use {Header, Raw};
 /// # Examples
 ///
 /// ```
-/// use headers::{Headers, Authorization};
+/// # extern crate headers_ext as headers;
+/// use headers::Authorization;
 ///
-/// let mut headers = Headers::new();
-/// headers.set(Authorization("let me in".to_owned()));
-/// ```
-/// ```
-/// use headers::{Headers, Authorization, Basic};
-///
-/// let mut headers = Headers::new();
-/// headers.set(
-///    Authorization(
-///        Basic {
-///            username: "Aladdin".to_owned(),
-///            password: Some("open sesame".to_owned())
-///        }
-///    )
-/// );
+/// let basic = Authorization::basic("Aladdin", "open sesame");
+/// let bearer = Authorization::bearer("some-opaque-token").unwrap();
 /// ```
 ///
-/// ```
-/// use headers::{Headers, Authorization, Bearer};
-///
-/// let mut headers = Headers::new();
-/// headers.set(
-///    Authorization(
-///        Bearer {
-///            token: "QWxhZGRpbjpvcGVuIHNlc2FtZQ".to_owned()
-///        }
-///    )
-/// );
-/// ```
 #[derive(Clone, PartialEq, Debug)]
-pub struct Authorization<S: Scheme>(pub S);
+pub struct Authorization<C: Credentials>(pub C);
 
-impl<S: Scheme> Deref for Authorization<S> {
-    type Target = S;
+impl Authorization<Basic> {
+    /// Create a `Basic` authorization header.
+    pub fn basic(username: &str, password: &str) -> Self {
+        let colon_pos = username.len() + 1;
+        let decoded = format!("{}:{}", username, password);
 
-    fn deref(&self) -> &S {
-        &self.0
+        Authorization(Basic {
+            decoded,
+            colon_pos,
+        })
     }
 }
 
-impl<S: Scheme> DerefMut for Authorization<S> {
-    fn deref_mut(&mut self) -> &mut S {
-        &mut self.0
+impl Authorization<Bearer> {
+    /// Try to create a `Bearer` authorization header.
+    pub fn bearer(token: &str) -> Result<Self, InvalidBearerToken>  {
+        let s = format!("Bearer {}", token);
+        let bytes = Bytes::from(s);
+
+        HeaderValue::from_shared(bytes)
+            .map(|val| Authorization(Bearer(val)))
+            .map_err(|_| InvalidBearerToken(()))
     }
 }
 
-impl<S: Scheme + Any> Header for Authorization<S> where <S as FromStr>::Err: 'static {
-    fn header_name() -> &'static str {
-        static NAME: &'static str = "Authorization";
-        NAME
-    }
+impl<C: Credentials> ::Header for Authorization<C> {
+    const NAME: &'static ::HeaderName = &::http::header::AUTHORIZATION;
 
-    fn parse_header(raw: &Raw) -> ::Result<Authorization<S>> {
-        if let Some(line) = raw.one() {
-            let header = try!(from_utf8(line));
-            if let Some(scheme) = <S as Scheme>::scheme() {
-                if header.starts_with(scheme) && header.len() > scheme.len() + 1 {
-                    match header[scheme.len() + 1..].parse::<S>().map(Authorization) {
-                        Ok(h) => Ok(h),
-                        Err(_) => Err(::Error::Header)
-                    }
-                } else {
-                    Err(::Error::Header)
-                }
-            } else {
-                match header.parse::<S>().map(Authorization) {
-                    Ok(h) => Ok(h),
-                    Err(_) => Err(::Error::Header)
-                }
-            }
+    fn decode(values: &mut ::Values) -> Option<Self> {
+        let val = values.next()?;
+
+        let slice = val.as_bytes();
+        if slice.starts_with(C::SCHEME.as_bytes())
+            && slice.len() > C::SCHEME.len()
+            && slice[C::SCHEME.len()] == b' ' {
+            C::decode(val)
+                .map(Authorization)
         } else {
-            Err(::Error::Header)
+            None
         }
     }
 
-    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
-        f.fmt_line(self)
+    fn encode(&self, values: &mut ::ToValues) {
+        let value = self.0.encode();
+        debug_assert!(
+            value.as_bytes().starts_with(C::SCHEME.as_bytes()),
+            "Credentials::encode should include its scheme: scheme = {:?}, encoded = {:?}",
+            C::SCHEME,
+            value,
+        );
+
+        values.append(value);
     }
 }
 
-impl<S: Scheme> fmt::Display for Authorization<S> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if let Some(scheme) = <S as Scheme>::scheme() {
-            try!(write!(f, "{} ", scheme))
-        };
-        self.0.fmt_scheme(f)
-    }
-}
+/// Credentials to be used in the `Authorization` header.
+pub trait Credentials: Sized {
+    const SCHEME: &'static str;
 
-/// An Authorization scheme to be used in the header.
-pub trait Scheme: FromStr + fmt::Debug + Clone + Send + Sync {
-    /// An optional Scheme name.
-    ///
-    /// Will be replaced with an associated constant once available.
-    fn scheme() -> Option<&'static str>;
-    /// Format the Scheme data into a header value.
-    fn fmt_scheme(&self, &mut fmt::Formatter) -> fmt::Result;
-}
+    fn decode(value: &HeaderValue) -> Option<Self>;
 
-impl Scheme for String {
-    fn scheme() -> Option<&'static str> {
-        None
-    }
-
-    fn fmt_scheme(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        Display::fmt(self, f)
-    }
+    fn encode(&self) -> HeaderValue;
 }
 
 /// Credential holder for Basic Authentication
 #[derive(Clone, PartialEq, Debug)]
 pub struct Basic {
-    /// The username as a possibly empty string
-    pub username: String,
-    /// The password. `None` if the `:` delimiter character was not
-    /// part of the parsed input. Note: A compliant client MUST
-    /// always send a password (which may be the empty string).
-    pub password: Option<String>
+    decoded: String,
+    colon_pos: usize,
 }
 
-impl Scheme for Basic {
-    fn scheme() -> Option<&'static str> {
-        Some("Basic")
+impl Basic {
+    pub fn username(&self) -> &str {
+        &self.decoded[..self.colon_pos]
     }
 
-    fn fmt_scheme(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        //FIXME: serialize::base64 could use some Debug implementation, so
-        //that we don't have to allocate a new string here just to write it
-        //to the formatter.
-        let mut text = self.username.clone();
-        text.push(':');
-        if let Some(ref pass) = self.password {
-            text.push_str(&pass[..]);
-        }
-
-        f.write_str(&encode(&text))
+    pub fn password(&self) -> &str {
+        &self.decoded[self.colon_pos + 1..]
     }
 }
 
-/// creates a Basic from a base-64 encoded, `:`-delimited utf-8 string
-impl FromStr for Basic {
-    type Err = ::Error;
-    fn from_str(s: &str) -> ::Result<Basic> {
-        match decode(s) {
-            Ok(decoded) => match String::from_utf8(decoded) {
-                Ok(text) => {
-                    let parts = &mut text.split(':');
-                    let user = match parts.next() {
-                        Some(part) => part.to_owned(),
-                        None => return Err(::Error::Header)
-                    };
-                    let password = match parts.next() {
-                        Some(part) => Some(part.to_owned()),
-                        None => None
-                    };
-                    Ok(Basic {
-                        username: user,
-                        password: password
-                    })
-                },
-                Err(_) => {
-                    debug!("Basic::from_str utf8 error");
-                    Err(::Error::Header)
-                }
-            },
-            Err(_) => {
-                debug!("Basic::from_str base64 error");
-                Err(::Error::Header)
-            }
-        }
+impl Credentials for Basic {
+    const SCHEME: &'static str = "Basic";
+
+    fn decode(value: &HeaderValue) -> Option<Self> {
+        debug_assert!(
+            value.as_bytes().starts_with(b"Basic "),
+            "HeaderValue to decode should start with \"Basic ..\", received = {:?}",
+            value,
+        );
+
+        let bytes = base64::decode(&value.as_bytes()["Basic ".len()..]).ok()?;
+        let decoded = String::from_utf8(bytes).ok()?;
+
+        let colon_pos = decoded.find(':')?;
+
+        Some(Basic {
+            decoded,
+            colon_pos,
+        })
+    }
+
+    fn encode(&self) -> HeaderValue {
+        let mut encoded = String::from("Basic ");
+        base64::encode_config_buf(&self.decoded, base64::STANDARD, &mut encoded);
+
+        let bytes = Bytes::from(encoded);
+        HeaderValue::from_shared(bytes)
+            .expect("base64 encoding is always a valid HeaderValue")
     }
 }
 
 #[derive(Clone, PartialEq, Debug)]
-///Token holder for Bearer Authentication, most often seen with oauth
-pub struct Bearer {
-    ///Actual bearer token as a string
-    pub token: String
-}
+/// Token holder for Bearer Authentication, most often seen with oauth
+pub struct Bearer(HeaderValue);
 
-impl Scheme for Bearer {
-    fn scheme() -> Option<&'static str> {
-        Some("Bearer")
-    }
-
-    fn fmt_scheme(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.token)
+impl Bearer {
+    pub fn token(&self) -> &[u8] {
+        &self.0.as_bytes()["Bearer ".len() ..]
     }
 }
 
-impl FromStr for Bearer {
-    type Err = ::Error;
-    fn from_str(s: &str) -> ::Result<Bearer> {
-        Ok(Bearer { token: s.to_owned()})
+impl Credentials for Bearer {
+    const SCHEME: &'static str = "Bearer";
+
+    fn decode(value: &HeaderValue) -> Option<Self> {
+        debug_assert!(
+            value.as_bytes().starts_with(b"Bearer "),
+            "HeaderValue to decode should start with \"Bearer ..\", received = {:?}",
+            value,
+        );
+
+        Some(Bearer(value.clone()))
+    }
+
+    fn encode(&self) -> HeaderValue {
+        self.0.clone()
     }
 }
+
+#[derive(Debug)]
+pub struct InvalidBearerToken(());
+
 
 #[cfg(test)]
 mod tests {
     use super::{Authorization, Basic, Bearer};
-    use super::super::super::{Headers, Header};
+    use super::super::{test_decode, test_encode};
 
     #[test]
-    fn test_raw_auth() {
-        let mut headers = Headers::new();
-        headers.set(Authorization("foo bar baz".to_owned()));
-        assert_eq!(headers.to_string(), "Authorization: foo bar baz\r\n".to_owned());
-    }
+    fn basic_encode() {
+        let auth = Authorization::basic("Aladdin", "open sesame");
+        let headers = test_encode(auth);
 
-    #[test]
-    fn test_raw_auth_parse() {
-        let header: Authorization<String> = Header::parse_header(&b"foo bar baz".as_ref().into()).unwrap();
-        assert_eq!(header.0, "foo bar baz");
-    }
-
-    #[test]
-    fn test_basic_auth() {
-        let mut headers = Headers::new();
-        headers.set(Authorization(
-            Basic { username: "Aladdin".to_owned(), password: Some("open sesame".to_owned()) }));
         assert_eq!(
-            headers.to_string(),
-            "Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==\r\n".to_owned());
+            headers["authorization"],
+            "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==",
+        );
     }
 
     #[test]
-    fn test_basic_auth_no_password() {
-        let mut headers = Headers::new();
-        headers.set(Authorization(Basic { username: "Aladdin".to_owned(), password: None }));
-        assert_eq!(headers.to_string(), "Authorization: Basic QWxhZGRpbjo=\r\n".to_owned());
-    }
+    fn basic_encode_no_password() {
+        let auth = Authorization::basic("Aladdin", "");
+        let headers = test_encode(auth);
 
-    #[test]
-    fn test_basic_auth_parse() {
-        let auth: Authorization<Basic> = Header::parse_header(
-            &b"Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==".as_ref().into()).unwrap();
-        assert_eq!(auth.0.username, "Aladdin");
-        assert_eq!(auth.0.password, Some("open sesame".to_owned()));
-    }
-
-    #[test]
-    fn test_basic_auth_parse_no_password() {
-        let auth: Authorization<Basic> = Header::parse_header(
-            &b"Basic QWxhZGRpbjo=".as_ref().into()).unwrap();
-        assert_eq!(auth.0.username, "Aladdin");
-        assert_eq!(auth.0.password, Some("".to_owned()));
-    }
-
-    #[test]
-    fn test_bearer_auth() {
-        let mut headers = Headers::new();
-        headers.set(Authorization(
-            Bearer { token: "fpKL54jvWmEGVoRdCNjG".to_owned() }));
         assert_eq!(
-            headers.to_string(),
-            "Authorization: Bearer fpKL54jvWmEGVoRdCNjG\r\n".to_owned());
+            headers["authorization"],
+            "Basic QWxhZGRpbjo=",
+        );
     }
 
     #[test]
-    fn test_bearer_auth_parse() {
-        let auth: Authorization<Bearer> = Header::parse_header(
-            &b"Bearer fpKL54jvWmEGVoRdCNjG".as_ref().into()).unwrap();
-        assert_eq!(auth.0.token, "fpKL54jvWmEGVoRdCNjG");
+    fn basic_decode() {
+        let auth: Authorization<Basic> = test_decode(&["Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="]).unwrap();
+        assert_eq!(auth.0.username(), "Aladdin");
+        assert_eq!(auth.0.password(), "open sesame");
+    }
+
+    #[test]
+    fn basic_decode_no_password() {
+        let auth: Authorization<Basic> = test_decode(&["Basic QWxhZGRpbjo="]).unwrap();
+        assert_eq!(auth.0.username(), "Aladdin");
+        assert_eq!(auth.0.password(), "");
+    }
+
+    #[test]
+    fn bearer_encode() {
+        let auth = Authorization::bearer("fpKL54jvWmEGVoRdCNjG").unwrap();
+
+        let headers = test_encode(auth);
+
+        assert_eq!(
+            headers["authorization"],
+            "Bearer fpKL54jvWmEGVoRdCNjG",
+        );
+    }
+
+    #[test]
+    fn bearer_decode() {
+        let auth: Authorization<Bearer> = test_decode(&["Bearer fpKL54jvWmEGVoRdCNjG"]).unwrap();
+        assert_eq!(auth.0.token(), b"fpKL54jvWmEGVoRdCNjG");
     }
 }
 
-bench_header!(raw, Authorization<String>, { vec![b"foo bar baz".to_vec()] });
-bench_header!(basic, Authorization<Basic>, { vec![b"Basic QWxhZGRpbjpuIHNlc2FtZQ==".to_vec()] });
-bench_header!(bearer, Authorization<Bearer>, { vec![b"Bearer fpKL54jvWmEGVoRdCNjG".to_vec()] });
+//bench_header!(raw, Authorization<String>, { vec![b"foo bar baz".to_vec()] });
+//bench_header!(basic, Authorization<Basic>, { vec![b"Basic QWxhZGRpbjpuIHNlc2FtZQ==".to_vec()] });
+//bench_header!(bearer, Authorization<Bearer>, { vec![b"Bearer fpKL54jvWmEGVoRdCNjG".to_vec()] });
