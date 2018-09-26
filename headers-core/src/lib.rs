@@ -32,6 +32,20 @@ pub trait Header {
 #[derive(Debug)]
 pub struct Values<'a> {
     inner: http::header::ValueIter<'a, http::header::HeaderValue>,
+    should_exhaust: bool,
+}
+
+impl<'a> Values<'a> {
+    /// Skip the exhaustive check for this header.
+    ///
+    /// By default, the iterator will be checked that it was exhausted
+    /// after calling `Header::decode`, to protect against extra
+    /// unexpected values from being forgotten about accidentally.
+    ///
+    /// Call this only if it is valid to have ignored some values.
+    pub fn skip_exhaustive_iter_check(&mut self) {
+        self.should_exhaust = false;
+    }
 }
 
 impl<'a> Iterator for Values<'a> {
@@ -42,8 +56,16 @@ impl<'a> Iterator for Values<'a> {
         self.inner.next()
     }
 
+    #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         self.inner.size_hint()
+    }
+}
+
+impl<'a> DoubleEndedIterator for Values<'a> {
+    #[inline]
+    fn next_back(&mut self) -> Option<&'a HeaderValue> {
+        self.inner.next_back()
     }
 }
 
@@ -114,13 +136,14 @@ impl HeaderMapExt for http::HeaderMap {
     {
         let mut values = Values {
             inner: self.get_all(H::NAME).iter(),
+            should_exhaust: true,
         };
         let header = H::decode(&mut values)?;
         // Check the iterator was consumed. Various headers are only
         // allowed to have a single value, so if there were extra
         // values that the implementation didn't use, it's safer
         // to error out.
-        if values.next().is_none() {
+        if !values.should_exhaust || values.next().is_none() {
             Some(header)
         } else {
             None
