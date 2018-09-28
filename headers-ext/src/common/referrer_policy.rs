@@ -25,7 +25,7 @@ use {HeaderValue};
 /// # Example
 ///
 /// ```
-/// # extern headers_ext as headers;
+/// # extern crate headers_ext as headers;
 /// use headers::ReferrerPolicy;
 ///
 /// let rp = ReferrerPolicy::NO_REFERRER;
