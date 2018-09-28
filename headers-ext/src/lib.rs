@@ -5,6 +5,7 @@ extern crate headers_core;
 extern crate headers_derive;
 extern crate http;
 extern crate mime;
+extern crate sha1;
 extern crate time;
 
 use headers_core::{
