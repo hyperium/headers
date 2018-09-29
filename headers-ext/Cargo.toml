@@ -11,7 +11,7 @@ base64 = "0.9"
 bytes = "0.4"
 headers-core = { path = "../headers-core" }
 headers-derive = { path = "../headers-derive" }
-http = "0.1.11"
+http = "0.1.13"
 mime = "0.3"
 #language_tags = "0.2.2"
 sha-1 = "0.7"

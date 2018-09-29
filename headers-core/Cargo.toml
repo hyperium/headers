@@ -7,4 +7,4 @@ license = "MIT"
 
 [dependencies]
 bytes = "0.4"
-http = "0.1.11"
+http = "0.1.13"
