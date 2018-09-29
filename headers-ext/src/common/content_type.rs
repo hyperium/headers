@@ -92,6 +92,12 @@ impl ContentType {
     }
 }
 
+impl From<mime::Mime> for ContentType {
+    fn from(m: mime::Mime) -> ContentType {
+        ContentType(m)
+    }
+}
+
 impl ::Header for ContentType {
     const NAME: &'static ::HeaderName = &::http::header::CONTENT_TYPE;
 
