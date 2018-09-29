@@ -50,6 +50,12 @@ impl Connection {
         Connection(HeaderValue::from_static("keep-alive").into())
     }
 
+    /// A constructor to easily create a `Connection: Upgrade` header.
+    #[inline]
+    pub fn upgrade() -> Connection {
+        Connection(HeaderValue::from_static("upgrade").into())
+    }
+
     /// Check if this header contains a given "connection option".
     ///
     /// This can be used with various argument types:
