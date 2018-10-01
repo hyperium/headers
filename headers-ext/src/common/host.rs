@@ -1,65 +1,54 @@
+use std::fmt;
+
+use bytes::Bytes;
 use http::uri::Authority;
 
 /// The `Host` header.
-///
-/// HTTP/1.1 requires that all requests include a `Host` header, and so hyper
-/// client requests add one automatically.
-///
-/// # Examples
-/// ```
-/// use headers::{Headers, Host};
-///
-/// let mut headers = Headers::new();
-/// headers.set(
-///     Host::new("hyper.rs", None)
-/// );
-/// ```
-/// ```
-/// use headers::{Headers, Host};
-///
-/// let mut headers = Headers::new();
-/// headers.set(
-///     // In Rust 1.12+
-///     // Host::new("hyper.rs", 8080)
-///     Host::new("hyper.rs", Some(8080))
-/// );
-/// ```
-#[derive(Clone, PartialEq, Debug, Header)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd)]
 pub struct Host(Authority);
 
 impl Host {
-    /*
-    /// Create a `Host` header, providing the hostname and optional port.
-    pub fn new<H, P>(hostname: H, port: P) -> Host
-    where H: Into<Cow<'static, str>>,
-          P: Into<Option<u16>>
-    {
-        Host {
-            hostname: hostname.into(),
-            port: port.into(),
-        }
-    }
-
     /// Get the hostname, such as example.domain.
     pub fn hostname(&self) -> &str {
-        self.hostname.as_ref()
+        self.0.host()
     }
 
     /// Get the optional port number.
     pub fn port(&self) -> Option<u16> {
-        self.port
+        self.0.port()
     }
-    */
 }
 
-/*
-impl fmt::Display for Host {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.port {
-            None | Some(80) | Some(443) => f.write_str(&self.hostname[..]),
-            Some(port) => write!(f, "{}:{}", self.hostname, port)
-        }
+impl ::Header for Host {
+    const NAME: &'static ::HeaderName = &::http::header::HOST;
+
+    fn decode(values: &mut ::Values) -> Option<Self> {
+        let value = Bytes::from(values.next()?.clone());
+
+        Authority::from_shared(value)
+            .ok()
+            .map(Host)
+    }
+
+    fn encode(&self, values: &mut ::ToValues) {
+        let bytes = Bytes::from(self.0.clone());
+
+        let val = ::HeaderValue::from_shared(bytes)
+            .expect("Authority is a valid HeaderValue");
+
+        values.append(val);
     }
 }
-*/
+
+impl From<Authority> for Host {
+    fn from(auth: Authority) -> Host {
+        Host(auth)
+    }
+}
+
+impl fmt::Display for Host {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self.0, f)
+    }
+}
 
