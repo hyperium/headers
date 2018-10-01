@@ -1,3 +1,5 @@
+use std::fmt;
+
 use mime::{self, Mime};
 
 /// `Content-Type` header, defined in
@@ -92,12 +94,6 @@ impl ContentType {
     }
 }
 
-impl From<mime::Mime> for ContentType {
-    fn from(m: mime::Mime) -> ContentType {
-        ContentType(m)
-    }
-}
-
 impl ::Header for ContentType {
     const NAME: &'static ::HeaderName = &::http::header::CONTENT_TYPE;
 
@@ -118,6 +114,24 @@ impl ::Header for ContentType {
             .parse()
             .expect("Mime is always a valid HeaderValue");
         values.append(value);
+    }
+}
+
+impl From<mime::Mime> for ContentType {
+    fn from(m: mime::Mime) -> ContentType {
+        ContentType(m)
+    }
+}
+
+impl From<ContentType> for mime::Mime {
+    fn from(ct: ContentType) -> mime::Mime {
+        ct.0
+    }
+}
+
+impl fmt::Display for ContentType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self.0, f)
     }
 }
 
