@@ -8,11 +8,14 @@ extern crate mime;
 extern crate sha1;
 extern crate time;
 
-use headers_core::{
+pub use headers_core::{
     Header,
+    HeaderMapExt,
     ToValues,
     Values,
 };
+
+pub use http::HeaderMap;
 
 pub use http::header::{
     HeaderName,

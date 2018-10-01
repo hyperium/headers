@@ -18,12 +18,38 @@ use util::{FlatCsv, SemiColon};
 pub struct Cookie(FlatCsv<SemiColon>);
 
 impl Cookie {
+    /// Lookup a value for a cookie name.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # extern crate headers_ext as headers;
+    /// use headers::{Cookie, HeaderMap, HeaderMapExt, HeaderValue};
+    ///
+    /// // Setup the header map with strings...
+    /// let mut headers = HeaderMap::new();
+    /// headers.insert("cookie", HeaderValue::from_static("lang=en-US"));
+    ///
+    /// // Parse a `Cookie` so we can play with it...
+    /// let cookie = headers
+    ///     .typed_get::<Cookie>()
+    ///     .expect("we just inserted a valid Cookie");
+    ///
+    /// assert_eq!(cookie.get("lang"), Some("en-US"));
+    /// assert_eq!(cookie.get("SID"), None);
+    /// ```
     pub fn get(&self, name: &str) -> Option<&str> {
         self.iter()
             .find(|&(key, _)| key == name)
             .map(|(_, val)| val)
     }
 
+    /// Get the number of key-value pairs this `Cookie` contains.
+    pub fn len(&self) -> usize {
+        self.iter().count()
+    }
+
+    /// Iterator the key-value pairs of this `Cookie` header.
     pub fn iter(&self) -> impl Iterator<Item=(&str, &str)> {
         self.0.iter()
             .filter_map(|kv| {
