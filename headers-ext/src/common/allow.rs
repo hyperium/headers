@@ -1,4 +1,8 @@
+use std::iter::FromIterator;
+
 use http::Method;
+
+use util::FlatCsv;
 
 /// `Allow` header, defined in [RFC7231](http://tools.ietf.org/html/rfc7231#section-7.4.1)
 ///
@@ -26,21 +30,40 @@ use http::Method;
 /// use headers::Allow;
 /// use http::Method;
 ///
-/// let allow = Allow::new(vec![Method::GET]);
+/// let allow = vec![Method::GET, Method::POST]
+///     .into_iter()
+///     .collect::<Allow>();
 /// ```
 #[derive(Clone, Debug, PartialEq, Header)]
-#[header(csv)]
-pub struct Allow(Vec<Method>);
+pub struct Allow(FlatCsv);
 
 impl Allow {
-    pub fn new<I>(iter: I) -> Self
-    where
-        I: IntoIterator<Item=Method>,
-    {
-        let methods = iter
-            .into_iter()
-            .collect();
-
-        Allow(methods)
+    /// Returns an iterator over `Method`s contained within.
+    pub fn iter<'a>(&'a self) -> impl Iterator<Item = Method> + 'a {
+        self
+            .0
+            .iter()
+            .filter_map(|s| {
+                s.parse().ok()
+            })
     }
 }
+
+impl FromIterator<Method> for Allow {
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = Method>,
+    {
+        let flat = iter
+            .into_iter()
+            .map(|method| {
+                method
+                    .as_str()
+                    .parse::<::HeaderValue>()
+                    .expect("Method is a valid HeaderValue")
+            })
+            .collect();
+        Allow(flat)
+    }
+}
+
