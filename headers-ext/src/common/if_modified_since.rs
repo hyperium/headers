@@ -32,6 +32,14 @@ use util::HttpDate;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Header)]
 pub struct IfModifiedSince(HttpDate);
 
+impl IfModifiedSince {
+    /// Check if the supplied time means the resource has been modified.
+    pub fn is_modified(&self, last_modified: SystemTime) -> bool {
+        let if_mod = SystemTime::from(self.0);
+        last_modified >= if_mod
+    }
+}
+
 impl From<SystemTime> for IfModifiedSince {
     fn from(time: SystemTime) -> IfModifiedSince {
         IfModifiedSince(time.into())
@@ -41,5 +49,23 @@ impl From<SystemTime> for IfModifiedSince {
 impl From<IfModifiedSince> for SystemTime {
     fn from(date: IfModifiedSince) -> SystemTime {
         date.0.into()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::time::Duration;
+    use super::*;
+
+    #[test]
+    fn is_modified() {
+        let now = SystemTime::now();
+        let one_sec_ago = now - Duration::from_secs(1);
+        let two_sec_ago = now - Duration::from_secs(2);
+
+        let if_mod = IfModifiedSince::from(one_sec_ago);
+        assert!(if_mod.is_modified(now));
+        assert!(if_mod.is_modified(one_sec_ago));
+        assert!(!if_mod.is_modified(two_sec_ago));
     }
 }

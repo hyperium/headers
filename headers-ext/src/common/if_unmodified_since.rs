@@ -33,6 +33,14 @@ use util::HttpDate;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Header)]
 pub struct IfUnmodifiedSince(HttpDate);
 
+impl IfUnmodifiedSince {
+    /// Check if the supplied time passes the precondtion.
+    pub fn precondition_passes(&self, last_modified: SystemTime) -> bool {
+        let if_unmod = SystemTime::from(self.0);
+        last_modified <= if_unmod
+    }
+}
+
 impl From<SystemTime> for IfUnmodifiedSince {
     fn from(time: SystemTime) -> IfUnmodifiedSince {
         IfUnmodifiedSince(time.into())
@@ -45,3 +53,20 @@ impl From<IfUnmodifiedSince> for SystemTime {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use std::time::Duration;
+    use super::*;
+
+    #[test]
+    fn precondition_passes() {
+        let now = SystemTime::now();
+        let one_sec_ago = now - Duration::from_secs(1);
+        let two_sec_ago = now - Duration::from_secs(2);
+
+        let if_unmod = IfUnmodifiedSince::from(one_sec_ago);
+        assert!(!if_unmod.precondition_passes(now));
+        assert!(if_unmod.precondition_passes(one_sec_ago));
+        assert!(if_unmod.precondition_passes(two_sec_ago));
+    }
+}
