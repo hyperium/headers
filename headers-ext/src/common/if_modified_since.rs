@@ -13,7 +13,7 @@ use util::HttpDate;
 /// # ABNF
 ///
 /// ```text
-/// If-Unmodified-Since = HTTP-date
+/// If-Modified-Since = HTTP-date
 /// ```
 ///
 /// # Example values
