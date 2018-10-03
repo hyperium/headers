@@ -21,7 +21,7 @@ pub use self::access_control_request_headers::AccessControlRequestHeaders;
 pub use self::access_control_request_method::AccessControlRequestMethod;
 pub use self::allow::Allow;
 pub use self::authorization::{Authorization, Credentials, Basic, Bearer};
-pub use self::cache_control::{CacheControl, CacheDirective};
+pub use self::cache_control::CacheControl;
 pub use self::connection::Connection;
 pub use self::content_disposition::ContentDisposition;
 pub use self::content_encoding::ContentEncoding;

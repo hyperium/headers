@@ -3,8 +3,8 @@ use std::time::Duration;
 
 use {HeaderValue};
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Seconds(Duration);
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub(crate) struct Seconds(Duration);
 
 impl Seconds {
     pub(crate) fn from_val(val: &HeaderValue) -> Option<Self> {
@@ -15,6 +15,10 @@ impl Seconds {
             .ok()?;
 
         Some(Seconds(Duration::from_secs(secs)))
+    }
+
+    pub(crate) fn as_u64(&self) -> u64 {
+        self.0.as_secs()
     }
 }
 
@@ -33,6 +37,12 @@ impl<'a> From<&'a Seconds> for HeaderValue {
 impl From<Duration> for Seconds {
     fn from(dur: Duration) -> Seconds {
         Seconds(dur)
+    }
+}
+
+impl From<Seconds> for Duration {
+    fn from(secs: Seconds) -> Duration {
+        secs.0
     }
 }
 

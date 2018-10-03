@@ -8,6 +8,7 @@ license = "MIT"
 
 [dependencies]
 base64 = "0.9"
+bitflags = "1.0"
 bytes = "0.4"
 headers-core = { path = "../headers-core" }
 headers-derive = { path = "../headers-derive" }
