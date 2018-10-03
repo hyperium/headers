@@ -1,7 +1,3 @@
-use {Header, Raw};
-use std::fmt;
-use std::str::from_utf8;
-
 
 /// `Set-Cookie` header, defined [RFC6265](http://tools.ietf.org/html/rfc6265#section-4.1)
 ///
@@ -56,59 +52,55 @@ use std::str::from_utf8;
 /// * `lang=en-US; Path=/; Domain=example.com`
 ///
 /// # Example
-///
-/// ```
-/// use headers::{Headers, SetCookie};
-///
-/// let mut headers = Headers::new();
-///
-/// headers.set(
-///     SetCookie(vec![
-///         String::from("foo=bar; Path=/path; Domain=example.com")
-///     ])
-/// );
-/// ```
-#[derive(Clone, PartialEq, Debug)]
-pub struct SetCookie(pub Vec<String>);
+#[derive(Clone, Debug)]
+pub struct SetCookie(Vec<::HeaderValue>);
 
-__hyper__deref!(SetCookie => Vec<String>);
+impl ::Header for SetCookie {
+    const NAME: &'static ::HeaderName = &::http::header::SET_COOKIE;
 
-impl Header for SetCookie {
-    fn header_name() -> &'static str {
-        static NAME: &'static str = "Set-Cookie";
-        NAME
-    }
+    fn decode(values: &mut ::Values) -> Option<Self> {
+        let vec = values
+            .cloned()
+            .collect::<Vec<_>>();
 
-    fn parse_header(raw: &Raw) -> ::Result<SetCookie> {
-        let mut set_cookies = Vec::with_capacity(raw.len());
-        for set_cookies_raw in raw {
-            if let Ok(s) = from_utf8(&set_cookies_raw[..]) {
-                set_cookies.push(s.trim().to_owned());
-            }
-        }
-
-        if !set_cookies.is_empty() {
-            Ok(SetCookie(set_cookies))
+        if !vec.is_empty() {
+            Some(SetCookie(vec))
         } else {
-            Err(::Error::Header)
+            None
         }
     }
 
-    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
-        for cookie in &self.0 {
-            try!(f.fmt_line(cookie));
+    fn encode(&self, values: &mut ::ToValues) {
+        for val in &self.0 {
+            values.append(val.clone());
         }
-        Ok(())
     }
 }
 
-#[test]
-fn test_set_cookie_fmt() {
-    use ::Headers;
-    let mut headers = Headers::new();
-    headers.set(SetCookie(vec![
-        "foo=bar".into(),
-        "baz=quux".into(),
-    ]));
-    assert_eq!(headers.to_string(), "Set-Cookie: foo=bar\r\nSet-Cookie: baz=quux\r\n");
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::super::{test_decode, test_encode};
+
+    #[test]
+    fn decode() {
+        let set_cookie = test_decode::<SetCookie>(&["foo=bar", "baz=quux"]).unwrap();
+        assert_eq!(set_cookie.0.len(), 2);
+        assert_eq!(set_cookie.0[0], "foo=bar");
+        assert_eq!(set_cookie.0[1], "baz=quux");
+    }
+
+    #[test]
+    fn encode() {
+        let set_cookie = SetCookie(vec![
+            ::HeaderValue::from_static("foo=bar"),
+            ::HeaderValue::from_static("baz=quux"),
+        ]);
+
+        let headers = test_encode(set_cookie);
+        let mut vals = headers.get_all("set-cookie").into_iter();
+        assert_eq!(vals.next().unwrap(), "foo=bar");
+        assert_eq!(vals.next().unwrap(), "baz=quux");
+        assert_eq!(vals.next(), None);
+    }
 }
