@@ -1,0 +1,10 @@
+[package]
+name = "headers-core"
+version = "0.0.0" # don't forget to update html_root_url
+description = "typed HTTP headers"
+authors = ["Sean McArthur <sean@seanmonstar.com>"]
+license = "MIT"
+
+[dependencies]
+bytes = "0.4"
+http = "0.1.13"
