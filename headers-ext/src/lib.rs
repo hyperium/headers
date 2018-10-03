@@ -1,4 +1,6 @@
 extern crate base64;
+#[macro_use]
+extern crate bitflags;
 extern crate bytes;
 extern crate headers_core;
 #[macro_use]
