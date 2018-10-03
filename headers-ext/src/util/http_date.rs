@@ -1,4 +1,4 @@
-use std::fmt::{self, Display};
+use std::fmt;
 use std::str::FromStr;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
@@ -29,7 +29,7 @@ use time;
 //   header field that contains one or more timestamps defined as
 //   HTTP-date, the sender MUST generate those timestamps in the
 //   IMF-fixdate format.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct HttpDate(time::Tm);
 
 impl HttpDate {
@@ -82,7 +82,13 @@ impl FromStr for HttpDate {
     }
 }
 
-impl Display for HttpDate {
+impl fmt::Debug for HttpDate {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self.0.to_utc().rfc822(), f)
+    }
+}
+
+impl fmt::Display for HttpDate {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         fmt::Display::fmt(&self.0.to_utc().rfc822(), f)
     }
@@ -92,11 +98,13 @@ impl From<SystemTime> for HttpDate {
     fn from(sys: SystemTime) -> HttpDate {
         let tmspec = match sys.duration_since(UNIX_EPOCH) {
             Ok(dur) => {
-                time::Timespec::new(dur.as_secs() as i64, dur.subsec_nanos() as i32)
+                // subsec nanos always dropped
+                time::Timespec::new(dur.as_secs() as i64, 0)
             },
             Err(err) => {
                 let neg = err.duration();
-                time::Timespec::new(-(neg.as_secs() as i64), -(neg.subsec_nanos() as i32))
+                // subsec nanos always dropped
+                time::Timespec::new(-(neg.as_secs() as i64), 0)
             },
         };
         HttpDate(time::at_utc(tmspec))

@@ -36,8 +36,7 @@ pub struct IfUnmodifiedSince(HttpDate);
 impl IfUnmodifiedSince {
     /// Check if the supplied time passes the precondtion.
     pub fn precondition_passes(&self, last_modified: SystemTime) -> bool {
-        let if_unmod = SystemTime::from(self.0);
-        last_modified <= if_unmod
+        self.0 >= last_modified.into()
     }
 }
 
@@ -60,13 +59,13 @@ mod tests {
 
     #[test]
     fn precondition_passes() {
-        let now = SystemTime::now();
-        let one_sec_ago = now - Duration::from_secs(1);
-        let two_sec_ago = now - Duration::from_secs(2);
+        let newer = SystemTime::now();
+        let exact = newer - Duration::from_secs(2);
+        let older = newer - Duration::from_secs(4);
 
-        let if_unmod = IfUnmodifiedSince::from(one_sec_ago);
-        assert!(!if_unmod.precondition_passes(now));
-        assert!(if_unmod.precondition_passes(one_sec_ago));
-        assert!(if_unmod.precondition_passes(two_sec_ago));
+        let if_unmod = IfUnmodifiedSince::from(exact);
+        assert!(!if_unmod.precondition_passes(newer));
+        assert!(if_unmod.precondition_passes(exact));
+        assert!(if_unmod.precondition_passes(older));
     }
 }

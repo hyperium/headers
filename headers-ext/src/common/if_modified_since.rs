@@ -35,8 +35,7 @@ pub struct IfModifiedSince(HttpDate);
 impl IfModifiedSince {
     /// Check if the supplied time means the resource has been modified.
     pub fn is_modified(&self, last_modified: SystemTime) -> bool {
-        let if_mod = SystemTime::from(self.0);
-        last_modified >= if_mod
+        self.0 < last_modified.into()
     }
 }
 
@@ -59,13 +58,13 @@ mod tests {
 
     #[test]
     fn is_modified() {
-        let now = SystemTime::now();
-        let one_sec_ago = now - Duration::from_secs(1);
-        let two_sec_ago = now - Duration::from_secs(2);
+        let newer = SystemTime::now();
+        let exact = newer - Duration::from_secs(2);
+        let older = newer - Duration::from_secs(4);
 
-        let if_mod = IfModifiedSince::from(one_sec_ago);
-        assert!(if_mod.is_modified(now));
-        assert!(if_mod.is_modified(one_sec_ago));
-        assert!(!if_mod.is_modified(two_sec_ago));
+        let if_mod = IfModifiedSince::from(exact);
+        assert!(if_mod.is_modified(newer));
+        assert!(!if_mod.is_modified(exact));
+        assert!(!if_mod.is_modified(older));
     }
 }
