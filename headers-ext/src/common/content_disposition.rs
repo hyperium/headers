@@ -6,8 +6,6 @@
 // Browser conformance tests at: http://greenbytes.de/tech/tc2231/
 // IANA assignment: http://www.iana.org/assignments/cont-disp/cont-disp.xhtml
 
-use bytes::Bytes;
-
 /// A `Content-Disposition` header, (re)defined in [RFC6266](https://tools.ietf.org/html/rfc6266).
 ///
 /// The Content-Disposition response header field is used to convey
@@ -43,12 +41,18 @@ use bytes::Bytes;
 /// # extern crate headers_ext as headers;
 /// use headers::ContentDisposition;
 ///
-/// let cd = ContentDisposition::attachment("image.png");
+/// let cd = ContentDisposition::inline();
 /// ```
 #[derive(Clone, Debug)]
 pub struct ContentDisposition(::HeaderValue);
 
 impl ContentDisposition {
+    /// Construct a `Content-Disposition: inline` header.
+    pub fn inline() -> ContentDisposition {
+        ContentDisposition(::HeaderValue::from_static("inline"))
+    }
+
+    /*
     pub fn attachment(filename: &str) -> ContentDisposition {
         let full = Bytes::from(format!("attachment; filename={}", filename));
         match ::HeaderValue::from_shared(full) {
@@ -58,6 +62,7 @@ impl ContentDisposition {
             }
         }
     }
+    */
 
     /// Check if the disposition-type is `inline`.
     pub fn is_inline(&self) -> bool {
