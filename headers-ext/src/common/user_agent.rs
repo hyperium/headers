@@ -1,4 +1,4 @@
-use http::header::HeaderValue;
+use util::HeaderValueString;
 
 /// `User-Agent` header, defined in
 /// [RFC7231](http://tools.ietf.org/html/rfc7231#section-5.5.3)
@@ -32,15 +32,21 @@ use http::header::HeaderValue;
 ///
 /// ```
 /// # extern crate headers_ext as headers;
-/// use headers::{HeaderValue, UserAgent};
+/// use headers::UserAgent;
 ///
-/// let ua = UserAgent::from(HeaderValue::from_static("hyper/0.12.2"));
+/// let ua = UserAgent::from_static("hyper/0.12.2"));
 /// ```
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Header)]
-pub struct UserAgent(HeaderValue);
+pub struct UserAgent(HeaderValueString);
 
-impl From<HeaderValue> for UserAgent {
-    fn from(value: HeaderValue) -> UserAgent {
-        UserAgent(value)
+impl UserAgent {
+    /// Create a `UserAgent` from a static string.
+    pub fn from_static(src: &'static str) -> UserAgent {
+        UserAgent(HeaderValueString::from_static(src))
+    }
+
+    /// View this `UserAgent` as a `&str`.
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
     }
 }

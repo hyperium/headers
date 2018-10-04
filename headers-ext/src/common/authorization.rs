@@ -1,6 +1,8 @@
 use base64;
 use bytes::Bytes;
+
 use {HeaderValue};
+use util::HeaderValueString;
 
 /// `Authorization` header, defined in [RFC7235](https://tools.ietf.org/html/rfc7235#section-4.2)
 ///
@@ -49,12 +51,9 @@ impl Authorization<Basic> {
 impl Authorization<Bearer> {
     /// Try to create a `Bearer` authorization header.
     pub fn bearer(token: &str) -> Result<Self, InvalidBearerToken>  {
-        let s = format!("Bearer {}", token);
-        let bytes = Bytes::from(s);
-
-        HeaderValue::from_shared(bytes)
+        HeaderValueString::from_string(format!("Bearer {}", token))
             .map(|val| Authorization(Bearer(val)))
-            .map_err(|_| InvalidBearerToken(()))
+            .ok_or_else(|| InvalidBearerToken(()))
     }
 }
 
@@ -147,11 +146,11 @@ impl Credentials for Basic {
 
 #[derive(Clone, PartialEq, Debug)]
 /// Token holder for Bearer Authentication, most often seen with oauth
-pub struct Bearer(HeaderValue);
+pub struct Bearer(HeaderValueString);
 
 impl Bearer {
-    pub fn token(&self) -> &[u8] {
-        &self.0.as_bytes()["Bearer ".len() ..]
+    pub fn token(&self) -> &str {
+        &self.0.as_str()["Bearer ".len() ..]
     }
 }
 
@@ -165,11 +164,12 @@ impl Credentials for Bearer {
             value,
         );
 
-        Some(Bearer(value.clone()))
+        HeaderValueString::from_val(value)
+            .map(Bearer)
     }
 
     fn encode(&self) -> HeaderValue {
-        self.0.clone()
+        (&self.0).into()
     }
 }
 

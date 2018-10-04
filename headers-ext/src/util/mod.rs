@@ -6,6 +6,7 @@ pub(crate) use self::http_date::HttpDate;
 //pub use language_tags::LanguageTag;
 //pub use self::quality_value::{Quality, QualityValue};
 pub(crate) use self::seconds::Seconds;
+pub(crate) use self::value_string::HeaderValueString;
 
 //mod charset;
 //mod encoding;
@@ -14,3 +15,4 @@ mod flat_csv;
 mod http_date;
 //mod quality_value;
 mod seconds;
+mod value_string;

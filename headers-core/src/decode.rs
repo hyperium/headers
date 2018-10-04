@@ -1,10 +1,6 @@
 //! Utility functions for Header implementations.
 
-//use language_tags::LanguageTag;
 use http::header::HeaderValue;
-//use percent_encoding;
-
-//use shared::Charset;
 
 /// A helper trait for use when deriving `Header`.
 pub trait TryFromValues: Sized {
