@@ -52,6 +52,13 @@ impl IfRange {
     pub fn date(time: SystemTime) -> IfRange {
         IfRange(IfRange_::Date(time.into()))
     }
+
+    pub fn is_modified(&self, time: SystemTime) -> bool {
+        match self.0 {
+            IfRange_::Date(since) => since < time.into(),
+            _ => false,
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
