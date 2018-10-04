@@ -1,4 +1,5 @@
 use std::fmt;
+use std::ops::{Bound, RangeBounds};
 
 /// Content-Range, described in [RFC7233](https://tools.ietf.org/html/rfc7233#section-4.2)
 ///
@@ -32,21 +33,55 @@ pub struct ContentRange {
 }
 
 impl ContentRange {
-    /* TODO (constructor name?)
+    /// Construct a new `Content-Range: bytes ..` header.
+    ///
+    /// # Panic
+    ///
+    /// If the range upper limit is unbounded and the complete length is `None`,
+    /// this panics as an invalid `ContentRange`.
+    pub fn bytes(range: impl RangeBounds<u64>, complete_length: impl Into<Option<u64>>) -> ContentRange {
+        let complete_length = complete_length.into();
+
+        let start = match range.start_bound() {
+            Bound::Included(&s) => s,
+            Bound::Excluded(&s) => s + 1,
+            Bound::Unbounded => 0,
+        };
+
+        let end = match range.end_bound() {
+            Bound::Included(&e) => e,
+            Bound::Excluded(&e) => e - 1,
+            Bound::Unbounded => match complete_length {
+                Some(max) => max - 1,
+                None => panic!("illegal ContentRange: unbounded last-byte-pos with no complete_length"),
+            }
+        };
+
+        ContentRange {
+            range: Some((start, end)),
+            complete_length,
+        }
+    }
+
     /// Create a new `ContentRange` stating the range could not be satisfied.
     ///
     /// The passed argument is the complete length of the entity.
-    pub fn unsatisfied(complete_length: u64) -> Self {
+    pub fn unsatisfied_bytes(complete_length: u64) -> Self {
         ContentRange {
             range: None,
             complete_length: Some(complete_length),
         }
     }
-    */
 
     /// Get the byte range if satisified.
-    pub fn byte_range(&self) -> Option<(u64, u64)> {
+    pub fn bytes_range(&self) -> Option<impl RangeBounds<u64>> {
         self.range
+            .map(|(start, end)| (Bound::Included(start), Bound::Included(end)))
+    }
+
+    /// Get the bytes complete length if available.
+    pub fn bytes_len(&self) -> Option<u64> {
+        self.complete_length
     }
 }
 
