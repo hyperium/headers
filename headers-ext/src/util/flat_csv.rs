@@ -38,12 +38,11 @@ impl<Sep: Separator> FlatCsv<Sep> {
             .to_str()
             .ok()
             .into_iter()
-            .map(|value_str| {
+            .flat_map(|value_str| {
                 value_str
                     .split(Sep::SEP as char)
                     .map(|item| item.trim())
             })
-            .flatten()
     }
 }
 
