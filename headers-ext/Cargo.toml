@@ -3,6 +3,7 @@
 name = "headers-ext"
 version = "0.0.0" # don't forget to update html_root_url
 description = "typed HTTP headers"
+repository = "https://github.com/hyperium/headers"
 authors = ["Sean McArthur <sean@seanmonstar.com>"]
 license = "MIT"
 
