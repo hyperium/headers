@@ -1,7 +1,7 @@
 [package]
 
 name = "headers-derive"
-version = "0.0.0" # don't forget to update html_root_url
+version = "0.0.1" # don't forget to update html_root_url
 description = "derive(Header)"
 repository = "https://github.com/hyperium/headers"
 authors = ["Sean McArthur <sean@seanmonstar.com>"]
