@@ -1,5 +1,4 @@
 use std::fmt;
-use std::ops::{Bound, RangeBounds};
 
 /// Content-Range, described in [RFC7233](https://tools.ietf.org/html/rfc7233#section-4.2)
 ///
@@ -21,6 +20,16 @@ use std::ops::{Bound, RangeBounds};
 /// other-content-range = other-range-unit SP other-range-resp
 /// other-range-resp    = *CHAR
 /// ```
+///
+/// # Example
+///
+/// ```
+/// # extern crate headers_ext as headers;
+/// use headers::ContentRange;
+///
+/// // 100 bytes (included byte 199), with a full length of 3,400
+/// let cr = ContentRange(100, 199, 3400);
+/// ```
 //NOTE: only supporting bytes-content-range, YAGNI the extension
 #[derive(Clone, Debug, PartialEq)]
 pub struct ContentRange {
@@ -35,30 +44,12 @@ pub struct ContentRange {
 impl ContentRange {
     /// Construct a new `Content-Range: bytes ..` header.
     ///
-    /// # Panic
-    ///
-    /// If the range upper limit is unbounded and the complete length is `None`,
-    /// this panics as an invalid `ContentRange`.
-    pub fn bytes(range: impl RangeBounds<u64>, complete_length: impl Into<Option<u64>>) -> ContentRange {
+    /// Note that these byte ranges are inclusive on both ends.
+    pub fn bytes(first_byte: u64, last_byte: u64, complete_length: impl Into<Option<u64>>) -> ContentRange {
         let complete_length = complete_length.into();
 
-        let start = match range.start_bound() {
-            Bound::Included(&s) => s,
-            Bound::Excluded(&s) => s + 1,
-            Bound::Unbounded => 0,
-        };
-
-        let end = match range.end_bound() {
-            Bound::Included(&e) => e,
-            Bound::Excluded(&e) => e - 1,
-            Bound::Unbounded => match complete_length {
-                Some(max) => max - 1,
-                None => panic!("illegal ContentRange: unbounded last-byte-pos with no complete_length"),
-            }
-        };
-
         ContentRange {
-            range: Some((start, end)),
+            range: Some((first_byte, last_byte)),
             complete_length,
         }
     }
@@ -74,9 +65,10 @@ impl ContentRange {
     }
 
     /// Get the byte range if satisified.
-    pub fn bytes_range(&self) -> Option<impl RangeBounds<u64>> {
+    ///
+    /// Note that these byte ranges are inclusive on both ends.
+    pub fn bytes_range(&self) -> Option<(u64, u64)> {
         self.range
-            .map(|(start, end)| (Bound::Included(start), Bound::Included(end)))
     }
 
     /// Get the bytes complete length if available.
