@@ -31,7 +31,7 @@ use util::HttpDate;
 /// );
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Header)]
-pub struct LastModified(HttpDate);
+pub struct LastModified(pub(super) HttpDate);
 
 impl From<SystemTime> for LastModified {
     fn from(time: SystemTime) -> LastModified {

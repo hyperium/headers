@@ -28,7 +28,6 @@ use super::origin::{Origin};
 ///
 /// let any_origin = AccessControlAllowOrigin::ANY;
 /// let null_origin = AccessControlAllowOrigin::NULL;
-/// # //let allow_origin = AccessControlAllowOrigin::
 /// ```
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Header)]
 pub struct AccessControlAllowOrigin(OriginOrAny);
@@ -41,7 +40,9 @@ enum OriginOrAny {
 }
 
 impl AccessControlAllowOrigin {
+    /// `Access-Control-Allow-Origin: *`
     pub const ANY: AccessControlAllowOrigin = AccessControlAllowOrigin(OriginOrAny::Any);
+    /// `Access-Control-Allow-Origin: null`
     pub const NULL: AccessControlAllowOrigin = AccessControlAllowOrigin(OriginOrAny::Origin(Origin::NULL));
 }
 

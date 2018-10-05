@@ -1,3 +1,12 @@
+#![deny(missing_docs)]
+#![deny(missing_debug_implementations)]
+#![cfg_attr(test, deny(warnings))]
+
+//! # headers-core
+//!
+//! This is the core crate of the typed HTTP headers system, providing only
+//! the relevant traits. All actual header implementations are in other crates.
+
 extern crate bytes;
 extern crate http;
 
@@ -29,6 +38,7 @@ pub trait Header {
     fn encode(&self, values: &mut ToValues);
 }
 
+/// An iterator of `HeaderValue`s supplied to `Header::decode`.
 #[derive(Debug)]
 pub struct Values<'a> {
     inner: http::header::ValueIter<'a, http::header::HeaderValue>,
@@ -69,10 +79,13 @@ impl<'a> DoubleEndedIterator for Values<'a> {
     }
 }
 
+/// A builder to append `HeaderValue`s to during `Header::encode`.
+#[derive(Debug)]
 pub struct ToValues<'a> {
     state: State<'a>,
 }
 
+#[derive(Debug)]
 enum State<'a> {
     First(http::header::Entry<'a, HeaderValue>),
     Latter(http::header::OccupiedEntry<'a, HeaderValue>),
@@ -80,6 +93,10 @@ enum State<'a> {
 }
 
 impl<'a> ToValues<'a> {
+    /// Append the `HeaderValue` to the existing list of headers.
+    ///
+    /// While this can be called multiple times, *most* headers should only
+    /// call this once. The exceptions are outliers like `Set-Cookie`.
     pub fn append(&mut self, value: HeaderValue) {
         let entry = match ::std::mem::replace(&mut self.state, State::Tmp) {
             State::First(http::header::Entry::Occupied(mut e)) => {
@@ -96,6 +113,13 @@ impl<'a> ToValues<'a> {
         self.state = State::Latter(entry);
     }
 
+    /// Append the `impl Display` to the list of headers.
+    ///
+    /// # Panics
+    ///
+    /// Encoding `HeaderValue`s is expected to be infallible. However, not
+    /// all UTF-8 sequences are valid for a `HeaderValue`. The type passed
+    /// here must ensure that its resulting string is a valid `HeaderValue`.
     pub fn append_fmt<T: fmt::Display>(&mut self, fmt: T) {
         let s = fmt.to_string();
         let value = match HeaderValue::from_shared(s.into()) {
@@ -106,11 +130,14 @@ impl<'a> ToValues<'a> {
     }
 }
 
+/// An extension trait adding "typed" methods to `http::HeaderMap`.
 pub trait HeaderMapExt: self::sealed::Sealed {
+    /// Inserts the typed `Header` into this `HeaderMap`.
     fn typed_insert<H>(&mut self, header: H)
     where
         H: Header;
 
+    /// Tries to find the header by name, and then decode it into `H`.
     fn typed_get<H>(&self) -> Option<H>
     where
         H: Header;

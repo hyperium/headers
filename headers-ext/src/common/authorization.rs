@@ -89,10 +89,20 @@ impl<C: Credentials> ::Header for Authorization<C> {
 
 /// Credentials to be used in the `Authorization` header.
 pub trait Credentials: Sized {
+    /// The scheme identify the format of these credentials.
+    ///
+    /// This is the static string that always prefixes the actual credentials,
+    /// like `"Basic"` in basic authorization.
     const SCHEME: &'static str;
 
+    /// Try to decode the credentials from the `HeaderValue`.
+    ///
+    /// The `SCHEME` will be the first part of the `value`.
     fn decode(value: &HeaderValue) -> Option<Self>;
 
+    /// Encode the credentials to a `HeaderValue`.
+    ///
+    /// The `SCHEME` must be the first part of the `value`.
     fn encode(&self) -> HeaderValue;
 }
 
@@ -104,10 +114,12 @@ pub struct Basic {
 }
 
 impl Basic {
+    /// View the decoded username.
     pub fn username(&self) -> &str {
         &self.decoded[..self.colon_pos]
     }
 
+    /// View the decoded password.
     pub fn password(&self) -> &str {
         &self.decoded[self.colon_pos + 1..]
     }
@@ -149,6 +161,7 @@ impl Credentials for Basic {
 pub struct Bearer(HeaderValueString);
 
 impl Bearer {
+    /// View the token part as a `&str`.
     pub fn token(&self) -> &str {
         &self.0.as_str()["Bearer ".len() ..]
     }

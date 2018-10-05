@@ -1,3 +1,5 @@
+//! Encoding utilities.
+
 use std::fmt;
 
 /// Format an array into a comma-delimited string.

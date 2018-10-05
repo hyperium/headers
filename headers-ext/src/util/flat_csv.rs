@@ -17,14 +17,14 @@ pub(crate) trait Separator {
     const SEP: u8;
 }
 
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub(crate) enum Comma {}
 
 impl Separator for Comma {
     const SEP: u8 = b',';
 }
 
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub(crate) enum SemiColon {}
 
 impl Separator for SemiColon {

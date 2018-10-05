@@ -1,4 +1,4 @@
-//! Utility functions for Header implementations.
+//! Decoding utilities.
 
 use http::header::HeaderValue;
 
@@ -17,7 +17,6 @@ impl TryFromValues for HeaderValue {
 }
 
 /// Reads a comma-delimited raw header into a Vec.
-#[inline]
 pub fn from_comma_delimited<T, E>(values: &mut ::Values) -> Option<E>
 where
     T: ::std::str::FromStr,

@@ -1,7 +1,8 @@
 use std::time::SystemTime;
 
-use util::{EntityTag, HttpDate};
 use ::HeaderValue;
+use util::{EntityTag, HttpDate};
+use super::{LastModified, ETag};
 
 /// `If-Range` header, defined in [RFC7233](http://tools.ietf.org/html/rfc7233#section-3.2)
 ///
@@ -44,7 +45,7 @@ pub struct IfRange(IfRange_);
 
 impl IfRange {
     /// Create an `IfRange` header with an entity tag.
-    pub fn etag(tag: super::ETag) -> IfRange {
+    pub fn etag(tag: ETag) -> IfRange {
         IfRange(IfRange_::EntityTag(tag.0))
     }
 
@@ -53,10 +54,12 @@ impl IfRange {
         IfRange(IfRange_::Date(time.into()))
     }
 
-    pub fn is_modified(&self, time: SystemTime) -> bool {
+    /// Checks if the resource has been modified, or if the range request
+    /// can be served.
+    pub fn is_modified(&self, _etag: Option<&ETag>, last_modified: Option<&LastModified>) -> bool {
         match self.0 {
-            IfRange_::Date(since) => since < time.into(),
-            _ => false,
+            IfRange_::Date(since) => last_modified.map(|time| since < time.0).unwrap_or(true),
+            IfRange_::EntityTag(_) => true,
         }
     }
 }
