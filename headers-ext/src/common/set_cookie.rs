@@ -77,6 +77,15 @@ impl ::Header for SetCookie {
     }
 }
 
+impl SetCookie {
+    /// Returns an iterator over `HeaderValue`s contained within.
+    pub fn iter<'a>(&'a self) -> impl Iterator<Item = &'a ::HeaderValue> + 'a {
+        self
+            .0
+            .iter()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
