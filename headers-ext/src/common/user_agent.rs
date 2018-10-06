@@ -49,4 +49,10 @@ impl UserAgent {
     pub fn as_str(&self) -> &str {
         self.0.as_str()
     }
+
+    /// Create a `UserAgent` from a string.
+    pub fn from_str(src: &str) -> Option<UserAgent> {
+        let value = HeaderValueString::from_string(src.into())?;
+        Some(UserAgent(value))
+    }
 }
