@@ -35,3 +35,9 @@ impl From<Duration> for AccessControlMaxAge {
         AccessControlMaxAge(dur.into())
     }
 }
+
+impl From<AccessControlMaxAge> for Duration {
+    fn from(acma: AccessControlMaxAge) -> Duration {
+        acma.0.into()
+    }
+}
