@@ -37,6 +37,10 @@ macro_rules! error_type {
             }
         }
 
-        impl ::std::error::Error for $name {}
+        impl ::std::error::Error for $name {
+            fn description(&self) -> &str {
+                stringify!($name)
+            }
+        }
     );
 }
