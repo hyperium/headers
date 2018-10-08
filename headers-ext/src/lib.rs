@@ -30,7 +30,8 @@ pub use http::header::{
     HeaderValue,
 };
 
-mod common;
+#[macro_use]
 mod util;
+mod common;
 
 pub use self::common::*;

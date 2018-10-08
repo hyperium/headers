@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use util::HeaderValueString;
 
 /// `User-Agent` header, defined in
@@ -50,3 +52,15 @@ impl UserAgent {
         self.0.as_str()
     }
 }
+
+error_type!(InvalidUserAgent);
+
+impl FromStr for UserAgent {
+    type Err = InvalidUserAgent;
+    fn from_str(src: &str) -> Result<Self, Self::Err> {
+        HeaderValueString::from_str(src)
+            .map(UserAgent)
+            .map_err(|_| InvalidUserAgent { _inner: () })
+    }
+}
+

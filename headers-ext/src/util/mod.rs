@@ -16,3 +16,27 @@ mod http_date;
 //mod quality_value;
 mod seconds;
 mod value_string;
+
+#[macro_export]
+macro_rules! error_type {
+    ($name:ident) => (
+        pub struct $name {
+            _inner: (),
+        }
+
+        impl ::std::fmt::Debug for $name {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                f.debug_struct(stringify!($name))
+                    .finish()
+            }
+        }
+
+        impl ::std::fmt::Display for $name {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                f.write_str(stringify!($name))
+            }
+        }
+
+        impl ::std::error::Error for $name {}
+    );
+}
