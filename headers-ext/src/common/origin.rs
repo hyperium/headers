@@ -36,9 +36,33 @@ impl Origin {
 
     /// Checks if `Origin` is `null`.
     pub fn is_null(&self) -> bool {
-        match self {
-            &Origin(OriginOrNull::Null) => true,
+        match self.0 {
+            OriginOrNull::Null => true,
             _ => false,
+        }
+    }
+
+    /// Get the "scheme" part of this origin.
+    pub fn scheme(&self) -> &str {
+        match self.0 {
+            OriginOrNull::Origin(ref scheme, _) => scheme.as_str(),
+            OriginOrNull::Null => "",
+        }
+    }
+
+    /// Get the "hostname" part of this origin.
+    pub fn hostname(&self) -> &str {
+        match self.0 {
+            OriginOrNull::Origin(_, ref auth) => auth.host(),
+            OriginOrNull::Null => "",
+        }
+    }
+
+    /// Get the "port" part of this origin.
+    pub fn port(&self) -> Option<u16> {
+        match self.0 {
+            OriginOrNull::Origin(_, ref auth) => auth.port(),
+            OriginOrNull::Null => None,
         }
     }
 

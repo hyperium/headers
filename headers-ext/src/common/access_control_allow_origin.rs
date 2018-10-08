@@ -45,10 +45,10 @@ impl AccessControlAllowOrigin {
     /// `Access-Control-Allow-Origin: null`
     pub const NULL: AccessControlAllowOrigin = AccessControlAllowOrigin(OriginOrAny::Origin(Origin::NULL));
 
-    /// Returns the origin if there's one specified
-    pub fn origin(&self) -> Option<Origin> {
+    /// Returns the origin if there's one specified.
+    pub fn origin(&self) -> Option<&Origin> {
         match self.0 {
-            OriginOrAny::Origin(ref origin) => Some(origin.clone()),
+            OriginOrAny::Origin(ref origin) => Some(origin),
             _ => None
         }
     }
