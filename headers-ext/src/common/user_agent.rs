@@ -36,7 +36,7 @@ use util::HeaderValueString;
 /// # extern crate headers_ext as headers;
 /// use headers::UserAgent;
 ///
-/// let ua = UserAgent::from_static("hyper/0.12.2"));
+/// let ua = UserAgent::from_static("hyper/0.12.2");
 /// ```
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Header)]
 pub struct UserAgent(HeaderValueString);
