@@ -1,3 +1,5 @@
 # rust http headers
 
-Typed header system from hyper 0.11, broken out into it's own crate.
+[![Build Status](https://travis-ci.org/hyperium/headers.svg?branch=master)](https://travis-ci.org/hyperium/header)
+
+Typed HTTP headers.
