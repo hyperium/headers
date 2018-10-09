@@ -36,6 +36,7 @@ impl Origin {
     pub const NULL: Origin = Origin(OriginOrNull::Null);
 
     /// Checks if `Origin` is `null`.
+    #[inline]
     pub fn is_null(&self) -> bool {
         match self.0 {
             OriginOrNull::Null => true,
@@ -44,6 +45,7 @@ impl Origin {
     }
 
     /// Get the "scheme" part of this origin.
+    #[inline]
     pub fn scheme(&self) -> &str {
         match self.0 {
             OriginOrNull::Origin(ref scheme, _) => scheme.as_str(),
@@ -52,6 +54,7 @@ impl Origin {
     }
 
     /// Get the "hostname" part of this origin.
+    #[inline]
     pub fn hostname(&self) -> &str {
         match self.0 {
             OriginOrNull::Origin(_, ref auth) => auth.host(),
@@ -60,6 +63,7 @@ impl Origin {
     }
 
     /// Get the "port" part of this origin.
+    #[inline]
     pub fn port(&self) -> Option<u16> {
         match self.0 {
             OriginOrNull::Origin(_, ref auth) => auth.port(),
@@ -67,19 +71,26 @@ impl Origin {
         }
     }
 
-    /// Tries to build a `Origin` from three parts, the scheme, the host and an optional port
-    pub fn try_from_parts(scheme: &str, host: &str, port: Option<u16>) -> Option<Self> {
-        let s = format!("{}://{}{}",
-                        scheme,
-                        host,
-                        if let Some(port) = port {
-                            format!(":{}", port)
-                        } else {
-                            "".into()
-                        }
-        );
-        let value = HeaderValue::from_str(&s).ok()?;
-        Self::try_from_value(&value)
+    /// Tries to build a `Origin` from three parts, the scheme, the host and an optional port.
+    pub fn try_from_parts(scheme: &str, host: &str, port: impl Into<Option<u16>>) -> Result<Self, InvalidOrigin> {
+
+        struct MaybePort(Option<u16>);
+
+        impl fmt::Display for MaybePort {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                if let Some(port) = self.0 {
+                    write!(f, ":{}", port)
+                } else {
+                    Ok(())
+                }
+            }
+        }
+
+        let bytes = Bytes::from(format!("{}://{}{}", scheme, host, MaybePort(port.into())));
+        HeaderValue::from_shared(bytes)
+            .ok()
+            .and_then(|val| Self::try_from_value(&val))
+            .ok_or_else(|| InvalidOrigin { _inner: () })
     }
 
     // Used in AccessControlAllowOrigin
@@ -92,6 +103,19 @@ impl Origin {
         (&self.0).into()
     }
 }
+
+impl fmt::Display for Origin {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self.0 {
+            OriginOrNull::Origin(ref scheme, ref auth) => {
+                write!(f, "{}://{}", scheme, auth)
+            },
+            OriginOrNull::Null => f.write_str("null"),
+        }
+    }
+}
+
+error_type!(InvalidOrigin);
 
 impl OriginOrNull {
     fn try_from_value(value: &HeaderValue) -> Option<Self> {
@@ -143,16 +167,6 @@ impl<'a> From<&'a OriginOrNull> for HeaderValue {
     }
 }
 
-impl fmt::Display for Origin {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.0 {
-            OriginOrNull::Origin(ref scheme, ref auth) => {
-                f.write_str(&format!("{}://{}", scheme, auth))
-            },
-            OriginOrNull::Null => f.write_str("null"),
-        }
-    }
-}
 
 /*
 #[cfg(test)]
