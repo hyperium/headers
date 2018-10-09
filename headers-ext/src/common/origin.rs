@@ -67,6 +67,21 @@ impl Origin {
         }
     }
 
+    /// Tries to build a `Origin` from three parts, the scheme, the host and an optional port
+    pub fn try_from_parts(scheme: &str, host: &str, port: Option<u16>) -> Option<Self> {
+        let s = format!("{}://{}{}",
+                        scheme,
+                        host,
+                        if let Some(port) = port {
+                            format!(":{}", port)
+                        } else {
+                            "".into()
+                        }
+        );
+        let value = HeaderValue::from_str(&s).ok()?;
+        Self::try_from_value(&value)
+    }
+
     // Used in AccessControlAllowOrigin
     pub(super) fn try_from_value(value: &HeaderValue) -> Option<Self> {
         OriginOrNull::try_from_value(value)
