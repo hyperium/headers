@@ -1,6 +1,7 @@
 use bytes::Bytes;
 use headers_core::decode::TryFromValues;
 use http::uri::{self, Authority, Scheme, Uri};
+use std::fmt;
 use ::{HeaderValue};
 
 /// The `Origin` header.
@@ -123,6 +124,17 @@ impl<'a> From<&'a OriginOrNull> for HeaderValue {
             // Serialized as "null" per ASCII serialization of an origin
             // https://html.spec.whatwg.org/multipage/browsers.html#ascii-serialisation-of-an-origin
             OriginOrNull::Null => HeaderValue::from_static("null"),
+        }
+    }
+}
+
+impl fmt::Display for Origin {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self.0 {
+            OriginOrNull::Origin(ref scheme, ref auth) => {
+                f.write_str(&format!("{}://{}", scheme, auth))
+            },
+            OriginOrNull::Null => f.write_str("null"),
         }
     }
 }
