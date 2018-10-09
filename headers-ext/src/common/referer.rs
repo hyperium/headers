@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use http::header::HeaderValue;
 
 /// `Referer` header, defined in
@@ -40,3 +42,15 @@ impl Referer {
         Referer(HeaderValue::from_static(s))
     }
 }
+
+error_type!(InvalidReferer);
+
+impl FromStr for Referer {
+    type Err = InvalidReferer;
+    fn from_str(src: &str) -> Result<Self, Self::Err> {
+        HeaderValue::from_str(src)
+            .map(Referer)
+            .map_err(|_| InvalidReferer { _inner: () })
+    }
+}
+
