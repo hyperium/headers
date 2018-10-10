@@ -38,7 +38,7 @@ pub struct Authorization<C: Credentials>(pub C);
 impl Authorization<Basic> {
     /// Create a `Basic` authorization header.
     pub fn basic(username: &str, password: &str) -> Self {
-        let colon_pos = username.len() + 1;
+        let colon_pos = username.len();
         let decoded = format!("{}:{}", username, password);
 
         Authorization(Basic {
@@ -192,6 +192,8 @@ pub struct InvalidBearerToken(());
 
 #[cfg(test)]
 mod tests {
+    use headers_core::HeaderMapExt;
+    use http::header::HeaderMap;
     use super::{Authorization, Basic, Bearer};
     use super::super::{test_decode, test_encode};
 
@@ -204,6 +206,14 @@ mod tests {
             headers["authorization"],
             "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==",
         );
+    }
+
+    #[test]
+    fn basic_roundtrip() {
+        let auth = Authorization::basic("Aladdin", "open sesame");
+        let mut h = HeaderMap::new();
+        h.typed_insert(auth.clone());
+        assert_eq!(h.typed_get(), Some(auth));
     }
 
     #[test]
