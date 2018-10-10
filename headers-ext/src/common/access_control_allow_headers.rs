@@ -40,9 +40,11 @@ impl AccessControlAllowHeaders {
         self
             .0
             .iter()
-            .filter_map(|s| {
+            .map(|s| {
                 s.parse().ok()
             })
+            .take_while(|val| val.is_some())
+            .filter_map(|val| val)
     }
 }
 
@@ -85,6 +87,15 @@ mod tests {
 
         let headers = test_encode(allow);
         assert_eq!(headers["access-control-allow-headers"], "cache-control, if-range");
+    }
+
+    #[test]
+    fn test_with_invalid() {
+        let allow_headers = test_decode::<AccessControlAllowHeaders>(
+            &["foo foo, bar"]
+        ).unwrap();
+
+        assert!(allow_headers.iter().collect::<Vec<_>>().is_empty());
     }
 }
 
