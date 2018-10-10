@@ -76,13 +76,43 @@ impl<'a> From<&'a OriginOrAny> for HeaderValue {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::super::{test_decode, test_encode};
 
-#[test]
-fn access_control_origin_servo() {
-    use http;
-    use headers_core::HeaderMapExt;
-    let v = HeaderValue::from_static("http://web-platform.test:8000");
-    let mut h = http::header::HeaderMap::new();
-    h.insert(http::header::ACCESS_CONTROL_ALLOW_ORIGIN, v);
-    assert!(h.typed_get::<AccessControlAllowOrigin>().is_some())
+
+    #[test]
+    fn origin() {
+        let s = "http://web-platform.test:8000";
+        let allow_origin = test_decode::<AccessControlAllowOrigin>(&[s]).unwrap();
+        {
+            let origin = allow_origin.origin().unwrap();
+            assert_eq!(origin.scheme(), "http");
+            assert_eq!(origin.hostname(), "web-platform.test");
+            assert_eq!(origin.port(), Some(8000));
+        }
+
+        let headers = test_encode(allow_origin);
+        assert_eq!(headers["access-control-allow-origin"], s);
+    }
+
+    #[test]
+    fn any() {
+        let allow_origin = test_decode::<AccessControlAllowOrigin>(&["*"]).unwrap();
+        assert_eq!(allow_origin, AccessControlAllowOrigin::ANY);
+
+        let headers = test_encode(allow_origin);
+        assert_eq!(headers["access-control-allow-origin"], "*");
+    }
+
+    #[test]
+    fn null() {
+        let allow_origin = test_decode::<AccessControlAllowOrigin>(&["null"]).unwrap();
+        assert_eq!(allow_origin, AccessControlAllowOrigin::NULL);
+
+        let headers = test_encode(allow_origin);
+        assert_eq!(headers["access-control-allow-origin"], "null");
+    }
 }
+
