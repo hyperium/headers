@@ -28,7 +28,7 @@ use std::fmt;
 /// use headers::ContentRange;
 ///
 /// // 100 bytes (included byte 199), with a full length of 3,400
-/// let cr = ContentRange(100, 199, 3400);
+/// let cr = ContentRange::bytes(100, 199, 3400);
 /// ```
 //NOTE: only supporting bytes-content-range, YAGNI the extension
 #[derive(Clone, Debug, PartialEq)]
