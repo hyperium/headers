@@ -76,3 +76,13 @@ impl<'a> From<&'a OriginOrAny> for HeaderValue {
     }
 }
 
+
+#[test]
+fn access_control_origin_servo() {
+    use http;
+    use headers_core::HeaderMapExt;
+    let v = HeaderValue::from_static("http://web-platform.test:8000");
+    let mut h = http::header::HeaderMap::new();
+    h.insert(http::header::ACCESS_CONTROL_ALLOW_ORIGIN, v);
+    assert!(h.typed_get::<AccessControlAllowOrigin>().is_some())
+}

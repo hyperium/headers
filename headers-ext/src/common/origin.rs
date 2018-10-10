@@ -134,6 +134,12 @@ impl OriginOrNull {
                 path_and_query: None,
                 ..
             } => (scheme, auth),
+            uri::Parts {
+                scheme: Some(ref scheme),
+                authority: Some(ref auth),
+                path_and_query: Some(ref p),
+                ..
+            } if p == "/" => (scheme.clone(), auth.clone()),
             _ => {
                 return None;
             }
