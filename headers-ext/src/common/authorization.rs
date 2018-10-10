@@ -246,7 +246,7 @@ mod tests {
     #[test]
     fn bearer_decode() {
         let auth: Authorization<Bearer> = test_decode(&["Bearer fpKL54jvWmEGVoRdCNjG"]).unwrap();
-        assert_eq!(auth.0.token(), b"fpKL54jvWmEGVoRdCNjG");
+        assert_eq!(auth.0.token().as_bytes(), b"fpKL54jvWmEGVoRdCNjG");
     }
 }
 
