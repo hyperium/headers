@@ -78,13 +78,14 @@ impl Connection {
     /// assert!(!conn.contains("close"));
     /// assert!(!conn.contains(UPGRADE));
     /// assert!(conn.contains("keep-alive"));
+    /// assert!(conn.contains("Keep-Alive"));
     /// ```
     pub fn contains(&self, name: impl AsConnectionOption) -> bool {
         let s = name.as_connection_option();
         self
             .0
             .iter()
-            .find(|&opt| opt == s)
+            .find(|&opt| opt.eq_ignore_ascii_case(s))
             .is_some()
     }
 }
