@@ -1,5 +1,6 @@
-use std::fmt::{self, Display};
-use {Header, Raw};
+use std::fmt;
+
+use util::HeaderValueString;
 
 /// `Last-Event-ID` header, defined in
 /// [RFC3864](https://html.spec.whatwg.org/multipage/references.html#refsRFC3864)
@@ -13,51 +14,27 @@ use {Header, Raw};
 ///
 /// The spec is a String with the id of the last event, it can be
 /// an empty string which acts a sort of "reset".
-///
-/// # Example
-/// ```
-/// use headers::{Headers, LastEventId};
-///
-/// let mut headers = Headers::new();
-/// headers.set(LastEventId("1".to_owned()));
-/// ```
-#[derive(Clone, Debug, PartialEq)]
-pub struct LastEventId(pub String);
+// NOTE: This module is disabled since there is no const LAST_EVENT_ID to be
+// used for the `impl Header`. It should be possible to enable this module
+// when `HeaderName::from_static` can become a `const fn`.
+#[derive(Clone, Debug, PartialEq, Header)]
+pub struct LastEventId(HeaderValueString);
 
-impl Header for LastEventId {
-    #[inline]
-    fn header_name() -> &'static str {
-        static NAME: &'static str = "Last-Event-ID";
-        NAME
-    }
 
-    #[inline]
-    fn parse_header(raw: &Raw) -> ::Result<Self> {
-        match raw.one() {
-            Some(line) if line.is_empty() => Ok(LastEventId("".to_owned())),
-            Some(line) => ::parsing::from_raw_str(line).map(LastEventId),
-            None => Err(::Error::Header),
-        }
-    }
-
-    #[inline]
-    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
-        f.fmt_line(self)
-    }
-}
-
-impl Display for LastEventId {
-    #[inline]
+impl fmt::Display for LastEventId {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        Display::fmt(&self.0, f)
+        fmt::Display::fmt(&self.0, f)
     }
 }
 
-__hyper__deref!(LastEventId => String);
+#[cfg(test)]
+mod tests {
 
-__hyper__tm!(LastEventId, tests {
+    /*
     // Initial state
     test_header!(test1, vec![b""]);
     // Own testcase
     test_header!(test2, vec![b"1"], Some(LastEventId("1".to_owned())));
-});
+    */
+}
+

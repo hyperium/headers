@@ -51,7 +51,13 @@ impl HeaderValueString {
 
 impl fmt::Debug for HeaderValueString {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Debug::fmt(&self.value, f)
+        fmt::Debug::fmt(self.as_str(), f)
+    }
+}
+
+impl fmt::Display for HeaderValueString {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(self.as_str(), f)
     }
 }
 
