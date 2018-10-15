@@ -1,3 +1,4 @@
+use std::fmt;
 use std::str::FromStr;
 
 use util::HeaderValueString;
@@ -61,6 +62,12 @@ impl FromStr for UserAgent {
         HeaderValueString::from_str(src)
             .map(UserAgent)
             .map_err(|_| InvalidUserAgent { _inner: () })
+    }
+}
+
+impl fmt::Display for UserAgent {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self.0, f)
     }
 }
 
