@@ -9,6 +9,7 @@ pub(crate) use self::seconds::Seconds;
 pub(crate) use self::value_string::HeaderValueString;
 
 //mod charset;
+pub(crate) mod csv;
 //mod encoding;
 mod entity;
 mod flat_csv;

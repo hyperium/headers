@@ -1,4 +1,4 @@
-use language_tags::LanguageTag;
+use util::FlatCsv;
 
 /// `Content-Language` header, defined in
 /// [RFC7231](https://tools.ietf.org/html/rfc7231#section-3.1.3.2)
@@ -31,18 +31,5 @@ use language_tags::LanguageTag;
 /// # }
 /// ```
 #[derive(Clone, Debug, PartialEq, Header)]
-#[header(csv)]
-pub struct ContentLanguage(Vec<LanguageTag>);
+pub struct ContentLanguage(FlatCsv);
 
-impl ContentLanguage {
-    pub fn new<I>(iter: I) -> Self
-    where
-        I: IntoIterator<Item=LanguageTag>,
-    {
-        let langs = iter
-            .into_iter()
-            .collect();
-
-        ContentLanguage(langs)
-    }
-}

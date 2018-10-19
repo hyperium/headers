@@ -1,3 +1,4 @@
+/* csv disabled for now
 //! Encoding utilities.
 
 use std::fmt;
@@ -13,3 +14,4 @@ pub fn comma_delimited<T: fmt::Display>(f: &mut fmt::Formatter, mut iter: impl I
     }
     Ok(())
 }
+*/

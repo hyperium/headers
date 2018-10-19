@@ -3,7 +3,7 @@ use std::iter::FromIterator;
 use std::str::FromStr;
 use std::time::Duration;
 
-use util::Seconds;
+use util::{csv, Seconds};
 
 /// `Cache-Control` header, defined in [RFC7234](https://tools.ietf.org/html/rfc7234#section-5.2)
 ///
@@ -187,7 +187,7 @@ impl ::Header for CacheControl {
     const NAME: &'static ::HeaderName = &::http::header::CACHE_CONTROL;
 
     fn decode(values: &mut ::Values) -> Option<Self> {
-        ::headers_core::decode::from_comma_delimited(values)
+        csv::from_comma_delimited(values)
             .map(|FromIter(cc)| cc)
 
     }
@@ -291,7 +291,7 @@ impl<'a> fmt::Display for Fmt<'a> {
             .iter()
             .filter_map(|o| *o);
 
-        ::headers_core::encode::comma_delimited(f, iter)
+        csv::fmt_comma_delimited(f, iter)
     }
 }
 

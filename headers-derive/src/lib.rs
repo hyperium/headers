@@ -73,7 +73,7 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
 
     // Check attributes for `#[header(...)]` that may influence the code
     // that is generated...
-    let mut is_csv = false;
+    //let mut is_csv = false;
     let mut name = None;
     for attr in &ast.attrs {
         if attr.path.segments.len() != 1 {
@@ -87,9 +87,12 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
             Some(Meta::List(list)) => {
                 for meta in &list.nested {
                     match meta {
+                        /*
+                        To be conservative, this attribute is disabled...
                         NestedMeta::Meta(Meta::Word(ref word)) if word == "csv" => {
                             is_csv = true;
                         },
+                        */
 
                         NestedMeta::Meta(Meta::NameValue(ref kv)) if kv.ident == "name_const" => {
                             if name.is_some() {
@@ -123,6 +126,7 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
         }
     }
 
+    /* csv attr is disabled for now
     let decode_res = if is_csv {
         quote! {
             __hc::decode::from_comma_delimited(values)
@@ -131,6 +135,10 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
         quote! {
             __hc::decode::TryFromValues::try_from_values(values)
         }
+    };
+    */
+    let decode_res = quote! {
+        __hc::decode::TryFromValues::try_from_values(values)
     };
 
     let (decode, encode_name) = match st.fields {
@@ -173,7 +181,8 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
         }
     };
 
-    let encode = if is_csv {
+    // csv attr disabled for now
+    let encode = /*if is_csv {
         let field = if let Value::Named(field) = encode_name {
             quote! {
                 (&(self.0).#field)
@@ -192,7 +201,7 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
             }
             values.append_fmt(&__HeaderFmt(self));
         }
-    } else {
+    } else*/ {
         let field = if let Value::Named(field) = encode_name {
             quote! {
                 (&self.#field)
