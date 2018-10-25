@@ -44,6 +44,10 @@ pub struct UserAgent(HeaderValueString);
 
 impl UserAgent {
     /// Create a `UserAgent` from a static string.
+    ///
+    /// # Panic
+    ///
+    /// Panics if the static string is not a legal header value.
     pub fn from_static(src: &'static str) -> UserAgent {
         UserAgent(HeaderValueString::from_static(src))
     }
