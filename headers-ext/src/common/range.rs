@@ -37,7 +37,21 @@ use std::ops::Bound;
 #[derive(Clone, Debug, PartialEq)]
 pub struct Range(::HeaderValue);
 
+error_type!(InvalidRange);
+
 impl Range {
+    /// Creates a `Range` header from two bounds.
+    pub fn from_bounds(start: Bound<u64>, end: Bound<u64>) -> Result<Self, InvalidRange> {
+        let v = match (start, end) {
+            (Bound::Unbounded, Bound::Included(end)) => format!("bytes=-{}", end),
+            (Bound::Included(start), Bound::Included(end)) => format!("bytes={}-{}", start, end),
+            (Bound::Included(start), Bound::Unbounded) => format!("bytes={}-", start),
+            _ => return Err(InvalidRange { _inner: () }),
+        };
+
+        Ok(Range(::HeaderValue::from_str(&v).unwrap()))
+    }
+
     /// Iterate the range sets as a tuple of bounds.
     pub fn iter<'a>(&'a self) -> impl Iterator<Item=(Bound<u64>, Bound<u64>)> + 'a {
         let s = self.0
