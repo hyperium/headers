@@ -58,15 +58,15 @@ pub struct SetCookie(Vec<::HeaderValue>);
 impl ::Header for SetCookie {
     const NAME: &'static ::HeaderName = &::http::header::SET_COOKIE;
 
-    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Option<Self> {
+    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         let vec = values
             .cloned()
             .collect::<Vec<_>>();
 
         if !vec.is_empty() {
-            Some(SetCookie(vec))
+            Ok(SetCookie(vec))
         } else {
-            None
+            Err(::Error::invalid())
         }
     }
 

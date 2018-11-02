@@ -28,12 +28,17 @@ impl Expect {
 impl ::Header for Expect {
     const NAME: &'static ::HeaderName = &::http::header::EXPECT;
 
-    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Option<Self> {
-        if values.next()? == "100-continue" {
-            Some(Expect::CONTINUE)
-        } else {
-            None
-        }
+    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+        values
+            .next()
+            .and_then(|value| {
+                if value == "100-continue" {
+                    Some(Expect::CONTINUE)
+                } else {
+                    None
+                }
+            })
+            .ok_or_else(::Error::invalid)
     }
 
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {

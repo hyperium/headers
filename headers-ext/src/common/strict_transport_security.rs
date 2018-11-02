@@ -78,7 +78,7 @@ enum Directive {
     Unknown
 }
 
-fn from_str(s: &str) -> Option<StrictTransportSecurity> {
+fn from_str(s: &str) -> Result<StrictTransportSecurity, ::Error> {
     s.split(';')
         .map(str::trim)
         .map(|sub| if sub.eq_ignore_ascii_case("includeSubdomains") {
@@ -113,17 +113,18 @@ fn from_str(s: &str) -> Option<StrictTransportSecurity> {
             }),
             _ => None
         })
+        .ok_or_else(::Error::invalid)
 }
 
 impl ::Header for StrictTransportSecurity {
     const NAME: &'static ::HeaderName = &::http::header::STRICT_TRANSPORT_SECURITY;
 
-    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Option<Self> {
+    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values
-            .next()?
-            .to_str()
-            .ok()
-            .and_then(from_str)
+            .next()
+            .and_then(|v| v.to_str().ok())
+            .map(from_str)
+            .unwrap_or_else(|| Err(::Error::invalid()))
     }
 
 

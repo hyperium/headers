@@ -36,13 +36,17 @@ pub struct AccessControlAllowCredentials;
 impl Header for AccessControlAllowCredentials {
     const NAME: &'static HeaderName = &::http::header::ACCESS_CONTROL_ALLOW_CREDENTIALS;
 
-    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Option<Self> {
-        let value = values.next()?;
-        if value.as_bytes().eq_ignore_ascii_case(b"true") {
-            Some(AccessControlAllowCredentials)
-        } else {
-            None
-        }
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+        values
+            .next()
+            .and_then(|value| {
+                if value.as_bytes().eq_ignore_ascii_case(b"true") {
+                    Some(AccessControlAllowCredentials)
+                } else {
+                    None
+                }
+            })
+            .ok_or_else(::Error::invalid)
     }
 
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {

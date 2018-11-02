@@ -48,18 +48,21 @@ impl RetryAfter {
 }
 
 impl ::headers_core::decode::TryFromValues for After {
-    fn try_from_values<'i, I>(values: &mut I) -> Option<Self>
+    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, ::Error>
     where
         I: Iterator<Item = &'i HeaderValue>,
     {
-        let val = values.next()?;
+        values
+            .next()
+            .and_then(|val| {
+                if let Some(delay) = Seconds::from_val(val) {
+                    return Some(After::Delay(delay));
+                }
 
-        if let Some(delay) = Seconds::from_val(val) {
-            return Some(After::Delay(delay));
-        }
-
-        let date = HttpDate::from_val(val)?;
-        Some(After::DateTime(date))
+                let date = HttpDate::from_val(val)?;
+                Some(After::DateTime(date))
+            })
+            .ok_or_else(::Error::invalid)
     }
 }
 

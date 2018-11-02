@@ -97,14 +97,12 @@ impl ContentType {
 impl ::Header for ContentType {
     const NAME: &'static ::HeaderName = &::http::header::CONTENT_TYPE;
 
-    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Option<Self> {
+    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values
-            .next()?
-            .to_str()
-            .ok()?
-            .parse()
-            .ok()
+            .next()
+            .and_then(|v| v.to_str().ok()?.parse().ok())
             .map(ContentType)
+            .ok_or_else(::Error::invalid)
     }
 
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {

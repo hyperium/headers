@@ -10,14 +10,17 @@ impl SecWebsocketVersion {
 impl ::Header for SecWebsocketVersion {
     const NAME: &'static ::HeaderName = &::http::header::SEC_WEBSOCKET_VERSION;
 
-    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Option<Self> {
-        let value = values.next()?;
-
-        if value == "13" {
-            Some(SecWebsocketVersion::V13)
-        } else {
-            None
-        }
+    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+        values
+            .next()
+            .and_then(|value| {
+                if value == "13" {
+                    Some(SecWebsocketVersion::V13)
+                } else {
+                    None
+                }
+            })
+            .ok_or_else(::Error::invalid)
     }
 
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {

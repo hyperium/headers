@@ -22,12 +22,14 @@ impl Host {
 impl ::Header for Host {
     const NAME: &'static ::HeaderName = &::http::header::HOST;
 
-    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Option<Self> {
-        let value = Bytes::from(values.next()?.clone());
-
-        Authority::from_shared(value)
-            .ok()
+    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+        values
+            .next()
+            .cloned()
+            .map(Bytes::from)
+            .and_then(|bytes| Authority::from_shared(bytes).ok())
             .map(Host)
+            .ok_or_else(::Error::invalid)
     }
 
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {

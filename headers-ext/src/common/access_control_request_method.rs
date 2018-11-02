@@ -31,12 +31,13 @@ pub struct AccessControlRequestMethod(Method);
 impl Header for AccessControlRequestMethod {
     const NAME: &'static HeaderName = &::http::header::ACCESS_CONTROL_REQUEST_METHOD;
 
-    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Option<Self> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values.next()
             .and_then(|value| {
                 Method::from_bytes(value.as_bytes()).ok()
             })
             .map(AccessControlRequestMethod)
+            .ok_or_else(::Error::invalid)
     }
 
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {

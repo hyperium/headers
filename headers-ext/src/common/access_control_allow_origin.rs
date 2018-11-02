@@ -55,18 +55,21 @@ impl AccessControlAllowOrigin {
 }
 
 impl TryFromValues for OriginOrAny {
-    fn try_from_values<'i, I>(values: &mut I) -> Option<Self>
+    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, ::Error>
     where
         I: Iterator<Item = &'i HeaderValue>,
     {
-        let value = values.next()?;
+        values
+            .next()
+            .and_then(|value| {
+                if value == "*" {
+                    return Some(OriginOrAny::Any);
+                }
 
-        if value == "*" {
-            return Some(OriginOrAny::Any);
-        }
-
-        Origin::try_from_value(value)
-            .map(OriginOrAny::Origin)
+                Origin::try_from_value(value)
+                    .map(OriginOrAny::Origin)
+            })
+            .ok_or_else(::Error::invalid)
     }
 }
 

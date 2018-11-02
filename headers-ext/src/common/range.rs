@@ -64,14 +64,17 @@ fn parse_bound(s: &str) -> Option<Bound<u64>> {
 impl ::Header for Range {
     const NAME: &'static ::HeaderName = &::http::header::RANGE;
 
-    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Option<Self> {
-        let val = values.next()?;
-
-        if val.to_str().ok()?.starts_with("bytes=") {
-            Some(Range(val.clone()))
-        } else {
-            None
-        }
+    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+        values
+            .next()
+            .and_then(|val| {
+                if val.to_str().ok()?.starts_with("bytes=") {
+                    Some(Range(val.clone()))
+                } else {
+                    None
+                }
+            })
+            .ok_or_else(::Error::invalid)
     }
 
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {

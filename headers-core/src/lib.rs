@@ -24,7 +24,7 @@ pub trait Header {
     const NAME: &'static HeaderName;
 
     /// Decode this type from an iterator of `HeaderValue`s.
-    fn decode<'i, I>(values: &mut I) -> Option<Self>
+    fn decode<'i, I>(values: &mut I) -> Result<Self, Error>
     where
         Self: Sized,
         I: Iterator<Item = &'i HeaderValue>;
@@ -35,6 +35,26 @@ pub trait Header {
     /// `HeaderValue` should have been caught when parsing or constructing
     /// this value.
     fn encode<E: Extend<HeaderValue>>(&self, values: &mut E);
+}
+
+/// Errors trying to decode a header.
+#[derive(Debug)]
+pub struct Error {
+    kind: Kind,
+}
+
+#[derive(Debug)]
+enum Kind {
+    Invalid,
+}
+
+impl Error {
+    /// Create an 'invalid' Error.
+    pub fn invalid() -> Error {
+        Error {
+            kind: Kind::Invalid,
+        }
+    }
 }
 
 /// A builder to append `HeaderValue`s to during `Header::encode`.
@@ -81,6 +101,11 @@ pub trait HeaderMapExt: self::sealed::Sealed {
     fn typed_get<H>(&self) -> Option<H>
     where
         H: Header;
+
+    /// Tries to find the header by name, and then decode it into `H`.
+    fn typed_try_get<H>(&self) -> Result<Option<H>, Error>
+    where
+        H: Header;
 }
 
 impl HeaderMapExt for http::HeaderMap {
@@ -101,8 +126,20 @@ impl HeaderMapExt for http::HeaderMap {
     where
         H: Header,
     {
+        HeaderMapExt::typed_try_get(self)
+            .unwrap_or(None)
+    }
+
+    fn typed_try_get<H>(&self) -> Result<Option<H>, Error>
+    where
+        H: Header,
+    {
         let mut values = self.get_all(H::NAME).iter();
-        H::decode(&mut values)
+        if values.size_hint() == (0, Some(0)) {
+            Ok(None)
+        } else {
+            H::decode(&mut values).map(Some)
+        }
     }
 }
 
