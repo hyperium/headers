@@ -82,43 +82,43 @@ impl ContentRange {
 impl ::Header for ContentRange {
     const NAME: &'static ::HeaderName = &::http::header::CONTENT_RANGE;
 
-    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Option<Self> {
-        let s = values
-            .next()?
-            .to_str()
-            .ok()?;
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+        values
+            .next()
+            .and_then(|v| v.to_str().ok())
+            .and_then(|s| split_in_two(s, ' '))
+            .and_then(|(unit, spec)| {
+                if unit != "bytes" {
+                    // For now, this only supports bytes-content-range. nani?
+                    return None;
+                }
 
-        let (unit, spec) = split_in_two(s, ' ')?;
+                let (range, complete_length) = split_in_two(spec, '/')?;
 
-        if unit != "bytes" {
-            // For now, this only supports bytes-content-range. nani?
-            return None;
-        }
+                let complete_length = if complete_length == "*" {
+                    None
+                } else {
+                    Some(complete_length.parse().ok()?)
+                };
 
-        let (range, complete_length) = split_in_two(spec, '/')?;
+                let range = if range == "*" {
+                    None
+                } else {
+                    let (first_byte, last_byte) = split_in_two(range, '-')?;
+                    let first_byte = first_byte.parse().ok()?;
+                    let last_byte = last_byte.parse().ok()?;
+                    if last_byte < first_byte {
+                        return None;
+                    }
+                    Some((first_byte, last_byte))
+                };
 
-        let complete_length = if complete_length == "*" {
-            None
-        } else {
-            Some(complete_length.parse().ok()?)
-        };
-
-        let range = if range == "*" {
-            None
-        } else {
-            let (first_byte, last_byte) = split_in_two(range, '-')?;
-            let first_byte = first_byte.parse().ok()?;
-            let last_byte = last_byte.parse().ok()?;
-            if last_byte < first_byte {
-                return None;
-            }
-            Some((first_byte, last_byte))
-        };
-
-        Some(ContentRange {
-            range,
-            complete_length,
-        })
+                Some(ContentRange {
+                    range,
+                    complete_length,
+                })
+            })
+            .ok_or_else(::Error::invalid)
     }
 
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {

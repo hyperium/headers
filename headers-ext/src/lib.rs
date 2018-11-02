@@ -17,6 +17,7 @@ extern crate sha1;
 extern crate time;
 
 pub use headers_core::{
+    Error,
     Header,
     HeaderMapExt,
 };

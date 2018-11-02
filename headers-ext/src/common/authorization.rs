@@ -60,18 +60,21 @@ impl Authorization<Bearer> {
 impl<C: Credentials> ::Header for Authorization<C> {
     const NAME: &'static ::HeaderName = &::http::header::AUTHORIZATION;
 
-    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Option<Self> {
-        let val = values.next()?;
-
-        let slice = val.as_bytes();
-        if slice.starts_with(C::SCHEME.as_bytes())
-            && slice.len() > C::SCHEME.len()
-            && slice[C::SCHEME.len()] == b' ' {
-            C::decode(val)
-                .map(Authorization)
-        } else {
-            None
-        }
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+        values
+            .next()
+            .and_then(|val| {
+                let slice = val.as_bytes();
+                if slice.starts_with(C::SCHEME.as_bytes())
+                    && slice.len() > C::SCHEME.len()
+                    && slice[C::SCHEME.len()] == b' ' {
+                    C::decode(val)
+                        .map(Authorization)
+                } else {
+                    None
+                }
+            })
+            .ok_or_else(::Error::invalid)
     }
 
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
@@ -178,6 +181,7 @@ impl Credentials for Bearer {
         );
 
         HeaderValueString::from_val(value)
+            .ok()
             .map(Bearer)
     }
 

@@ -43,7 +43,7 @@ pub struct ContentLength(pub u64);
 impl Header for ContentLength {
     const NAME: &'static ::http::header::HeaderName = &::http::header::CONTENT_LENGTH;
 
-    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Option<Self> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         // If multiple Content-Length headers were sent, everything can still
         // be alright if they all contain the same value, and all parse
         // correctly. If not, then it's an error.
@@ -51,20 +51,22 @@ impl Header for ContentLength {
         for value in values {
             let parsed = value
                 .to_str()
-                .ok()?
+                .map_err(|_| ::Error::invalid())?
                 .parse::<u64>()
-                .ok()?;
+                .map_err(|_| ::Error::invalid())?;
 
             if let Some(prev) = len {
                 if prev != parsed {
-                    return None;
+                    return Err(::Error::invalid());
                 }
             } else {
                 len = Some(parsed);
             }
         }
 
-        len.map(ContentLength)
+        len
+            .map(ContentLength)
+            .ok_or_else(::Error::invalid)
     }
 
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {

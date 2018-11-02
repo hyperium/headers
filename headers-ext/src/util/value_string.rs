@@ -13,13 +13,13 @@ pub(crate) struct HeaderValueString {
 }
 
 impl HeaderValueString {
-    pub(crate) fn from_val(val: &HeaderValue) -> Option<Self> {
+    pub(crate) fn from_val(val: &HeaderValue) -> Result<Self, ::Error> {
         if val.to_str().is_ok() {
-            Some(HeaderValueString {
+            Ok(HeaderValueString {
                 value: val.clone(),
             })
         } else {
-            None
+            Err(::Error::invalid())
         }
     }
 
@@ -62,11 +62,14 @@ impl fmt::Display for HeaderValueString {
 }
 
 impl ::headers_core::decode::TryFromValues for HeaderValueString {
-    fn try_from_values<'i, I>(values: &mut I) -> Option<Self>
+    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, ::Error>
     where
         I: Iterator<Item = &'i HeaderValue>,
     {
-        HeaderValueString::from_val(values.next()?)
+        values
+            .next()
+            .map(HeaderValueString::from_val)
+            .unwrap_or_else(|| Err(::Error::invalid()))
     }
 }
 
