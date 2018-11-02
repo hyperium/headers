@@ -107,13 +107,13 @@ impl ::Header for ContentType {
             .map(ContentType)
     }
 
-    fn encode(&self, values: &mut ::ToValues) {
+    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         let value = self
             .0
             .as_ref()
             .parse()
             .expect("Mime is always a valid HeaderValue");
-        values.append(value);
+        values.extend(::std::iter::once(value));
     }
 }
 

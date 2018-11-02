@@ -30,13 +30,13 @@ impl ::Header for Host {
             .map(Host)
     }
 
-    fn encode(&self, values: &mut ::ToValues) {
+    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         let bytes = Bytes::from(self.0.clone());
 
         let val = ::HeaderValue::from_shared(bytes)
             .expect("Authority is a valid HeaderValue");
 
-        values.append(val);
+        values.extend(::std::iter::once(val));
     }
 }
 

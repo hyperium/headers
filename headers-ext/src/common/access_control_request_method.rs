@@ -39,7 +39,7 @@ impl Header for AccessControlRequestMethod {
             .map(AccessControlRequestMethod)
     }
 
-    fn encode(&self, values: &mut ::ToValues) {
+    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         // For the more common methods, try to use a static string.
         let s = match self.0 {
             Method::GET => "GET",
@@ -49,12 +49,12 @@ impl Header for AccessControlRequestMethod {
             _ => {
                 let val = HeaderValue::from_str(self.0.as_ref())
                     .expect("Methods are also valid HeaderValues");
-                values.append(val);
+                values.extend(::std::iter::once(val));
                 return;
             }
         };
 
-        values.append(HeaderValue::from_static(s))
+        values.extend(::std::iter::once(HeaderValue::from_static(s)));
     }
 }
 

@@ -101,8 +101,8 @@ impl ::Header for ContentDisposition {
             .map(ContentDisposition)
     }
 
-    fn encode(&self, values: &mut ::ToValues) {
-        values.append(self.0.clone());
+    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+        values.extend(::std::iter::once(self.0.clone()));
     }
 }
 /*

@@ -3,7 +3,7 @@ use std::iter::FromIterator;
 use std::str::FromStr;
 use std::time::Duration;
 
-use util::{csv, Seconds};
+use util::{self, csv, Seconds};
 use {HeaderValue};
 
 /// `Cache-Control` header, defined in [RFC7234](https://tools.ietf.org/html/rfc7234#section-5.2)
@@ -193,8 +193,8 @@ impl ::Header for CacheControl {
 
     }
 
-    fn encode(&self, values: &mut ::ToValues) {
-        values.append_fmt(&Fmt(self));
+    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+        values.extend(::std::iter::once(util::fmt(Fmt(self))));
     }
 }
 

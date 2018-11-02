@@ -32,7 +32,7 @@ impl<C: Credentials> ::Header for ProxyAuthorization<C> {
             .map(|auth| ProxyAuthorization(auth.0))
     }
 
-    fn encode(&self, values: &mut ::ToValues) {
+    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         let value = self.0.encode();
         debug_assert!(
             value.as_bytes().starts_with(C::SCHEME.as_bytes()),
@@ -41,7 +41,7 @@ impl<C: Credentials> ::Header for ProxyAuthorization<C> {
             value,
         );
 
-        values.append(value);
+        values.extend(::std::iter::once(value));
     }
 }
 

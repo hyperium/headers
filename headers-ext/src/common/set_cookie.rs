@@ -70,10 +70,8 @@ impl ::Header for SetCookie {
         }
     }
 
-    fn encode(&self, values: &mut ::ToValues) {
-        for val in &self.0 {
-            values.append(val.clone());
-        }
+    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+        values.extend(self.0.iter().cloned());
     }
 }
 

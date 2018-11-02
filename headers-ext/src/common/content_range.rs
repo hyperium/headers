@@ -1,6 +1,6 @@
 use std::fmt;
 
-use {HeaderValue};
+use {util, HeaderValue};
 
 /// Content-Range, described in [RFC7233](https://tools.ietf.org/html/rfc7233#section-4.2)
 ///
@@ -121,9 +121,7 @@ impl ::Header for ContentRange {
         })
     }
 
-    fn encode(&self, values: &mut ::ToValues) {
-        values.append_fmt(&Adapter(self));
-
+    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         struct Adapter<'a>(&'a ContentRange);
 
         impl<'a> fmt::Display for Adapter<'a> {
@@ -145,6 +143,8 @@ impl ::Header for ContentRange {
                 }
             }
         }
+
+        values.extend(::std::iter::once(util::fmt(Adapter(self))));
     }
 }
 
