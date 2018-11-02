@@ -27,7 +27,7 @@ pub struct ProxyAuthorization<C: Credentials>(pub C);
 impl<C: Credentials> ::Header for ProxyAuthorization<C> {
     const NAME: &'static ::HeaderName = &::http::header::PROXY_AUTHORIZATION;
 
-    fn decode(values: &mut ::Values) -> Option<Self> {
+    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Option<Self> {
         Authorization::decode(values)
             .map(|auth| ProxyAuthorization(auth.0))
     }

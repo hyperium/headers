@@ -142,7 +142,10 @@ impl EntityTag {
 }
 
 impl ::headers_core::decode::TryFromValues for EntityTag {
-    fn try_from_values(values: &mut ::Values) -> Option<Self> {
+    fn try_from_values<'i, I>(values: &mut I) -> Option<Self>
+    where
+        I: Iterator<Item = &'i HeaderValue>,
+    {
         EntityTag::from_val(values.next()?)
     }
 }

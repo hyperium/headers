@@ -47,7 +47,10 @@ impl<Sep: Separator> FlatCsv<Sep> {
 }
 
 impl<Sep: Separator> TryFromValues for FlatCsv<Sep> {
-    fn try_from_values(values: &mut ::Values) -> Option<Self> {
+    fn try_from_values<'i, I>(values: &mut I) -> Option<Self>
+    where
+        I: Iterator<Item = &'i HeaderValue>,
+    {
         Some(values.collect())
     }
 }

@@ -97,7 +97,7 @@ impl ContentType {
 impl ::Header for ContentType {
     const NAME: &'static ::HeaderName = &::http::header::CONTENT_TYPE;
 
-    fn decode(values: &mut ::Values) -> Option<Self> {
+    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Option<Self> {
         values
             .next()?
             .to_str()

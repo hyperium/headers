@@ -1,4 +1,4 @@
-use {Header, ToValues, Values};
+use {Header, HeaderValue, ToValues};
 
 /// `Content-Length` header, defined in
 /// [RFC7230](http://tools.ietf.org/html/rfc7230#section-3.3.2)
@@ -43,7 +43,7 @@ pub struct ContentLength(pub u64);
 impl Header for ContentLength {
     const NAME: &'static ::http::header::HeaderName = &::http::header::CONTENT_LENGTH;
 
-    fn decode(values: &mut Values) -> Option<Self> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Option<Self> {
         // If multiple Content-Length headers were sent, everything can still
         // be alright if they all contain the same value, and all parse
         // correctly. If not, then it's an error.

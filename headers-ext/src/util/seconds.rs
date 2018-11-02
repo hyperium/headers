@@ -23,7 +23,10 @@ impl Seconds {
 }
 
 impl ::headers_core::decode::TryFromValues for Seconds {
-    fn try_from_values(values: &mut ::Values) -> Option<Self> {
+    fn try_from_values<'i, I>(values: &mut I) -> Option<Self>
+    where
+        I: Iterator<Item = &'i HeaderValue>,
+    {
         Seconds::from_val(values.next()?)
     }
 }

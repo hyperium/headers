@@ -28,7 +28,7 @@ impl Expect {
 impl ::Header for Expect {
     const NAME: &'static ::HeaderName = &::http::header::EXPECT;
 
-    fn decode(values: &mut ::Values) -> Option<Expect> {
+    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Option<Self> {
         if values.next()? == "100-continue" {
             Some(Expect::CONTINUE)
         } else {

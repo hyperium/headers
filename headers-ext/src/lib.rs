@@ -20,7 +20,6 @@ pub use headers_core::{
     Header,
     HeaderMapExt,
     ToValues,
-    Values,
 };
 
 pub use http::HeaderMap;

@@ -93,7 +93,7 @@ impl ContentDisposition {
 impl ::Header for ContentDisposition {
     const NAME: &'static ::HeaderName = &::http::header::CONTENT_DISPOSITION;
 
-    fn decode(values: &mut ::Values) -> Option<Self> {
+    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Option<Self> {
         //TODO: parse harder
         values
             .next()

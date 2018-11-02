@@ -4,6 +4,7 @@ use std::str::FromStr;
 use std::time::Duration;
 
 use util::{csv, Seconds};
+use {HeaderValue};
 
 /// `Cache-Control` header, defined in [RFC7234](https://tools.ietf.org/html/rfc7234#section-5.2)
 ///
@@ -186,7 +187,7 @@ impl CacheControl {
 impl ::Header for CacheControl {
     const NAME: &'static ::HeaderName = &::http::header::CACHE_CONTROL;
 
-    fn decode(values: &mut ::Values) -> Option<Self> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Option<Self> {
         csv::from_comma_delimited(values)
             .map(|FromIter(cc)| cc)
 

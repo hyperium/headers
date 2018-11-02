@@ -118,7 +118,7 @@ fn from_str(s: &str) -> Option<StrictTransportSecurity> {
 impl ::Header for StrictTransportSecurity {
     const NAME: &'static ::HeaderName = &::http::header::STRICT_TRANSPORT_SECURITY;
 
-    fn decode(values: &mut ::Values) -> Option<Self> {
+    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Option<Self> {
         values
             .next()?
             .to_str()

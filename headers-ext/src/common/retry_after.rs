@@ -48,7 +48,10 @@ impl RetryAfter {
 }
 
 impl ::headers_core::decode::TryFromValues for After {
-    fn try_from_values(values: &mut ::Values) -> Option<Self> {
+    fn try_from_values<'i, I>(values: &mut I) -> Option<Self>
+    where
+        I: Iterator<Item = &'i HeaderValue>,
+    {
         let val = values.next()?;
 
         if let Some(delay) = Seconds::from_val(val) {
