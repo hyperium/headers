@@ -1,4 +1,4 @@
-use {Header, HeaderValue, ToValues};
+use {Header, HeaderValue};
 
 /// `Content-Length` header, defined in
 /// [RFC7230](http://tools.ietf.org/html/rfc7230#section-3.3.2)
@@ -67,8 +67,8 @@ impl Header for ContentLength {
         len.map(ContentLength)
     }
 
-    fn encode(&self, values: &mut ToValues) {
-        values.append(self.0.into());
+    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+        values.extend(::std::iter::once(self.0.into()));
     }
 }
 

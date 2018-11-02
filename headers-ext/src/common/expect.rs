@@ -36,8 +36,8 @@ impl ::Header for Expect {
         }
     }
 
-    fn encode(&self, values: &mut ::ToValues) {
-        values.append(::HeaderValue::from_static("100-continue"));
+    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+        values.extend(::std::iter::once(::HeaderValue::from_static("100-continue")));
     }
 }
 

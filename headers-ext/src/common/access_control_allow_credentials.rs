@@ -45,8 +45,8 @@ impl Header for AccessControlAllowCredentials {
         }
     }
 
-    fn encode(&self, values: &mut ::ToValues) {
-        values.append(HeaderValue::from_static("true"))
+    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+        values.extend(::std::iter::once(HeaderValue::from_static("true")));
     }
 }
 

@@ -19,7 +19,6 @@ extern crate time;
 pub use headers_core::{
     Header,
     HeaderMapExt,
-    ToValues,
 };
 
 pub use http::HeaderMap;

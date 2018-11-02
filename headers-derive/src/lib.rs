@@ -44,8 +44,7 @@ fn impl_header(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
             {
                 #decode
             }
-
-            fn encode(&self, values: &mut __hc::ToValues) {
+            fn encode<E: Extend<__hc::HeaderValue>>(&self, values: &mut E) {
                 #encode
             }
         }
@@ -217,7 +216,7 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
             }
         };
         quote! {
-            values.append((#field).into());
+            values.extend(::std::iter::once((#field).into()));
         }
     };
 

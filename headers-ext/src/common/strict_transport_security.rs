@@ -1,7 +1,7 @@
 use std::fmt;
 use std::time::Duration;
 
-use util::Seconds;
+use util::{self, Seconds};
 
 /// `StrictTransportSecurity` header, defined in [RFC6797](https://tools.ietf.org/html/rfc6797)
 ///
@@ -126,8 +126,8 @@ impl ::Header for StrictTransportSecurity {
             .and_then(from_str)
     }
 
-    fn encode(&self, values: &mut ::ToValues) {
 
+    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         struct Adapter<'a>(&'a StrictTransportSecurity);
 
         impl<'a> fmt::Display for Adapter<'a> {
@@ -140,7 +140,7 @@ impl ::Header for StrictTransportSecurity {
             }
         }
 
-        values.append_fmt(Adapter(self));
+        values.extend(::std::iter::once(util::fmt(Adapter(self))));
     }
 }
 
