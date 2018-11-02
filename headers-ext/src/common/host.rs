@@ -22,7 +22,7 @@ impl Host {
 impl ::Header for Host {
     const NAME: &'static ::HeaderName = &::http::header::HOST;
 
-    fn decode(values: &mut ::Values) -> Option<Self> {
+    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Option<Self> {
         let value = Bytes::from(values.next()?.clone());
 
         Authority::from_shared(value)

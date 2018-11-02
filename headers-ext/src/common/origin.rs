@@ -150,7 +150,10 @@ impl OriginOrNull {
 }
 
 impl TryFromValues for OriginOrNull {
-    fn try_from_values(values: &mut ::Values) -> Option<OriginOrNull> {
+    fn try_from_values<'i, I>(values: &mut I) -> Option<Self>
+    where
+        I: Iterator<Item = &'i HeaderValue>,
+    {
         values
             .next()
             .and_then(OriginOrNull::try_from_value)

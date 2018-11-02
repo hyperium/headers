@@ -47,7 +47,10 @@ impl HttpDate {
 pub struct Error(());
 
 impl ::headers_core::decode::TryFromValues for HttpDate {
-    fn try_from_values(values: &mut ::Values) -> Option<Self> {
+    fn try_from_values<'i, I>(values: &mut I) -> Option<Self>
+    where
+        I: Iterator<Item = &'i HeaderValue>,
+    {
         HttpDate::from_val(values.next()?)
     }
 }

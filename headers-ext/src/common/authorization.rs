@@ -60,7 +60,7 @@ impl Authorization<Bearer> {
 impl<C: Credentials> ::Header for Authorization<C> {
     const NAME: &'static ::HeaderName = &::http::header::AUTHORIZATION;
 
-    fn decode(values: &mut ::Values) -> Option<Self> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Option<Self> {
         let val = values.next()?;
 
         let slice = val.as_bytes();

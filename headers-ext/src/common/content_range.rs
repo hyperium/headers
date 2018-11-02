@@ -1,5 +1,7 @@
 use std::fmt;
 
+use {HeaderValue};
+
 /// Content-Range, described in [RFC7233](https://tools.ietf.org/html/rfc7233#section-4.2)
 ///
 /// # ABNF
@@ -80,7 +82,7 @@ impl ContentRange {
 impl ::Header for ContentRange {
     const NAME: &'static ::HeaderName = &::http::header::CONTENT_RANGE;
 
-    fn decode(values: &mut ::Values) -> Option<Self> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Option<Self> {
         let s = values
             .next()?
             .to_str()

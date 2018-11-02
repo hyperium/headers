@@ -26,9 +26,10 @@ pub trait Header {
     const NAME: &'static HeaderName;
 
     /// Decode this type from a `HeaderValue`.
-    fn decode(values: &mut Values) -> Option<Self>
+    fn decode<'i, I>(values: &mut I) -> Option<Self>
     where
-        Self: Sized;
+        Self: Sized,
+        I: Iterator<Item = &'i HeaderValue>;
 
     /// Encode this type to a `HeaderMap`.
     ///
@@ -36,47 +37,6 @@ pub trait Header {
     /// `HeaderValue` should have been caught when parsing or constructing
     /// this value.
     fn encode(&self, values: &mut ToValues);
-}
-
-/// An iterator of `HeaderValue`s supplied to `Header::decode`.
-#[derive(Debug)]
-pub struct Values<'a> {
-    inner: http::header::ValueIter<'a, http::header::HeaderValue>,
-    should_exhaust: bool,
-}
-
-impl<'a> Values<'a> {
-    /// Skip the exhaustive check for this header.
-    ///
-    /// By default, the iterator will be checked that it was exhausted
-    /// after calling `Header::decode`, to protect against extra
-    /// unexpected values from being forgotten about accidentally.
-    ///
-    /// Call this only if it is valid to have ignored some values.
-    pub fn skip_exhaustive_iter_check(&mut self) {
-        self.should_exhaust = false;
-    }
-}
-
-impl<'a> Iterator for Values<'a> {
-    type Item = &'a HeaderValue;
-
-    #[inline]
-    fn next(&mut self) -> Option<Self::Item> {
-        self.inner.next()
-    }
-
-    #[inline]
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        self.inner.size_hint()
-    }
-}
-
-impl<'a> DoubleEndedIterator for Values<'a> {
-    #[inline]
-    fn next_back(&mut self) -> Option<&'a HeaderValue> {
-        self.inner.next_back()
-    }
 }
 
 /// A builder to append `HeaderValue`s to during `Header::encode`.
@@ -161,20 +121,8 @@ impl HeaderMapExt for http::HeaderMap {
     where
         H: Header,
     {
-        let mut values = Values {
-            inner: self.get_all(H::NAME).iter(),
-            should_exhaust: true,
-        };
-        let header = H::decode(&mut values)?;
-        // Check the iterator was consumed. Various headers are only
-        // allowed to have a single value, so if there were extra
-        // values that the implementation didn't use, it's safer
-        // to error out.
-        if !values.should_exhaust || values.next().is_none() {
-            Some(header)
-        } else {
-            None
-        }
+        let mut values = self.get_all(H::NAME).iter();
+        H::decode(&mut values)
     }
 }
 

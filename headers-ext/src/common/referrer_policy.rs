@@ -72,25 +72,28 @@ impl ReferrerPolicy {
 }
 
 impl ::headers_core::decode::TryFromValues for Policy {
-    fn try_from_values(values: &mut ::Values) -> Option<Self> {
+    fn try_from_values<'i, I>(values: &mut I) -> Option<Self>
+    where
+        I: Iterator<Item = &'i HeaderValue>,
+    {
         // See https://www.w3.org/TR/referrer-policy/#determine-policy-for-token
         // tl;dr - Pick *last* known policy in the list
-        values.skip_exhaustive_iter_check();
-        for s in reverse_csv(values) {
-            match s {
-                "no-referrer" | "never" => return Some(Policy::NoReferrer),
-                "no-referrer-when-downgrade" | "default" => return Some(Policy::NoReferrerWhenDowngrade),
-                "same-origin" => return Some(Policy::SameOrigin),
-                "origin" => return Some(Policy::Origin),
-                "origin-when-cross-origin" => return Some(Policy::OriginWhenCrossOrigin),
-                "strict-origin" => return Some(Policy::StrictOrigin),
-                "strict-origin-when-cross-origin" => return Some(Policy::StrictOriginWhenCrossOrigin),
-                "unsafe-url" | "always" => return Some(Policy::UnsafeUrl),
-                _ => (),
-            }
+        let mut known = None;
+        for s in csv(values) {
+            known = Some(match s {
+                "no-referrer" | "never" =>  Policy::NoReferrer,
+                "no-referrer-when-downgrade" | "default" => Policy::NoReferrerWhenDowngrade,
+                "same-origin" => Policy::SameOrigin,
+                "origin" => Policy::Origin,
+                "origin-when-cross-origin" => Policy::OriginWhenCrossOrigin,
+                "strict-origin" => Policy::StrictOrigin,
+                "strict-origin-when-cross-origin" => Policy::StrictOriginWhenCrossOrigin,
+                "unsafe-url" | "always" => Policy::UnsafeUrl,
+                _ => continue,
+            });
         }
 
-        None
+        known
     }
 }
 
@@ -109,9 +112,11 @@ impl<'a> From<&'a Policy> for HeaderValue {
     }
 }
 
-fn reverse_csv<'a, 'b>(values: &'a mut ::Values<'b>) -> impl Iterator<Item=&'b str> + 'a {
+fn csv<'i, I>(values: I) -> impl Iterator<Item=&'i str>
+where
+    I: Iterator<Item = &'i HeaderValue>,
+{
     values
-        .rev()
         .flat_map(|value| {
             value
                 .to_str()
@@ -119,7 +124,6 @@ fn reverse_csv<'a, 'b>(values: &'a mut ::Values<'b>) -> impl Iterator<Item=&'b s
                 .flat_map(|string| {
                     string
                         .split(',')
-                        .rev()
                         .filter_map(|x| match x.trim() {
                             "" => None,
                             y => Some(y),

@@ -1,3 +1,5 @@
+#![recursion_limit="128"]
+
 extern crate proc_macro;
 extern crate proc_macro2;
 #[macro_use]
@@ -36,7 +38,10 @@ fn impl_header(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
     let impl_block = quote! {
         impl __hc::Header for #ty {
             const NAME: &'static __hc::HeaderName = &__hc::header::#hname_ident;
-            fn decode(values: &mut __hc::Values) -> Option<Self> {
+            fn decode<'i, I>(values: &mut I) -> Option<Self>
+            where
+                I: Iterator<Item = &'i __hc::HeaderValue>,
+            {
                 #decode
             }
 

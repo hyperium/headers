@@ -64,7 +64,7 @@ fn parse_bound(s: &str) -> Option<Bound<u64>> {
 impl ::Header for Range {
     const NAME: &'static ::HeaderName = &::http::header::RANGE;
 
-    fn decode(values: &mut ::Values) -> Option<Self> {
+    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Option<Self> {
         let val = values.next()?;
 
         if val.to_str().ok()?.starts_with("bytes=") {
