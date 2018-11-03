@@ -8,7 +8,7 @@ authors = ["Sean McArthur <sean@seanmonstar.com>"]
 license = "MIT"
 
 [dependencies]
-base64 = "0.9"
+base64 = "0.10"
 bitflags = "1.0"
 bytes = "0.4"
 headers-core = { path = "../headers-core", version = "0.0.1" }
