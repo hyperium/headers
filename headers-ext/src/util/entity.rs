@@ -1,4 +1,5 @@
 use {HeaderValue};
+use super::IterExt;
 
 
 /// An entity tag, defined in [RFC7232](https://tools.ietf.org/html/rfc7232#section-2.3)
@@ -147,7 +148,7 @@ impl ::headers_core::decode::TryFromValues for EntityTag {
         I: Iterator<Item = &'i HeaderValue>,
     {
         values
-            .next()
+            .just_one()
             .and_then(EntityTag::from_val)
             .ok_or_else(::Error::invalid)
     }

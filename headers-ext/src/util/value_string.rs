@@ -3,6 +3,8 @@ use std::{fmt, str::{self, FromStr}};
 use bytes::Bytes;
 use http::header::HeaderValue;
 
+use super::IterExt;
+
 /// A value that is both a valid `HeaderValue` and `String`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct HeaderValueString {
@@ -67,7 +69,7 @@ impl ::headers_core::decode::TryFromValues for HeaderValueString {
         I: Iterator<Item = &'i HeaderValue>,
     {
         values
-            .next()
+            .just_one()
             .map(HeaderValueString::from_val)
             .unwrap_or_else(|| Err(::Error::invalid()))
     }

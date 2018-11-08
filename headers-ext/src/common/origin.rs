@@ -1,7 +1,10 @@
+use std::fmt;
+
 use bytes::Bytes;
 use headers_core::decode::TryFromValues;
 use http::uri::{self, Authority, Scheme, Uri};
-use std::fmt;
+
+use util::IterExt;
 use ::{HeaderValue};
 
 /// The `Origin` header.
@@ -155,7 +158,7 @@ impl TryFromValues for OriginOrNull {
         I: Iterator<Item = &'i HeaderValue>,
     {
         values
-            .next()
+            .just_one()
             .and_then(OriginOrNull::try_from_value)
             .ok_or_else(::Error::invalid)
     }

@@ -1,5 +1,7 @@
 use std::fmt;
 
+use util::IterExt;
+
 /// The `Expect` header.
 ///
 /// > The "Expect" header field in a request indicates a certain set of
@@ -30,7 +32,7 @@ impl ::Header for Expect {
 
     fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values
-            .next()
+            .just_one()
             .and_then(|value| {
                 if value == "100-continue" {
                     Some(Expect::CONTINUE)
