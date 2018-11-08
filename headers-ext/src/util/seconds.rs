@@ -2,6 +2,7 @@ use std::fmt;
 use std::time::Duration;
 
 use {HeaderValue};
+use util::IterExt;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct Seconds(Duration);
@@ -28,7 +29,7 @@ impl ::headers_core::decode::TryFromValues for Seconds {
         I: Iterator<Item = &'i HeaderValue>,
     {
         values
-            .next()
+            .just_one()
             .and_then(Seconds::from_val)
             .ok_or_else(::Error::invalid)
     }

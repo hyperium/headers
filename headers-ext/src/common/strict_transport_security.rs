@@ -1,7 +1,7 @@
 use std::fmt;
 use std::time::Duration;
 
-use util::{self, Seconds};
+use util::{self, IterExt, Seconds};
 
 /// `StrictTransportSecurity` header, defined in [RFC6797](https://tools.ietf.org/html/rfc6797)
 ///
@@ -121,7 +121,7 @@ impl ::Header for StrictTransportSecurity {
 
     fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values
-            .next()
+            .just_one()
             .and_then(|v| v.to_str().ok())
             .map(from_str)
             .unwrap_or_else(|| Err(::Error::invalid()))

@@ -6,6 +6,8 @@ use bytes::Bytes;
 use http::header::HeaderValue;
 use time;
 
+use super::IterExt;
+
 /// A timestamp with HTTP formatting and parsing
 //   Prior to 1995, there were three different formats commonly used by
 //   servers to communicate timestamps.  For compatibility with old
@@ -52,7 +54,7 @@ impl ::headers_core::decode::TryFromValues for HttpDate {
         I: Iterator<Item = &'i HeaderValue>,
     {
         values
-            .next()
+            .just_one()
             .and_then(HttpDate::from_val)
             .ok_or_else(::Error::invalid)
     }
