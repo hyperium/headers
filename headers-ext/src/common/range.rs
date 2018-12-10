@@ -33,6 +33,7 @@ use std::ops::Bound;
 /// # Examples
 ///
 /// ```
+/// # extern crate headers_ext as headers;
 /// use std::ops::Bound;
 /// use headers::Range;
 ///
