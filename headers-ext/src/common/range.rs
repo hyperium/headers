@@ -33,11 +33,11 @@ use std::ops::Bound;
 /// # Examples
 ///
 /// ```
-/// use std::ops::Bounds;
+/// use std::ops::Bound;
 /// use headers::Range;
 ///
-/// let start = Bounds::Included(0);
-/// let end =  Bounds::Included(1234);
+/// let start = Bound::Included(0);
+/// let end =  Bound::Included(1234);
 ///
 /// let range = Range::from_bounds(starts, end).unwrap();
 /// ```
