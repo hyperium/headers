@@ -26,6 +26,7 @@ members = [
 ]
 
 [dependencies]
+http = "0.1.14"
 headers-core = { path = "./headers-core" }
 headers-derive = { path = "./headers-derive" }
 headers-ext = { path = "./headers-ext" }
