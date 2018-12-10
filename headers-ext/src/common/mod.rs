@@ -86,11 +86,11 @@ fn test_encode<T: ::headers_core::Header>(header: T) -> ::http::HeaderMap {
     map
 }
 
+//mod accept;
 //mod accept_charset;
 //mod accept_encoding;
 //mod accept_language;
 mod accept_ranges;
-//mod accept;
 mod access_control_allow_credentials;
 mod access_control_allow_headers;
 mod access_control_allow_methods;

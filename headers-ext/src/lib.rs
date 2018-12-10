@@ -22,8 +22,10 @@ pub use headers_core::{
     HeaderMapExt,
 };
 
+#[doc(hidden)]
 pub use http::HeaderMap;
 
+#[doc(hidden)]
 pub use http::header::{
     HeaderName,
     HeaderValue,
