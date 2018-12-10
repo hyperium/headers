@@ -1,3 +1,5 @@
+//! Authorization header and types.
+
 use base64;
 use bytes::Bytes;
 
@@ -53,7 +55,7 @@ impl Authorization<Bearer> {
     pub fn bearer(token: &str) -> Result<Self, InvalidBearerToken>  {
         HeaderValueString::from_string(format!("Bearer {}", token))
             .map(|val| Authorization(Bearer(val)))
-            .ok_or_else(|| InvalidBearerToken(()))
+            .ok_or_else(|| InvalidBearerToken { _inner: () })
     }
 }
 
@@ -190,8 +192,7 @@ impl Credentials for Bearer {
     }
 }
 
-#[derive(Debug)]
-pub struct InvalidBearerToken(());
+error_type!(InvalidBearerToken);
 
 
 #[cfg(test)]
