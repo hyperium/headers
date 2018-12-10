@@ -71,7 +71,7 @@ impl ReferrerPolicy {
     pub const STRICT_ORIGIN_WHEN_CROSS_ORIGIN: Self = ReferrerPolicy(Policy::StrictOriginWhenCrossOrigin);
 }
 
-impl ::headers_core::decode::TryFromValues for Policy {
+impl ::util::TryFromValues for Policy {
     fn try_from_values<'i, I>(values: &mut I) -> Result<Self, ::Error>
     where
         I: Iterator<Item = &'i HeaderValue>,

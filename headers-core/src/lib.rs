@@ -12,9 +12,6 @@ extern crate http;
 
 pub use http::header::{self, HeaderName, HeaderValue};
 
-pub mod decode;
-//pub mod encode;
-
 /// A trait for any object that will represent a header field and value.
 ///
 /// This trait represents the construction and identification of headers,

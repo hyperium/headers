@@ -23,7 +23,7 @@ impl Seconds {
     }
 }
 
-impl ::headers_core::decode::TryFromValues for Seconds {
+impl super::TryFromValues for Seconds {
     fn try_from_values<'i, I>(values: &mut I) -> Result<Self, ::Error>
     where
         I: Iterator<Item = &'i HeaderValue>,

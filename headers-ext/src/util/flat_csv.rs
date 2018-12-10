@@ -3,8 +3,8 @@ use std::iter::FromIterator;
 use std::marker::PhantomData;
 
 use bytes::{Bytes, BytesMut};
-use headers_core::decode::TryFromValues;
 use ::HeaderValue;
+use ::util::TryFromValues;
 
 // A single `HeaderValue` that can flatten multiple values with commas.
 #[derive(Clone, PartialEq, Eq, Hash)]

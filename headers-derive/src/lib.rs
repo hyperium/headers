@@ -130,19 +130,8 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
         }
     }
 
-    /* csv attr is disabled for now
-    let decode_res = if is_csv {
-        quote! {
-            __hc::decode::from_comma_delimited(values)
-        }
-    } else {
-        quote! {
-            __hc::decode::TryFromValues::try_from_values(values)
-        }
-    };
-    */
     let decode_res = quote! {
-        __hc::decode::TryFromValues::try_from_values(values)
+        ::util::TryFromValues::try_from_values(values)
     };
 
     let (decode, encode_name) = match st.fields {

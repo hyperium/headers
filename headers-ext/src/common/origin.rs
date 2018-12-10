@@ -1,10 +1,9 @@
 use std::fmt;
 
 use bytes::Bytes;
-use headers_core::decode::TryFromValues;
 use http::uri::{self, Authority, Scheme, Uri};
 
-use util::IterExt;
+use util::{IterExt, TryFromValues};
 use ::{HeaderValue};
 
 /// The `Origin` header.

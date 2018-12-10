@@ -1,5 +1,5 @@
-use headers_core::decode::TryFromValues;
 use ::{HeaderValue};
+use ::util::TryFromValues;
 use super::origin::{Origin};
 
 /// The `Access-Control-Allow-Origin` response header,

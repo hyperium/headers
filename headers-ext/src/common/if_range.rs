@@ -72,7 +72,7 @@ enum IfRange_ {
     Date(HttpDate),
 }
 
-impl ::headers_core::decode::TryFromValues for IfRange_ {
+impl ::util::TryFromValues for IfRange_ {
     fn try_from_values<'i, I>(values: &mut I) -> Result<Self, ::Error>
     where
         I: Iterator<Item = &'i HeaderValue>,

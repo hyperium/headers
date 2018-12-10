@@ -63,7 +63,7 @@ impl fmt::Display for HeaderValueString {
     }
 }
 
-impl ::headers_core::decode::TryFromValues for HeaderValueString {
+impl super::TryFromValues for HeaderValueString {
     fn try_from_values<'i, I>(values: &mut I) -> Result<Self, ::Error>
     where
         I: Iterator<Item = &'i HeaderValue>,

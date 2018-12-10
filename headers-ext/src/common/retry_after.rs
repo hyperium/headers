@@ -1,6 +1,6 @@
 use std::time::{Duration, SystemTime};
 
-use util::{HttpDate, Seconds};
+use util::{HttpDate, Seconds, TryFromValues};
 use ::HeaderValue;
 
 /// The `Retry-After` header.
@@ -47,7 +47,7 @@ impl RetryAfter {
     }
 }
 
-impl ::headers_core::decode::TryFromValues for After {
+impl TryFromValues for After {
     fn try_from_values<'i, I>(values: &mut I) -> Result<Self, ::Error>
     where
         I: Iterator<Item = &'i HeaderValue>,
