@@ -2,7 +2,7 @@
 #![deny(missing_debug_implementations)]
 #![cfg_attr(test, deny(warnings))]
 
-//! dox
+//! Strongly-typed common HTTP headers.
 
 extern crate base64;
 #[macro_use]
