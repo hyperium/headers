@@ -13,7 +13,7 @@ bitflags = "1.0"
 bytes = "0.4"
 headers-core = { path = "../headers-core", version = "0.0.1" }
 headers-derive = { path = "../headers-derive", version = "0.0.1" }
-http = "0.1.13"
+http = "0.1.14"
 mime = "0.3"
 sha-1 = "0.7"
 time = "0.1"

@@ -68,7 +68,7 @@ impl Origin {
     #[inline]
     pub fn port(&self) -> Option<u16> {
         match self.0 {
-            OriginOrNull::Origin(_, ref auth) => auth.port(),
+            OriginOrNull::Origin(_, ref auth) => auth.port_part().map(|p| p.as_u16()),
             OriginOrNull::Null => None,
         }
     }

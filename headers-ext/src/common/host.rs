@@ -15,7 +15,7 @@ impl Host {
 
     /// Get the optional port number.
     pub fn port(&self) -> Option<u16> {
-        self.0.port()
+        self.0.port_part().map(|p| p.as_u16())
     }
 }
 
