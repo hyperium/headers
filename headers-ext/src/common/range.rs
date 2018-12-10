@@ -39,7 +39,7 @@ use std::ops::Bound;
 /// let start = Bound::Included(0);
 /// let end =  Bound::Included(1234);
 ///
-/// let range = Range::from_bounds(starts, end).unwrap();
+/// let range = Range::from_bounds(start, end).unwrap();
 /// ```
 #[derive(Clone, Debug, PartialEq)]
 pub struct Range(::HeaderValue);
