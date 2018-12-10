@@ -28,7 +28,7 @@
 //! struct Dnt(bool);
 //!
 //! impl Header for Dnt {
-//!     const NAME: &'static HeaderName = http::header::DNT;
+//!     const NAME: &'static HeaderName = &http::header::DNT;
 //!
 //!     fn decode<'i, I>(values: &mut I) -> Result<Self, headers::Error>
 //!     where
