@@ -24,7 +24,6 @@ mod iter;
 mod seconds;
 mod value_string;
 
-#[macro_export]
 macro_rules! error_type {
     ($name:ident) => (
         #[doc(hidden)]
