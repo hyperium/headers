@@ -33,6 +33,13 @@ use std::ops::Bound;
 /// # Examples
 ///
 /// ```
+/// use std::ops::Bounds;
+/// use headers::Range;
+///
+/// let start = Bounds::Included(0);
+/// let end =  Bounds::Included(1234);
+///
+/// let range = Range::from_bounds(starts, end).unwrap();
 /// ```
 #[derive(Clone, Debug, PartialEq)]
 pub struct Range(::HeaderValue);
