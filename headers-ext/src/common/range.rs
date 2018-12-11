@@ -1,4 +1,4 @@
-use std::ops::Bound;
+use std::ops::{Bound, RangeBounds};
 
 /// `Range` header, defined in [RFC7233](https://tools.ietf.org/html/rfc7233#section-3.1)
 ///
@@ -34,13 +34,10 @@ use std::ops::Bound;
 ///
 /// ```
 /// # extern crate headers_ext as headers;
-/// use std::ops::Bound;
 /// use headers::Range;
 ///
-/// let start = Bound::Included(0);
-/// let end =  Bound::Included(1234);
 ///
-/// let range = Range::from_bounds(start, end).unwrap();
+/// let range = Range::bytes(0..1234).unwrap();
 /// ```
 #[derive(Clone, Debug, PartialEq)]
 pub struct Range(::HeaderValue);
@@ -48,11 +45,13 @@ pub struct Range(::HeaderValue);
 error_type!(InvalidRange);
 
 impl Range {
-    /// Creates a `Range` header from two bounds.
-    pub fn from_bounds(start: Bound<u64>, end: Bound<u64>) -> Result<Self, InvalidRange> {
-        let v = match (start, end) {
+    /// Creates a `Range` header from bounds.
+    pub fn bytes(bounds: impl RangeBounds<u64>) -> Result<Self, InvalidRange> {
+        let v = match (bounds.start_bound(), bounds.end_bound()) {
             (Bound::Unbounded, Bound::Included(end)) => format!("bytes=-{}", end),
+            (Bound::Unbounded, Bound::Excluded(&end)) => format!("bytes=-{}", end - 1),
             (Bound::Included(start), Bound::Included(end)) => format!("bytes={}-{}", start, end),
+            (Bound::Included(start), Bound::Excluded(&end)) => format!("bytes={}-{}", start, end - 1),
             (Bound::Included(start), Bound::Unbounded) => format!("bytes={}-", start),
             _ => return Err(InvalidRange { _inner: () }),
         };
