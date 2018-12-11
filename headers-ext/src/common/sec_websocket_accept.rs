@@ -33,7 +33,7 @@ impl From<SecWebsocketKey> for SecWebsocketAccept {
 fn sign(key: &[u8]) -> SecWebsocketAccept {
     let mut sha1 = Sha1::default();
     sha1.input(key);
-    sha1.input(b"258EAFA5-E914-47DA-95CA-C5AB0DC85B11");
+    sha1.input(&b"258EAFA5-E914-47DA-95CA-C5AB0DC85B11"[..]);
     let b64 = Bytes::from(base64::encode(&sha1.result()));
 
     let val = ::HeaderValue::from_shared(b64)
