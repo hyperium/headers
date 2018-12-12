@@ -1,7 +1,7 @@
 [package]
 
 name = "headers-ext"
-version = "0.0.3" # don't forget to update html_root_url
+version = "0.0.4" # don't forget to update html_root_url
 description = "typed HTTP headers"
 repository = "https://github.com/hyperium/headers"
 authors = ["Sean McArthur <sean@seanmonstar.com>"]
@@ -11,8 +11,8 @@ license = "MIT"
 base64 = "0.10"
 bitflags = "1.0"
 bytes = "0.4"
-headers-core = { path = "../headers-core", version = "0.0.1" }
-headers-derive = { path = "../headers-derive", version = "0.0.1" }
+headers-core = { path = "../headers-core", version = "0.0.2" }
+headers-derive = { path = "../headers-derive", version = "0.0.2" }
 http = "0.1.14"
 mime = "0.3"
 sha-1 = "0.8"
