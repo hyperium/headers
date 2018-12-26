@@ -60,7 +60,9 @@ impl Authorization<Bearer> {
 }
 
 impl<C: Credentials> ::Header for Authorization<C> {
-    const NAME: &'static ::HeaderName = &::http::header::AUTHORIZATION;
+    fn name() -> &'static ::HeaderName {
+        &::http::header::AUTHORIZATION
+    }
 
     fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values

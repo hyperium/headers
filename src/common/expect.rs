@@ -28,7 +28,9 @@ impl Expect {
 }
 
 impl ::Header for Expect {
-    const NAME: &'static ::HeaderName = &::http::header::EXPECT;
+    fn name() -> &'static ::HeaderName {
+        &::http::header::EXPECT
+    }
 
     fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values

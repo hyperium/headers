@@ -41,7 +41,9 @@ use {Header, HeaderValue};
 pub struct ContentLength(pub u64);
 
 impl Header for ContentLength {
-    const NAME: &'static ::http::header::HeaderName = &::http::header::CONTENT_LENGTH;
+    fn name() -> &'static ::http::header::HeaderName {
+        &::http::header::CONTENT_LENGTH
+    }
 
     fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         // If multiple Content-Length headers were sent, everything can still

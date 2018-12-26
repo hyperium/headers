@@ -117,7 +117,9 @@ fn from_str(s: &str) -> Result<StrictTransportSecurity, ::Error> {
 }
 
 impl ::Header for StrictTransportSecurity {
-    const NAME: &'static ::HeaderName = &::http::header::STRICT_TRANSPORT_SECURITY;
+    fn name() -> &'static ::HeaderName {
+        &::http::header::STRICT_TRANSPORT_SECURITY
+    }
 
     fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values

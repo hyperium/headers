@@ -18,7 +18,7 @@ pub use http::header::{self, HeaderName, HeaderValue};
 /// and contains trait-object unsafe methods.
 pub trait Header {
     /// The name of this header.
-    const NAME: &'static HeaderName;
+    fn name() -> &'static HeaderName;
 
     /// Decode this type from an iterator of `HeaderValue`s.
     fn decode<'i, I>(values: &mut I) -> Result<Self, Error>
@@ -111,7 +111,7 @@ impl HeaderMapExt for http::HeaderMap {
         H: Header,
     {
         let entry = self
-            .entry(H::NAME)
+            .entry(H::name())
             .expect("HeaderName is always valid");
         let mut values = ToValues {
             state: State::First(entry),
@@ -131,7 +131,7 @@ impl HeaderMapExt for http::HeaderMap {
     where
         H: Header,
     {
-        let mut values = self.get_all(H::NAME).iter();
+        let mut values = self.get_all(H::name()).iter();
         if values.size_hint() == (0, Some(0)) {
             Ok(None)
         } else {

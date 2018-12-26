@@ -28,7 +28,9 @@
 //! struct Dnt(bool);
 //!
 //! impl Header for Dnt {
-//!     const NAME: &'static HeaderName = &http::header::DNT;
+//!     fn name() -> &'static HeaderName {
+//!          &http::header::DNT
+//!     }
 //!
 //!     fn decode<'i, I>(values: &mut I) -> Result<Self, headers::Error>
 //!     where
@@ -72,6 +74,7 @@ extern crate base64;
 #[macro_use]
 extern crate bitflags;
 extern crate bytes;
+#[macro_use]
 extern crate headers_core;
 #[macro_use]
 extern crate headers_derive;

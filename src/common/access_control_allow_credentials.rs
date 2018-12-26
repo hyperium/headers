@@ -34,7 +34,9 @@ use ::{Header, HeaderName, HeaderValue};
 pub struct AccessControlAllowCredentials;
 
 impl Header for AccessControlAllowCredentials {
-    const NAME: &'static HeaderName = &::http::header::ACCESS_CONTROL_ALLOW_CREDENTIALS;
+    fn name() -> &'static HeaderName {
+        &::http::header::ACCESS_CONTROL_ALLOW_CREDENTIALS
+    }
 
     fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values

@@ -29,7 +29,9 @@ use ::{Header, HeaderName, HeaderValue};
 pub struct AccessControlRequestMethod(Method);
 
 impl Header for AccessControlRequestMethod {
-    const NAME: &'static HeaderName = &::http::header::ACCESS_CONTROL_REQUEST_METHOD;
+    fn name() -> &'static HeaderName {
+        &::http::header::ACCESS_CONTROL_REQUEST_METHOD
+    }
 
     fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values.next()

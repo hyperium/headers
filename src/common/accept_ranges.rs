@@ -1,7 +1,6 @@
 use util::FlatCsv;
 
-/// `Accept-Ranges` header, defined in
-/// [RFC7233](http://tools.ietf.org/html/rfc7233#section-2.3)
+/// `Accept-Ranges` header, defined in [RFC7233](http://tools.ietf.org/html/rfc7233#section-2.3)
 ///
 /// The `Accept-Ranges` header field allows a server to indicate that it
 /// supports range requests for the target resource.

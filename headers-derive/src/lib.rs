@@ -37,7 +37,9 @@ fn impl_header(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
     let dummy_const = Ident::new(&format!("_IMPL_HEADER_FOR_{}", hname), Span::call_site());
     let impl_block = quote! {
         impl __hc::Header for #ty {
-            const NAME: &'static __hc::HeaderName = &__hc::header::#hname_ident;
+            fn name() -> &'static __hc::HeaderName {
+                &__hc::header::#hname_ident
+            }
             fn decode<'i, I>(values: &mut I) -> Result<Self, __hc::Error>
             where
                 I: Iterator<Item = &'i __hc::HeaderValue>,
