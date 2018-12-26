@@ -83,7 +83,9 @@ fn parse_bound(s: &str) -> Option<Bound<u64>> {
 }
 
 impl ::Header for Range {
-    const NAME: &'static ::HeaderName = &::http::header::RANGE;
+    fn name() -> &'static ::HeaderName {
+        &::http::header::RANGE
+    }
 
     fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values

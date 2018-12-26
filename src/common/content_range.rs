@@ -96,7 +96,9 @@ impl ContentRange {
 }
 
 impl ::Header for ContentRange {
-    const NAME: &'static ::HeaderName = &::http::header::CONTENT_RANGE;
+    fn name() -> &'static ::HeaderName {
+        &::http::header::CONTENT_RANGE
+    }
 
     fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values

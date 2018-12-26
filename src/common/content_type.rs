@@ -95,7 +95,9 @@ impl ContentType {
 }
 
 impl ::Header for ContentType {
-    const NAME: &'static ::HeaderName = &::http::header::CONTENT_TYPE;
+    fn name() -> &'static ::HeaderName {
+        &::http::header::CONTENT_TYPE
+    }
 
     fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values

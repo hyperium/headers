@@ -20,7 +20,9 @@ impl Host {
 }
 
 impl ::Header for Host {
-    const NAME: &'static ::HeaderName = &::http::header::HOST;
+    fn name() -> &'static ::HeaderName {
+        &::http::header::HOST
+    }
 
     fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values

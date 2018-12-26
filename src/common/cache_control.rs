@@ -185,7 +185,9 @@ impl CacheControl {
 }
 
 impl ::Header for CacheControl {
-    const NAME: &'static ::HeaderName = &::http::header::CACHE_CONTROL;
+    fn name() -> &'static ::HeaderName {
+        &::http::header::CACHE_CONTROL
+    }
 
     fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         csv::from_comma_delimited(values)

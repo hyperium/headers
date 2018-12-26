@@ -8,7 +8,9 @@ impl SecWebsocketVersion {
 }
 
 impl ::Header for SecWebsocketVersion {
-    const NAME: &'static ::HeaderName = &::http::header::SEC_WEBSOCKET_VERSION;
+    fn name() -> &'static ::HeaderName {
+        &::http::header::SEC_WEBSOCKET_VERSION
+    }
 
     fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values

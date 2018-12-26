@@ -73,7 +73,7 @@ fn test_decode<T: ::headers_core::Header>(values: &[&str]) -> Option<T> {
     use ::headers_core::HeaderMapExt;
     let mut map = ::http::HeaderMap::new();
     for val in values {
-        map.append(T::NAME, val.parse().unwrap());
+        map.append(T::name(), val.parse().unwrap());
     }
     map.typed_get()
 }
