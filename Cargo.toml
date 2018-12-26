@@ -22,12 +22,15 @@ members = [
     "./",
     "headers-core",
     "headers-derive",
-    "headers-ext",
 ]
 
 [dependencies]
 http = "0.1.14"
 headers-core = { path = "./headers-core" }
 headers-derive = { path = "./headers-derive" }
-headers-ext = { path = "./headers-ext" }
-
+base64 = "0.10"
+bitflags = "1.0"
+bytes = "0.4"
+mime = "0.3"
+sha-1 = "0.8"
+time = "0.1"
