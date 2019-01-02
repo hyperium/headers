@@ -1,3 +1,4 @@
+use http;
 use super::{Error, Header, HeaderValue};
 
 /// An extension trait adding "typed" methods to `http::HeaderMap`.
