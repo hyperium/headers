@@ -69,6 +69,7 @@
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
 #![cfg_attr(test, deny(warnings))]
+#![cfg_attr(all(test, feature = "nightly"), feature(test))]
 
 extern crate base64;
 #[macro_use]
@@ -80,6 +81,8 @@ extern crate headers_derive;
 extern crate http;
 extern crate mime;
 extern crate sha1;
+#[cfg(all(test, feature = "nightly"))]
+extern crate test;
 extern crate time;
 
 pub use headers_core::{

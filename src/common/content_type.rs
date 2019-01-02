@@ -147,5 +147,8 @@ mod tests {
             Some(ContentType::json()),
         );
     }
+
+    bench_header!(bench_plain, ContentType, "text/plain");
+    bench_header!(bench_json, ContentType, "application/json");
+    bench_header!(bench_formdata, ContentType, "multipart/form-data; boundary=---------------abcd");
 }
-//bench_header!(bench, ContentType, { vec![b"application/json".to_vec()] });

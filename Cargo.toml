@@ -34,3 +34,6 @@ bytes = "0.4"
 mime = "0.3"
 sha-1 = "0.8"
 time = "0.1"
+
+[features]
+nightly = []
