@@ -69,8 +69,8 @@ pub use self::vary::Vary;
 //pub use self::warning::Warning;
 
 #[cfg(test)]
-fn test_decode<T: ::headers_core::Header>(values: &[&str]) -> Option<T> {
-    use ::headers_core::HeaderMapExt;
+fn test_decode<T: ::Header>(values: &[&str]) -> Option<T> {
+    use ::HeaderMapExt;
     let mut map = ::http::HeaderMap::new();
     for val in values {
         map.append(T::name(), val.parse().unwrap());
@@ -79,8 +79,8 @@ fn test_decode<T: ::headers_core::Header>(values: &[&str]) -> Option<T> {
 }
 
 #[cfg(test)]
-fn test_encode<T: ::headers_core::Header>(header: T) -> ::http::HeaderMap {
-    use ::headers_core::HeaderMapExt;
+fn test_encode<T: ::Header>(header: T) -> ::http::HeaderMap {
+    use ::HeaderMapExt;
     let mut map = ::http::HeaderMap::new();
     map.typed_insert(header);
     map

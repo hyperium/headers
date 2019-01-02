@@ -199,7 +199,7 @@ error_type!(InvalidBearerToken);
 
 #[cfg(test)]
 mod tests {
-    use headers_core::HeaderMapExt;
+    use ::HeaderMapExt;
     use http::header::HeaderMap;
     use super::{Authorization, Basic, Bearer};
     use super::super::{test_decode, test_encode};

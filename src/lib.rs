@@ -85,7 +85,6 @@ extern crate time;
 pub use headers_core::{
     Error,
     Header,
-    HeaderMapExt,
 };
 
 #[doc(hidden)]
@@ -100,5 +99,8 @@ pub use http::header::{
 #[macro_use]
 mod util;
 mod common;
+mod map_ext;
 
 pub use self::common::*;
+pub use self::map_ext::HeaderMapExt;
+
