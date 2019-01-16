@@ -14,21 +14,24 @@ pub(crate) struct FlatCsv<Sep = Comma> {
 }
 
 pub(crate) trait Separator {
-    const SEP: u8;
+    const BYTE: u8;
+    const CHAR: char;
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub(crate) enum Comma {}
 
 impl Separator for Comma {
-    const SEP: u8 = b',';
+    const BYTE: u8 = b',';
+    const CHAR: char = ',';
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub(crate) enum SemiColon {}
 
 impl Separator for SemiColon {
-    const SEP: u8 = b';';
+    const BYTE: u8 = b';';
+    const CHAR: char = ';';
 }
 
 impl<Sep: Separator> FlatCsv<Sep> {
@@ -39,8 +42,25 @@ impl<Sep: Separator> FlatCsv<Sep> {
             .ok()
             .into_iter()
             .flat_map(|value_str| {
+                let mut in_quotes = false;
                 value_str
-                    .split(Sep::SEP as char)
+                    .split(move |c| {
+                        if in_quotes {
+                            if c == '"' {
+                                in_quotes = false;
+                            }
+                            false // dont split
+                        } else {
+                            if c == Sep::CHAR {
+                                true // split
+                            } else {
+                                if c == '"' {
+                                    in_quotes = true;
+                                }
+                                false // dont split
+                            }
+                        }
+                    })
                     .map(|item| item.trim())
             })
     }
@@ -104,7 +124,7 @@ impl<'a, Sep: Separator> FromIterator<&'a HeaderValue> for FlatCsv<Sep> {
         let mut buf = BytesMut::from(bytes);
 
         for val in values {
-            buf.extend_from_slice(&[Sep::SEP, b' ']);
+            buf.extend_from_slice(&[Sep::BYTE, b' ']);
             buf.extend_from_slice(val.as_bytes());
         }
 
@@ -140,7 +160,7 @@ impl<Sep: Separator> FromIterator<HeaderValue> for FlatCsv<Sep> {
         let mut buf = BytesMut::from(bytes);
 
         for val in values {
-            buf.extend_from_slice(&[Sep::SEP, b' ']);
+            buf.extend_from_slice(&[Sep::BYTE, b' ']);
             buf.extend_from_slice(val.as_bytes());
         }
 
@@ -151,3 +171,42 @@ impl<Sep: Separator> FromIterator<HeaderValue> for FlatCsv<Sep> {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn comma() {
+        let val = HeaderValue::from_static("aaa, b; bb, ccc");
+        let csv = FlatCsv::<Comma>::from(val);
+
+        let mut values = csv.iter();
+        assert_eq!(values.next(), Some("aaa"));
+        assert_eq!(values.next(), Some("b; bb"));
+        assert_eq!(values.next(), Some("ccc"));
+        assert_eq!(values.next(), None);
+    }
+
+    #[test]
+    fn semicolon() {
+        let val = HeaderValue::from_static("aaa; b, bb; ccc");
+        let csv = FlatCsv::<SemiColon>::from(val);
+
+        let mut values = csv.iter();
+        assert_eq!(values.next(), Some("aaa"));
+        assert_eq!(values.next(), Some("b, bb"));
+        assert_eq!(values.next(), Some("ccc"));
+        assert_eq!(values.next(), None);
+    }
+
+    #[test]
+    fn quoted_text() {
+        let val = HeaderValue::from_static("foo=\"bar,baz\", sherlock=holmes");
+        let csv = FlatCsv::<Comma>::from(val);
+
+        let mut values = csv.iter();
+        assert_eq!(values.next(), Some("foo=\"bar,baz\""));
+        assert_eq!(values.next(), Some("sherlock=holmes"));
+        assert_eq!(values.next(), None);
+    }
+}
