@@ -18,7 +18,13 @@ use util::FlatCsv;
 /// ```
 ///
 /// # Examples
+///
 /// ```
+/// use headers::{AcceptRanges, HeaderMap, HeaderMapExt};
+///
+/// let mut headers = HeaderMap::new();
+///
+/// headers.typed_insert(AcceptRanges::bytes());
 /// ```
 #[derive(Clone, Debug, Header, PartialEq)]
 pub struct AcceptRanges(FlatCsv);
