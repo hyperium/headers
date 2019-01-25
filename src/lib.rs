@@ -1,6 +1,12 @@
-//! Headers container, and common header fields.
+#![deny(missing_docs)]
+#![deny(missing_debug_implementations)]
+#![cfg_attr(test, deny(warnings))]
+#![cfg_attr(all(test, feature = "nightly"), feature(test))]
+#![doc(html_root_url = "https://docs.rs/headers/0.2.0")]
+
+//! # Typed HTTP Headers
 //!
-//! hyper has the opinion that Headers should be strongly-typed, because that's
+//! hyper has the opinion that headers should be strongly-typed, because that's
 //! why we're using Rust in the first place. To set or get any header, an object
 //! must implement the `Header` trait from this module. Several common headers
 //! are already provided, such as `Host`, `ContentType`, `UserAgent`, and others.
@@ -66,10 +72,6 @@
 //! }
 //! ```
 
-#![deny(missing_docs)]
-#![deny(missing_debug_implementations)]
-#![cfg_attr(test, deny(warnings))]
-#![cfg_attr(all(test, feature = "nightly"), feature(test))]
 
 extern crate base64;
 #[macro_use]

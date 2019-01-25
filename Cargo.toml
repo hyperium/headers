@@ -1,21 +1,14 @@
 [package]
 name = "headers"
-version = "0.0.0" # don't forget to update html_root_url
+version = "0.2.0" # don't forget to update html_root_url
 description = "typed HTTP headers"
+license = "MIT"
 readme = "README.md"
 homepage = "https://hyper.rs"
-license = "MIT"
+repository = "https://github.com/hyperium/headers"
 authors = ["Sean McArthur <sean@seanmonstar.com>"]
-keywords = ["http", "hyper", "hyperium"]
-categories = ["network-programming", "web-programming::http-client", "web-programming::http-server"]
-
-publish = false
-
-include = [
-  "Cargo.toml",
-  "LICENSE",
-  "src/**/*"
-]
+keywords = ["http", "headers", "hyper", "hyperium"]
+categories = ["web-programming"]
 
 [workspace]
 members = [
@@ -25,9 +18,9 @@ members = [
 ]
 
 [dependencies]
-http = "0.1.14"
-headers-core = { path = "./headers-core" }
-headers-derive = { path = "./headers-derive" }
+http = "0.1.15"
+headers-core = { version = "0.1", path = "./headers-core" }
+headers-derive = { version = "0.1", path = "./headers-derive" }
 base64 = "0.10"
 bitflags = "1.0"
 bytes = "0.4"
