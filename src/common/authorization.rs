@@ -142,7 +142,11 @@ impl Credentials for Basic {
             value,
         );
 
-        let bytes = base64::decode(&value.as_bytes()["Basic ".len()..]).ok()?;
+        let bytes = &value.as_bytes()["Basic ".len()..];
+        let non_space_pos = bytes.iter().position(|b| *b != b' ')?;
+        let bytes = &bytes[non_space_pos..];
+        let bytes = base64::decode(bytes).ok()?;
+
         let decoded = String::from_utf8(bytes).ok()?;
 
         let colon_pos = decoded.find(':')?;
