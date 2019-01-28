@@ -1,5 +1,5 @@
 use ::{HeaderValue};
-use ::util::TryFromValues;
+use ::util::{IterExt, TryFromValues};
 use super::origin::{Origin};
 
 /// The `Access-Control-Allow-Origin` response header,
@@ -60,7 +60,7 @@ impl TryFromValues for OriginOrAny {
         I: Iterator<Item = &'i HeaderValue>,
     {
         values
-            .next()
+            .just_one()
             .and_then(|value| {
                 if value == "*" {
                     return Some(OriginOrAny::Any);
