@@ -1,6 +1,6 @@
 [package]
 name = "headers"
-version = "0.2.1" # don't forget to update html_root_url
+version = "0.2.2" # don't forget to update html_root_url
 description = "typed HTTP headers"
 license = "MIT"
 readme = "README.md"
@@ -25,7 +25,7 @@ base64 = "0.10"
 bitflags = "1.0"
 bytes = "0.4"
 mime = "0.3"
-sha-1 = "0.8"
+sha1 = "0.6"
 time = "0.1"
 
 [features]
