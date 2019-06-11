@@ -1,7 +1,7 @@
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
 #![cfg_attr(test, deny(warnings))]
-#![doc(html_root_url = "https://docs.rs/headers-core/0.1.0")]
+#![doc(html_root_url = "https://docs.rs/headers-core/0.1.1")]
 
 //! # headers-core
 //!
