@@ -13,6 +13,9 @@ extern crate http;
 
 pub use http::header::{self, HeaderName, HeaderValue};
 
+use std::fmt::{self, Display, Formatter};
+use std::error;
+
 /// A trait for any object that will represent a header field and value.
 ///
 /// This trait represents the construction and identification of headers,
@@ -55,3 +58,12 @@ impl Error {
     }
 }
 
+impl Display for Error {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match &self.kind {
+            Kind::Invalid => f.write_str("invalid HTTP header"),
+        }
+    }
+}
+
+impl error::Error for Error {}
