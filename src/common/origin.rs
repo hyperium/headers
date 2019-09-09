@@ -24,8 +24,13 @@ use ::{HeaderValue};
 ///
 /// let origin = Origin::NULL;
 /// ```
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Header)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Origin(OriginOrNull);
+
+derive_header! {
+    Origin(_),
+    name: ORIGIN
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 enum OriginOrNull {

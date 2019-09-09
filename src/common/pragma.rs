@@ -23,8 +23,13 @@ use ::HeaderValue;
 ///
 /// let pragma = Pragma::no_cache();
 /// ```
-#[derive(Clone, Debug, PartialEq, Header)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Pragma(HeaderValue);
+
+derive_header! {
+    Pragma(_),
+    name: PRAGMA
+}
 
 impl Pragma {
     /// Construct the literal `no-cache` Pragma header.

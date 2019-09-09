@@ -26,9 +26,13 @@ use util::EntityTag;
 ///
 /// # Examples
 ///
-#[derive(Clone, Debug, PartialEq, Eq, Header)]
-#[header(name_const = "ETAG")]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ETag(pub(super) EntityTag);
+
+derive_header! {
+    ETag(_),
+    name: ETAG
+}
 
     /*
     test_etag {

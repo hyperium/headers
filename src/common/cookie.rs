@@ -14,8 +14,13 @@ use util::{FlatCsv, SemiColon};
 /// * `SID=31d4d96e407aad42`
 /// * `SID=31d4d96e407aad42; lang=en-US`
 ///
-#[derive(Clone, Debug, Header)]
+#[derive(Clone, Debug)]
 pub struct Cookie(FlatCsv<SemiColon>);
+
+derive_header! {
+    Cookie(_),
+    name: COOKIE
+}
 
 impl Cookie {
     /// Lookup a value for a cookie name.

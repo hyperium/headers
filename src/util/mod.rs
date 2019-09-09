@@ -52,6 +52,28 @@ macro_rules! error_type {
     );
 }
 
+macro_rules! derive_header {
+    ($type:ident(_), name: $name:ident) => (
+        impl crate::Header for $type {
+            fn name() -> &'static ::http::header::HeaderName {
+                &::http::header::$name
+            }
+
+            fn decode<'i, I>(values: &mut I) -> Result<Self, ::Error>
+            where
+                I: Iterator<Item = &'i ::http::header::HeaderValue>,
+            {
+                ::util::TryFromValues::try_from_values(values)
+                    .map($type)
+            }
+
+            fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+                values.extend(::std::iter::once((&self.0).into()));
+            }
+        }
+    );
+}
+
 /// A helper trait for use when deriving `Header`.
 pub(crate) trait TryFromValues: Sized {
     /// Try to convert from the values into an instance of `Self`.

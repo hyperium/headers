@@ -34,8 +34,13 @@ use self::sealed::AsConnectionOption;
 /// let keep_alive = Connection::keep_alive();
 /// ```
 // This is frequently just 1 or 2 values, so optimize for that case.
-#[derive(Clone, Debug, Header)]
+#[derive(Clone, Debug)]
 pub struct Connection(FlatCsv);
+
+derive_header! {
+    Connection(_),
+    name: CONNECTION
+}
 
 impl Connection {
     /// A constructor to easily create a `Connection: close` header.

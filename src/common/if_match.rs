@@ -36,8 +36,13 @@ use util::FlatCsv;
 ///
 /// let if_match = IfMatch::any();
 /// ```
-#[derive(Clone, Debug, PartialEq, Header)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct IfMatch(FlatCsv);
+
+derive_header! {
+    IfMatch(_),
+    name: IF_MATCH
+}
 
 impl IfMatch {
     /// Create a new `If-Match: *` header.

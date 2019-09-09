@@ -30,8 +30,13 @@ use {HeaderValue};
 ///
 /// let rp = ReferrerPolicy::NO_REFERRER;
 /// ```
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Header)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ReferrerPolicy(Policy);
+
+derive_header! {
+    ReferrerPolicy(_),
+    name: REFERRER_POLICY
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 enum Policy {

@@ -40,8 +40,13 @@ use super::{LastModified, ETag};
 /// let fetched = SystemTime::now() - Duration::from_secs(60 * 60 * 24);
 /// let if_range = IfRange::date(fetched);
 /// ```
-#[derive(Clone, Debug, PartialEq, Header)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct IfRange(IfRange_);
+
+derive_header! {
+    IfRange(_),
+    name: IF_RANGE
+}
 
 impl IfRange {
     /// Create an `IfRange` header with an entity tag.

@@ -29,8 +29,14 @@ use {HeaderValue};
 ///
 /// let vary = Vary::any();
 /// ```
-#[derive(Debug, Clone, PartialEq, Header)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Vary(FlatCsv);
+
+derive_header! {
+    Vary(_),
+    name: VARY
+}
+
 
 impl Vary {
     /// Create a new `Very: *` header.

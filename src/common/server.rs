@@ -30,8 +30,13 @@ use util::HeaderValueString;
 ///
 /// let server = Server::from_static("hyper/0.12.2");
 /// ```
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Header)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Server(HeaderValueString);
+
+derive_header! {
+    Server(_),
+    name: SERVER
+}
 
 impl Server {
     /// Construct a `Server` from a static string.

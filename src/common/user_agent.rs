@@ -39,8 +39,13 @@ use util::HeaderValueString;
 ///
 /// let ua = UserAgent::from_static("hyper/0.12.2");
 /// ```
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Header)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct UserAgent(HeaderValueString);
+
+derive_header! {
+    UserAgent(_),
+    name: USER_AGENT
+}
 
 impl UserAgent {
     /// Create a `UserAgent` from a static string.

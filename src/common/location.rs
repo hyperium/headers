@@ -20,9 +20,13 @@ use ::HeaderValue;
 ///
 /// # Examples
 ///
-//TODO: make this a `Uri`?
-#[derive(Clone, Debug, PartialEq, Header)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Location(HeaderValue);
+
+derive_header! {
+    Location(_),
+    name: LOCATION
+}
 
 #[cfg(test)]
 mod tests {

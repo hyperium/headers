@@ -39,8 +39,13 @@ use ::HeaderValue;
 ///
 /// let ws = Upgrade::websocket();
 /// ```
-#[derive(Clone, Debug, PartialEq, Header)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Upgrade(HeaderValue);
+
+derive_header! {
+    Upgrade(_),
+    name: UPGRADE
+}
 
 impl Upgrade {
     /// Constructs an `Upgrade: websocket` header.

@@ -24,8 +24,13 @@ use ::HeaderValue;
 /// ```
 
 /// Retry-After header, defined in [RFC7231](http://tools.ietf.org/html/rfc7231#section-7.1.3)
-#[derive(Debug, Clone, PartialEq, Eq, Header)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RetryAfter(After);
+
+derive_header! {
+    RetryAfter(_),
+    name: RETRY_AFTER
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum After {
