@@ -1,6 +1,6 @@
 [package]
 name = "headers"
-version = "0.2.2" # don't forget to update html_root_url
+version = "0.2.3" # don't forget to update html_root_url
 description = "typed HTTP headers"
 license = "MIT"
 readme = "README.md"
