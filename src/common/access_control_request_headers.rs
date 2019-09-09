@@ -33,8 +33,13 @@ use util::FlatCsv;
 ///     .collect::<AccessControlRequestHeaders>();
 /// # }
 /// ```
-#[derive(Clone, Debug, Header)]
+#[derive(Clone, Debug)]
 pub struct AccessControlRequestHeaders(FlatCsv);
+
+derive_header! {
+    AccessControlRequestHeaders(_),
+    name: ACCESS_CONTROL_REQUEST_HEADERS
+}
 
 impl AccessControlRequestHeaders {
     /// Returns an iterator over `HeaderName`s contained within.

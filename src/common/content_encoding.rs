@@ -31,8 +31,13 @@ use self::sealed::AsCoding;
 ///
 /// let content_enc = ContentEncoding::gzip();
 /// ```
-#[derive(Clone, Debug, Header)]
+#[derive(Clone, Debug)]
 pub struct ContentEncoding(FlatCsv);
+
+derive_header! {
+    ContentEncoding(_),
+    name: CONTENT_ENCODING
+}
 
 impl ContentEncoding {
     /// A constructor to easily create a `Content-Encoding: gzip` header.
