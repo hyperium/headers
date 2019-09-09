@@ -34,8 +34,13 @@ use util::FlatCsv;
 ///     .into_iter()
 ///     .collect::<Allow>();
 /// ```
-#[derive(Clone, Debug, PartialEq, Header)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Allow(FlatCsv);
+
+derive_header! {
+    Allow(_),
+    name: ALLOW
+}
 
 impl Allow {
     /// Returns an iterator over `Method`s contained within.

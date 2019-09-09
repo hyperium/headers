@@ -32,8 +32,13 @@ use util::FlatCsv;
 ///     .into_iter()
 ///     .collect::<AccessControlAllowMethods>();
 /// ```
-#[derive(Clone, Debug, PartialEq, Header)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct AccessControlAllowMethods(FlatCsv);
+
+derive_header! {
+    AccessControlAllowMethods(_),
+    name: ACCESS_CONTROL_ALLOW_METHODS
+}
 
 impl AccessControlAllowMethods {
     /// Returns an iterator over `Method`s contained within.

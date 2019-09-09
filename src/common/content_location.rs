@@ -24,9 +24,13 @@ use ::HeaderValue;
 ///
 /// # Examples
 ///
-//TODO: make this a `Uri`?
-#[derive(Clone, Debug, PartialEq, Header)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ContentLocation(HeaderValue);
+
+derive_header! {
+    ContentLocation(_),
+    name: CONTENT_LOCATION
+}
 
 #[cfg(test)]
 mod tests {

@@ -21,8 +21,13 @@ use super::SecWebsocketKey;
 ///
 /// let sec_accept = SecWebsocketAccept::from(sec_key);
 /// ```
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Header)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SecWebsocketAccept(::HeaderValue);
+
+derive_header! {
+    SecWebsocketAccept(_),
+    name: SEC_WEBSOCKET_ACCEPT
+}
 
 impl From<SecWebsocketKey> for SecWebsocketAccept {
     fn from(key: SecWebsocketKey) -> SecWebsocketAccept {

@@ -32,8 +32,13 @@ use util::FlatCsv;
 ///     .collect::<AccessControlExposeHeaders>();
 /// # }
 /// ```
-#[derive(Clone, Debug, Header)]
+#[derive(Clone, Debug)]
 pub struct AccessControlExposeHeaders(FlatCsv);
+
+derive_header! {
+    AccessControlExposeHeaders(_),
+    name: ACCESS_CONTROL_EXPOSE_HEADERS
+}
 
 impl AccessControlExposeHeaders {
     /// Returns an iterator over `HeaderName`s contained within.

@@ -38,8 +38,13 @@ use ::HeaderValue;
 // This currently is just a `HeaderValue`, instead of a `Vec<Encoding>`, since
 // the most common by far instance is simply the string `chunked`. It'd be a
 // waste to need to allocate just for that.
-#[derive(Clone, Debug, Header)]
+#[derive(Clone, Debug)]
 pub struct TransferEncoding(FlatCsv);
+
+derive_header! {
+    TransferEncoding(_),
+    name: TRANSFER_ENCODING
+}
 
 impl TransferEncoding {
     /// Constructor for the most common Transfer-Encoding, `chunked`.

@@ -14,13 +14,13 @@ categories = ["web-programming"]
 members = [
     "./",
     "headers-core",
-    "headers-derive",
+    #"headers-derive",
 ]
 
 [dependencies]
 http = "0.1.15"
 headers-core = { version = "0.1", path = "./headers-core" }
-headers-derive = { version = "0.1", path = "./headers-derive" }
+#headers-derive = { version = "0.1", path = "./headers-derive" }
 base64 = "0.10"
 bitflags = "1.0"
 bytes = "0.4"

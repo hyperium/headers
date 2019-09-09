@@ -38,8 +38,13 @@ use {HeaderValue};
 ///
 /// let if_none_match = IfNoneMatch::any();
 /// ```
-#[derive(Clone, Debug, PartialEq, Header)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct IfNoneMatch(FlatCsv);
+
+derive_header! {
+    IfNoneMatch(_),
+    name: IF_NONE_MATCH
+}
 
 impl IfNoneMatch {
     /// Create a new `If-None-Match: *` header.
