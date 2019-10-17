@@ -9,8 +9,8 @@
 //pub use self::accept_charset::AcceptCharset;
 //pub use self::accept_encoding::AcceptEncoding;
 //pub use self::accept_language::AcceptLanguage;
+pub use self::accept::Accept;
 pub use self::accept_ranges::AcceptRanges;
-//pub use self::accept::Accept;
 pub use self::access_control_allow_credentials::AccessControlAllowCredentials;
 pub use self::access_control_allow_headers::AccessControlAllowHeaders;
 pub use self::access_control_allow_methods::AccessControlAllowMethods;
@@ -125,7 +125,7 @@ macro_rules! bench_header {
     };
 }
 
-//mod accept;
+mod accept;
 //mod accept_charset;
 //mod accept_encoding;
 //mod accept_language;
