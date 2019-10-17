@@ -5,7 +5,6 @@ use std::default::Default;
 use std::fmt;
 use std::str;
 
-#[cfg(test)]
 use self::internal::IntoQuality;
 
 /// Represents a quality used in quality values.
@@ -36,18 +35,15 @@ impl Default for Quality {
 #[derive(Clone, PartialEq, Debug)]
 pub struct QualityValue<T> {
     /// The actual contents of the field.
-    value: T,
+    pub value: T,
     /// The quality (client or server preference) for the value.
-    quality: Quality,
+    pub quality: Quality,
 }
 
 impl<T> QualityValue<T> {
     /// Creates a new `QualityValue` from an item and a quality.
     pub fn new(value: T, quality: Quality) -> QualityValue<T> {
-        QualityValue {
-            value,
-            quality,
-        }
+        QualityValue { value, quality }
     }
 
     /*
@@ -86,14 +82,14 @@ impl<T: fmt::Display> fmt::Display for QualityValue<T> {
         match self.quality.0 {
             1000 => Ok(()),
             0 => f.write_str("; q=0"),
-            x => write!(f, "; q=0.{}", format!("{:03}", x).trim_right_matches('0'))
+            x => write!(f, "; q=0.{}", format!("{:03}", x).trim_end_matches('0')),
         }
     }
 }
 
 impl<T: str::FromStr> str::FromStr for QualityValue<T> {
     type Err = ::Error;
-    fn from_str(s: &str) -> ::Result<QualityValue<T>> {
+    fn from_str(s: &str) -> Result<QualityValue<T>, ::Error> {
         // Set defaults used if parsing fails.
         let mut raw_item = s;
         let mut quality = 1f32;
@@ -113,22 +109,18 @@ impl<T: str::FromStr> str::FromStr for QualityValue<T> {
                         if 0f32 <= q_value && q_value <= 1f32 {
                             quality = q_value;
                             raw_item = parts[1];
-                            } else {
-                                return Err(::Error::invalid());
-                            }
-                        },
-                    Err(_) => {
-                        return Err(::Error::invalid())
-                    },
+                        } else {
+                            return Err(::Error::invalid());
+                        }
+                    }
+                    Err(_) => return Err(::Error::invalid()),
                 }
             }
         }
         match raw_item.parse::<T>() {
             // we already checked above that the quality is within range
             Ok(item) => Ok(QualityValue::new(item, from_f32(quality))),
-            Err(_) => {
-                Err(::Error::invalid())
-            },
+            Err(_) => Err(::Error::invalid()),
         }
     }
 }
@@ -138,13 +130,25 @@ fn from_f32(f: f32) -> Quality {
     // this function is only used internally. A check that `f` is within range
     // should be done before calling this method. Just in case, this
     // debug_assert should catch if we were forgetful
-    debug_assert!(f >= 0f32 && f <= 1f32, "q value must be between 0.0 and 1.0");
+    debug_assert!(
+        f >= 0f32 && f <= 1f32,
+        "q value must be between 0.0 and 1.0"
+    );
     Quality((f * 1000f32) as u16)
 }
 
 #[cfg(test)]
 fn q<T: IntoQuality>(val: T) -> Quality {
     val.into_quality()
+}
+
+impl<T> From<T> for Quality
+where
+    T: IntoQuality,
+{
+    fn from(x: T) -> Self {
+        x.into_quality()
+    }
 }
 
 mod internal {
@@ -163,7 +167,10 @@ mod internal {
 
     impl IntoQuality for f32 {
         fn into_quality(self) -> Quality {
-            assert!(self >= 0f32 && self <= 1f32, "float must be between 0.0 and 1.0");
+            assert!(
+                self >= 0f32 && self <= 1f32,
+                "float must be between 0.0 and 1.0"
+            );
             super::from_f32(self)
         }
     }
@@ -174,7 +181,6 @@ mod internal {
             Quality(self)
         }
     }
-
 
     pub trait Sealed {}
     impl Sealed for u16 {}
@@ -210,22 +216,46 @@ mod tests {
     #[test]
     fn test_quality_item_from_str1() {
         let x: QualityValue<String> = "chunked".parse().unwrap();
-        assert_eq!(x, QualityValue { value: "chunked".to_owned(), quality: Quality(1000), });
+        assert_eq!(
+            x,
+            QualityValue {
+                value: "chunked".to_owned(),
+                quality: Quality(1000),
+            }
+        );
     }
     #[test]
     fn test_quality_item_from_str2() {
         let x: QualityValue<String> = "chunked; q=1".parse().unwrap();
-        assert_eq!(x, QualityValue { value: "chunked".to_owned(), quality: Quality(1000), });
+        assert_eq!(
+            x,
+            QualityValue {
+                value: "chunked".to_owned(),
+                quality: Quality(1000),
+            }
+        );
     }
     #[test]
     fn test_quality_item_from_str3() {
         let x: QualityValue<String> = "gzip; q=0.5".parse().unwrap();
-        assert_eq!(x, QualityValue { value: "gzip".to_owned(), quality: Quality(500), });
+        assert_eq!(
+            x,
+            QualityValue {
+                value: "gzip".to_owned(),
+                quality: Quality(500),
+            }
+        );
     }
     #[test]
     fn test_quality_item_from_str4() {
         let x: QualityValue<String> = "gzip; q=0.273".parse().unwrap();
-        assert_eq!(x, QualityValue { value: "gzip".to_owned(), quality: Quality(273), });
+        assert_eq!(
+            x,
+            QualityValue {
+                value: "gzip".to_owned(),
+                quality: Quality(273),
+            }
+        );
     }
     #[test]
     fn test_quality_item_from_str5() {
