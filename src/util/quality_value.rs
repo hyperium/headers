@@ -32,7 +32,7 @@ impl Default for Quality {
 
 /// Represents an item with a quality value as defined in
 /// [RFC7231](https://tools.ietf.org/html/rfc7231#section-5.3.1).
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct QualityValue<T> {
     /// The actual contents of the field.
     pub value: T,

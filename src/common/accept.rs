@@ -2,7 +2,7 @@ use http::HttpTryFrom;
 
 use mime::{self, Mime};
 
-use util::QualityValue;
+use {util::QualityValue, Header};
 
 fn qitem(mime: Mime) -> QualityValue<Mime> {
     QualityValue::new(mime, Default::default())
@@ -84,10 +84,10 @@ fn qitem(mime: Mime) -> QualityValue<Mime> {
 ///     ])
 /// );
 /// ```
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Accept(pub Vec<QualityValue<Mime>>);
 
-impl ::Header for Accept {
+impl Header for Accept {
     fn name() -> &'static ::HeaderName {
         &::http::header::ACCEPT
     }
@@ -139,5 +139,78 @@ impl Accept {
     /// A constructor to easily create `Accept: image/*`.
     pub fn image() -> Accept {
         Accept(vec![qitem(mime::IMAGE_STAR)])
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use {
+        http::HeaderValue,
+        mime::{TEXT_HTML, TEXT_PLAIN, TEXT_PLAIN_UTF_8},
+    };
+
+    use util::Quality;
+
+    macro_rules! test_header {
+        ($name: ident, $input: expr, $expected: expr) => {
+            #[test]
+            fn $name() {
+                assert_eq!(
+                    Accept::decode(
+                        &mut $input
+                            .into_iter()
+                            .map(|s| HeaderValue::from_bytes(s).unwrap())
+                            .collect::<Vec<_>>()
+                            .iter()
+                    )
+                    .ok(),
+                    $expected,
+                );
+            }
+        };
+    }
+
+    // Tests from the RFC
+    test_header!(
+        test1,
+        vec![b"audio/*; q=0.2, audio/basic"],
+        Some(Accept(vec![
+            QualityValue::new("audio/*".parse().unwrap(), Quality::from(200)),
+            qitem("audio/basic".parse().unwrap()),
+        ]))
+    );
+    test_header!(
+        test2,
+        vec![b"text/plain; q=0.5, text/html, text/x-dvi; q=0.8, text/x-c"],
+        Some(Accept(vec![
+            QualityValue::new(TEXT_PLAIN, Quality::from(500)),
+            qitem(TEXT_HTML),
+            QualityValue::new("text/x-dvi".parse().unwrap(), Quality::from(800)),
+            qitem("text/x-c".parse().unwrap()),
+        ]))
+    );
+    // Custom tests
+    test_header!(
+        test3,
+        vec![b"text/plain; charset=utf-8"],
+        Some(Accept(vec![qitem(TEXT_PLAIN_UTF_8),]))
+    );
+    test_header!(
+        test4,
+        vec![b"text/plain; charset=utf-8; q=0.5"],
+        Some(Accept(vec![QualityValue::new(
+            TEXT_PLAIN_UTF_8,
+            Quality::from(500)
+        ),]))
+    );
+
+    #[test]
+    #[ignore]
+    fn test_fuzzing1() {
+        let raw = HeaderValue::from_static("chunk#;e");
+        let header = Accept::decode(&mut Some(&raw).into_iter());
+        assert!(header.is_ok());
     }
 }
