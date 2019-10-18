@@ -1,4 +1,4 @@
-#![recursion_limit="128"]
+#![recursion_limit = "128"]
 
 extern crate proc_macro;
 extern crate proc_macro2;
@@ -22,7 +22,8 @@ fn impl_header(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
         Err(msg) => {
             return quote! {
                 compile_error!(#msg);
-            }.into();
+            }
+            .into();
         }
     };
 
@@ -30,9 +31,7 @@ fn impl_header(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
     let encode = fns.encode;
 
     let ty = &ast.ident;
-    let hname = fns.name.unwrap_or_else(|| {
-        to_header_name(&ty.to_string())
-    });
+    let hname = fns.name.unwrap_or_else(|| to_header_name(&ty.to_string()));
     let hname_ident = Ident::new(&hname, Span::call_site());
     let dummy_const = Ident::new(&format!("_IMPL_HEADER_FOR_{}", hname), Span::call_site());
     let impl_block = quote! {
@@ -72,14 +71,11 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
     // Only structs are allowed...
     let st = match ast.data {
         Data::Struct(ref st) => st,
-        _ => {
-            return Err("derive(Header) only works on structs".into())
-        }
+        _ => return Err("derive(Header) only works on structs".into()),
     };
 
     // Check attributes for `#[header(...)]` that may influence the code
     // that is generated...
-    //let mut is_csv = false;
     let mut name = None;
     for attr in &ast.attrs {
         if attr.path.segments.len() != 1 {
@@ -93,41 +89,33 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
             Ok(Meta::List(list)) => {
                 for meta in &list.nested {
                     match meta {
-                        /*
-                        To be conservative, this attribute is disabled...
-                        NestedMeta::Meta(Meta::Word(ref word)) if word == "csv" => {
-                            is_csv = true;
-                        },
-                        */
-
-                        NestedMeta::Meta(Meta::NameValue(ref kv)) if kv.path.is_ident("name_const") => {
+                        NestedMeta::Meta(Meta::NameValue(ref kv))
+                            if kv.path.is_ident("name_const") =>
+                        {
                             if name.is_some() {
-                                return Err("repeated 'name_const' option in #[header] attribute".into());
+                                return Err(
+                                    "repeated 'name_const' option in #[header] attribute".into()
+                                );
                             }
                             name = match kv.lit {
                                 Lit::Str(ref s) => Some(s.value()),
                                 _ => {
-                                    return Err("illegal literal in #[header(name_const = ..)] attribute".into());
+                                    return Err(
+                                        "illegal literal in #[header(name_const = ..)] attribute"
+                                            .into(),
+                                    );
                                 }
                             };
                         }
-                        _ => {
-                            return Err("illegal option in #[header(..)] attribute".into())
-                        }
-
+                        _ => return Err("illegal option in #[header(..)] attribute".into()),
                     }
                 }
-
-            },
-            Ok(Meta::NameValue(_)) => {
-                return Err("illegal #[header = ..] attribute".into())
-            },
-            Ok(Meta::Path(_)) => {
-                return Err("empty #[header] attributes do nothing".into())
-            },
+            }
+            Ok(Meta::NameValue(_)) => return Err("illegal #[header = ..] attribute".into()),
+            Ok(Meta::Path(_)) => return Err("empty #[header] attributes do nothing".into()),
             Err(e) => {
                 // TODO stringify attribute to return better error
-                return Err(format!("illegal #[header ??] attribute: {:?}", e))
+                return Err(format!("illegal #[header ??] attribute: {:?}", e));
             }
         }
     }
@@ -158,7 +146,7 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
 
             let encode_name = Ident::new(&field_name.to_string(), Span::call_site());
             (decode, Value::Named(encode_name))
-        },
+        }
         Fields::Unnamed(ref fields) => {
             if fields.unnamed.len() != 1 {
                 return Err("derive(Header) doesn't support multiple fields".into());
@@ -170,33 +158,11 @@ fn impl_fns(ast: &syn::DeriveInput) -> Result<Fns, String> {
             };
 
             (decode, Value::Unnamed)
-        },
-        Fields::Unit => {
-            return Err("derive(Header) doesn't support unit structs".into())
         }
+        Fields::Unit => return Err("derive(Header) doesn't support unit structs".into()),
     };
 
-    // csv attr disabled for now
-    let encode = /*if is_csv {
-        let field = if let Value::Named(field) = encode_name {
-            quote! {
-                (&(self.0).#field)
-            }
-        } else {
-            quote! {
-                (&(self.0).0)
-            }
-        };
-        quote! {
-            struct __HeaderFmt<'hfmt>(&'hfmt #ty);
-            impl<'hfmt> ::std::fmt::Display for __HeaderFmt<'hfmt> {
-                fn fmt(&self, hfmt: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-                    __hc::encode::comma_delimited(hfmt, (#field).into_iter())
-                }
-            }
-            values.append_fmt(&__HeaderFmt(self));
-        }
-    } else*/ {
+    let encode = {
         let field = if let Value::Named(field) = encode_name {
             quote! {
                 (&self.#field)
@@ -239,4 +205,3 @@ enum Value {
     Named(Ident),
     Unnamed,
 }
-
