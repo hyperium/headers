@@ -37,8 +37,7 @@ impl ::Header for Host {
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         let bytes = Bytes::from(self.0.clone());
 
-        let val = ::HeaderValue::from_shared(bytes)
-            .expect("Authority is a valid HeaderValue");
+        let val = ::HeaderValue::from_shared(bytes).expect("Authority is a valid HeaderValue");
 
         values.extend(::std::iter::once(val));
     }
@@ -55,4 +54,3 @@ impl fmt::Display for Host {
         fmt::Display::fmt(&self.0, f)
     }
 }
-

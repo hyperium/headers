@@ -3,8 +3,8 @@ use std::iter::FromIterator;
 use std::marker::PhantomData;
 
 use bytes::{Bytes, BytesMut};
-use ::HeaderValue;
-use ::util::TryFromValues;
+use util::TryFromValues;
+use HeaderValue;
 
 // A single `HeaderValue` that can flatten multiple values with commas.
 #[derive(Clone, PartialEq, Eq, Hash)]
@@ -36,33 +36,28 @@ impl Separator for SemiColon {
 
 impl<Sep: Separator> FlatCsv<Sep> {
     pub(crate) fn iter(&self) -> impl Iterator<Item = &str> {
-        self
-            .value
-            .to_str()
-            .ok()
-            .into_iter()
-            .flat_map(|value_str| {
-                let mut in_quotes = false;
-                value_str
-                    .split(move |c| {
-                        if in_quotes {
+        self.value.to_str().ok().into_iter().flat_map(|value_str| {
+            let mut in_quotes = false;
+            value_str
+                .split(move |c| {
+                    if in_quotes {
+                        if c == '"' {
+                            in_quotes = false;
+                        }
+                        false // dont split
+                    } else {
+                        if c == Sep::CHAR {
+                            true // split
+                        } else {
                             if c == '"' {
-                                in_quotes = false;
+                                in_quotes = true;
                             }
                             false // dont split
-                        } else {
-                            if c == Sep::CHAR {
-                                true // split
-                            } else {
-                                if c == '"' {
-                                    in_quotes = true;
-                                }
-                                false // dont split
-                            }
                         }
-                    })
-                    .map(|item| item.trim())
-            })
+                    }
+                })
+                .map(|item| item.trim())
+        })
     }
 }
 
@@ -84,7 +79,6 @@ impl<Sep> From<HeaderValue> for FlatCsv<Sep> {
         }
     }
 }
-
 
 impl<'a, Sep> From<&'a FlatCsv<Sep>> for HeaderValue {
     fn from(flat: &'a FlatCsv<Sep>) -> HeaderValue {
@@ -128,8 +122,8 @@ impl<'a, Sep: Separator> FromIterator<&'a HeaderValue> for FlatCsv<Sep> {
             buf.extend_from_slice(val.as_bytes());
         }
 
-        let val = HeaderValue::from_shared(buf.freeze())
-            .expect("comma separated HeaderValues are valid");
+        let val =
+            HeaderValue::from_shared(buf.freeze()).expect("comma separated HeaderValues are valid");
 
         val.into()
     }
@@ -145,10 +139,7 @@ impl<Sep: Separator> FromIterator<HeaderValue> for FlatCsv<Sep> {
 
         // Common case is there is only 1 value, optimize for that
         if let (1, Some(1)) = values.size_hint() {
-            return values
-                .next()
-                .expect("size_hint claimed 1 item")
-                .into();
+            return values.next().expect("size_hint claimed 1 item").into();
         }
 
         // Otherwise, there are multiple, so this should merge them into 1.
@@ -164,8 +155,8 @@ impl<Sep: Separator> FromIterator<HeaderValue> for FlatCsv<Sep> {
             buf.extend_from_slice(val.as_bytes());
         }
 
-        let val = HeaderValue::from_shared(buf.freeze())
-            .expect("comma separated HeaderValues are valid");
+        let val =
+            HeaderValue::from_shared(buf.freeze()).expect("comma separated HeaderValues are valid");
 
         val.into()
     }

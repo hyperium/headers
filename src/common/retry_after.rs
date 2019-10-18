@@ -1,7 +1,7 @@
 use std::time::{Duration, SystemTime};
 
 use util::{HttpDate, Seconds, TryFromValues};
-use ::HeaderValue;
+use HeaderValue;
 
 /// The `Retry-After` header.
 ///
@@ -82,18 +82,15 @@ impl<'a> From<&'a After> for HeaderValue {
 
 #[cfg(test)]
 mod tests {
+    use super::super::test_decode;
+    use super::RetryAfter;
     use std::time::Duration;
     use util::HttpDate;
-    use super::RetryAfter;
-    use super::super::{test_decode};
 
     #[test]
     fn delay_decode() {
         let r: RetryAfter = test_decode(&["1234"]).unwrap();
-        assert_eq!(
-            r,
-            RetryAfter::delay(Duration::from_secs(1234)),
-        );
+        assert_eq!(r, RetryAfter::delay(Duration::from_secs(1234)),);
     }
 
     macro_rules! test_retry_after_datetime {
@@ -105,7 +102,7 @@ mod tests {
 
                 assert_eq!(r, RetryAfter(super::After::DateTime(dt)));
             }
-        }
+        };
     }
 
     test_retry_after_datetime!(date_decode_rfc1123, "Sun, 06 Nov 1994 08:49:37 GMT");

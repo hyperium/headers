@@ -1,4 +1,4 @@
-use ::{Header, HeaderName, HeaderValue};
+use {Header, HeaderName, HeaderValue};
 
 /// `Access-Control-Allow-Credentials` header, part of
 /// [CORS](http://www.w3.org/TR/cors/#access-control-allow-headers-response-header)
@@ -55,4 +55,3 @@ impl Header for AccessControlAllowCredentials {
         values.extend(::std::iter::once(HeaderValue::from_static("true")));
     }
 }
-

@@ -45,12 +45,7 @@ derive_header! {
 impl Allow {
     /// Returns an iterator over `Method`s contained within.
     pub fn iter<'a>(&'a self) -> impl Iterator<Item = Method> + 'a {
-        self
-            .0
-            .iter()
-            .filter_map(|s| {
-                s.parse().ok()
-            })
+        self.0.iter().filter_map(|s| s.parse().ok())
     }
 }
 
@@ -71,4 +66,3 @@ impl FromIterator<Method> for Allow {
         Allow(flat)
     }
 }
-

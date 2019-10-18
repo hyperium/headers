@@ -1,5 +1,5 @@
 use util::FlatCsv;
-use ::HeaderValue;
+use HeaderValue;
 
 /// `Transfer-Encoding` header, defined in
 /// [RFC7230](http://tools.ietf.org/html/rfc7230#section-3.3.1)
@@ -54,27 +54,24 @@ impl TransferEncoding {
 
     /// Returns whether this ends with the `chunked` encoding.
     pub fn is_chunked(&self) -> bool {
-        self
-            .0
+        self.0
             .value
             //TODO(perf): use split and trim (not an actual method) on &[u8]
             .to_str()
-            .map(|s| s
-                .split(',')
-                .next_back()
-                .map(|encoding| {
-                    encoding.trim() == "chunked"
-                })
-                .expect("split always has at least 1 item")
-            )
+            .map(|s| {
+                s.split(',')
+                    .next_back()
+                    .map(|encoding| encoding.trim() == "chunked")
+                    .expect("split always has at least 1 item")
+            })
             .unwrap_or(false)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::TransferEncoding;
     use super::super::test_decode;
+    use super::TransferEncoding;
 
     #[test]
     fn chunked_is_chunked() {
