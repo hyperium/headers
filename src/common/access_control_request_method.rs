@@ -65,3 +65,9 @@ impl From<Method> for AccessControlRequestMethod {
         AccessControlRequestMethod(method)
     }
 }
+
+impl From<AccessControlRequestMethod> for Method {
+    fn from(method: AccessControlRequestMethod) -> Method {
+        method.0
+    }
+}
