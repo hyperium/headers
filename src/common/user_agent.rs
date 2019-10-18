@@ -79,4 +79,3 @@ impl fmt::Display for UserAgent {
         fmt::Display::fmt(&self.0, f)
     }
 }
-

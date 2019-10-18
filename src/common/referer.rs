@@ -58,4 +58,3 @@ impl FromStr for Referer {
             .map_err(|_| InvalidReferer { _inner: () })
     }
 }
-

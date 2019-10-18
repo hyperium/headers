@@ -1,4 +1,4 @@
-use ::HeaderValue;
+use HeaderValue;
 
 /// The `Pragma` header defined by HTTP/1.0.
 ///
@@ -45,8 +45,8 @@ impl Pragma {
 
 #[cfg(test)]
 mod tests {
-    use super::Pragma;
     use super::super::test_decode;
+    use super::Pragma;
 
     #[test]
     fn no_cache_is_no_cache() {

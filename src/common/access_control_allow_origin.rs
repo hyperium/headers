@@ -1,6 +1,6 @@
-use ::{HeaderValue};
-use ::util::{IterExt, TryFromValues};
-use super::origin::{Origin};
+use super::origin::Origin;
+use util::{IterExt, TryFromValues};
+use HeaderValue;
 
 /// The `Access-Control-Allow-Origin` response header,
 /// part of [CORS](http://www.w3.org/TR/cors/#access-control-allow-origin-response-header)
@@ -48,13 +48,14 @@ impl AccessControlAllowOrigin {
     /// `Access-Control-Allow-Origin: *`
     pub const ANY: AccessControlAllowOrigin = AccessControlAllowOrigin(OriginOrAny::Any);
     /// `Access-Control-Allow-Origin: null`
-    pub const NULL: AccessControlAllowOrigin = AccessControlAllowOrigin(OriginOrAny::Origin(Origin::NULL));
+    pub const NULL: AccessControlAllowOrigin =
+        AccessControlAllowOrigin(OriginOrAny::Origin(Origin::NULL));
 
     /// Returns the origin if there's one specified.
     pub fn origin(&self) -> Option<&Origin> {
         match self.0 {
             OriginOrAny::Origin(ref origin) => Some(origin),
-            _ => None
+            _ => None,
         }
     }
 }
@@ -71,8 +72,7 @@ impl TryFromValues for OriginOrAny {
                     return Some(OriginOrAny::Any);
                 }
 
-                Origin::try_from_value(value)
-                    .map(OriginOrAny::Origin)
+                Origin::try_from_value(value).map(OriginOrAny::Origin)
             })
             .ok_or_else(::Error::invalid)
     }
@@ -89,9 +89,8 @@ impl<'a> From<&'a OriginOrAny> for HeaderValue {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::{test_decode, test_encode};
-
+    use super::*;
 
     #[test]
     fn origin() {
@@ -126,4 +125,3 @@ mod tests {
         assert_eq!(headers["access-control-allow-origin"], "null");
     }
 }
-

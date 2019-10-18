@@ -1,4 +1,3 @@
-
 use util::{FlatCsv, SemiColon};
 
 /// `Cookie` header, defined in [RFC6265](http://tools.ietf.org/html/rfc6265#section-5.4)
@@ -55,17 +54,15 @@ impl Cookie {
     }
 
     /// Iterator the key-value pairs of this `Cookie` header.
-    pub fn iter(&self) -> impl Iterator<Item=(&str, &str)> {
-        self.0.iter()
-            .filter_map(|kv| {
-                let mut iter = kv.splitn(2, '=');
-                let key = iter.next()?.trim();
-                let val = iter.next()?.trim();
-                Some((key, val))
-            })
+    pub fn iter(&self) -> impl Iterator<Item = (&str, &str)> {
+        self.0.iter().filter_map(|kv| {
+            let mut iter = kv.splitn(2, '=');
+            let key = iter.next()?.trim();
+            let val = iter.next()?.trim();
+            Some((key, val))
+        })
     }
 }
-
 
 /*
 impl PartialEq for Cookie {
@@ -86,8 +83,8 @@ impl PartialEq for Cookie {
 
 #[cfg(test)]
 mod tests {
-    use super::Cookie;
     use super::super::test_decode;
+    use super::Cookie;
 
     #[test]
     fn test_parse() {
@@ -206,4 +203,3 @@ mod tests {
     }
     */
 }
-

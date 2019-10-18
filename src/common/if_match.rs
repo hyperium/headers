@@ -1,6 +1,6 @@
-use {HeaderValue};
 use super::ETag;
 use util::FlatCsv;
+use HeaderValue;
 
 /// `If-Match` header, defined in
 /// [RFC7232](https://tools.ietf.org/html/rfc7232#section-3.1)
@@ -56,4 +56,3 @@ impl From<ETag> for IfMatch {
         IfMatch(HeaderValue::from(etag.0).into())
     }
 }
-

@@ -70,4 +70,3 @@ impl fmt::Display for Server {
         fmt::Display::fmt(&self.0, f)
     }
 }
-

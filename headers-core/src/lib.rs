@@ -13,8 +13,8 @@ extern crate http;
 
 pub use http::header::{self, HeaderName, HeaderValue};
 
-use std::fmt::{self, Display, Formatter};
 use std::error;
+use std::fmt::{self, Display, Formatter};
 
 /// A trait for any object that will represent a header field and value.
 ///

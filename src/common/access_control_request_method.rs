@@ -1,5 +1,5 @@
 use http::Method;
-use ::{Header, HeaderName, HeaderValue};
+use {Header, HeaderName, HeaderValue};
 
 /// `Access-Control-Request-Method` header, part of
 /// [CORS](http://www.w3.org/TR/cors/#access-control-request-method-request-header)
@@ -34,10 +34,9 @@ impl Header for AccessControlRequestMethod {
     }
 
     fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
-        values.next()
-            .and_then(|value| {
-                Method::from_bytes(value.as_bytes()).ok()
-            })
+        values
+            .next()
+            .and_then(|value| Method::from_bytes(value.as_bytes()).ok())
             .map(AccessControlRequestMethod)
             .ok_or_else(::Error::invalid)
     }
@@ -66,4 +65,3 @@ impl From<Method> for AccessControlRequestMethod {
         AccessControlRequestMethod(method)
     }
 }
-

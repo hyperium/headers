@@ -1,6 +1,6 @@
-use util::FlatCsv;
-use {HeaderValue};
 use self::sealed::AsCoding;
+use util::FlatCsv;
+use HeaderValue;
 
 /// `Content-Encoding` header, defined in
 /// [RFC7231](http://tools.ietf.org/html/rfc7231#section-3.1.2.2)
@@ -65,11 +65,7 @@ impl ContentEncoding {
     /// ```
     pub fn contains(&self, coding: impl AsCoding) -> bool {
         let s = coding.as_coding();
-        self
-            .0
-            .iter()
-            .find(|&opt| opt == s)
-            .is_some()
+        self.0.iter().find(|&opt| opt == s).is_some()
     }
 }
 

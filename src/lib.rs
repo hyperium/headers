@@ -72,7 +72,6 @@
 //! }
 //! ```
 
-
 extern crate base64;
 #[macro_use]
 extern crate bitflags;
@@ -85,19 +84,13 @@ extern crate sha1;
 extern crate test;
 extern crate time;
 
-pub use headers_core::{
-    Error,
-    Header,
-};
+pub use headers_core::{Error, Header};
 
 #[doc(hidden)]
 pub use http::HeaderMap;
 
 #[doc(hidden)]
-pub use http::header::{
-    HeaderName,
-    HeaderValue,
-};
+pub use http::header::{HeaderName, HeaderValue};
 
 #[macro_use]
 mod util;
@@ -106,4 +99,3 @@ mod map_ext;
 
 pub use self::common::*;
 pub use self::map_ext::HeaderMapExt;
-

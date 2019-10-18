@@ -1,8 +1,8 @@
 use std::time::SystemTime;
 
-use ::HeaderValue;
+use super::{ETag, LastModified};
 use util::{EntityTag, HttpDate};
-use super::{LastModified, ETag};
+use HeaderValue;
 
 /// `If-Range` header, defined in [RFC7233](http://tools.ietf.org/html/rfc7233#section-3.2)
 ///
@@ -104,8 +104,6 @@ impl<'a> From<&'a IfRange_> for HeaderValue {
         }
     }
 }
-
-
 
 /*
 #[cfg(test)]

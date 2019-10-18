@@ -1,6 +1,6 @@
-use util::{FlatCsv};
 use super::ETag;
-use {HeaderValue};
+use util::FlatCsv;
+use HeaderValue;
 
 /// `If-None-Match` header, defined in
 /// [RFC7232](https://tools.ietf.org/html/rfc7232#section-3.2)
@@ -59,15 +59,15 @@ impl From<ETag> for IfNoneMatch {
     }
 }
 
-    /*
-    test_if_none_match {
-        test_header!(test1, vec![b"\"xyzzy\""]);
-        test_header!(test2, vec![b"W/\"xyzzy\""]);
-        test_header!(test3, vec![b"\"xyzzy\", \"r2d2xxxx\", \"c3piozzzz\""]);
-        test_header!(test4, vec![b"W/\"xyzzy\", W/\"r2d2xxxx\", W/\"c3piozzzz\""]);
-        test_header!(test5, vec![b"*"]);
-    }
-    */
+/*
+test_if_none_match {
+    test_header!(test1, vec![b"\"xyzzy\""]);
+    test_header!(test2, vec![b"W/\"xyzzy\""]);
+    test_header!(test3, vec![b"\"xyzzy\", \"r2d2xxxx\", \"c3piozzzz\""]);
+    test_header!(test4, vec![b"W/\"xyzzy\", W/\"r2d2xxxx\", W/\"c3piozzzz\""]);
+    test_header!(test5, vec![b"*"]);
+}
+*/
 
 /*
 #[cfg(test)]
@@ -93,4 +93,3 @@ mod tests {
     }
 }
 */
-

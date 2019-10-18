@@ -1,6 +1,6 @@
 use util::FlatCsv;
 
-use {HeaderValue};
+use HeaderValue;
 
 /// `Vary` header, defined in [RFC7231](https://tools.ietf.org/html/rfc7231#section-7.1.4)
 ///
@@ -36,7 +36,6 @@ derive_header! {
     Vary(_),
     name: VARY
 }
-
 
 impl Vary {
     /// Create a new `Very: *` header.

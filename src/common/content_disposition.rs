@@ -80,8 +80,7 @@ impl ContentDisposition {
     }
 
     fn get_type(&self) -> &str {
-        self
-            .0
+        self.0
             .to_str()
             .unwrap_or("")
             .split(';')

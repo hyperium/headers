@@ -1,6 +1,5 @@
-use {HeaderValue};
 use super::IterExt;
-
+use HeaderValue;
 
 /// An entity tag, defined in [RFC7232](https://tools.ietf.org/html/rfc7232#section-2.3)
 ///
@@ -116,7 +115,7 @@ impl EntityTag {
         let length = slice.len();
 
         // Early exits if it doesn't terminate in a DQUOTE.
-        if length < 2  || slice[length - 1] != b'"' {
+        if length < 2 || slice[length - 1] != b'"' {
             return None;
         }
 
@@ -130,11 +129,11 @@ impl EntityTag {
                 } else {
                     return None;
                 }
-            },
+            }
             _ => return None,
         };
 
-        if check_slice_validity(&slice[start..length-1]) {
+        if check_slice_validity(&slice[start..length - 1]) {
             Some(EntityTag(val.clone()))
         } else {
             None
@@ -166,7 +165,6 @@ impl<'a> From<&'a EntityTag> for HeaderValue {
     }
 }
 
-
 /// check that each char in the slice is either:
 /// 1. `%x21`, or
 /// 2. in the range `%x23` to `%x7E`, or
@@ -194,7 +192,7 @@ mod tests {
         let val = HeaderValue::from_bytes(slice).ok()?;
         EntityTag::from_val(&val)
     }
-    
+
     #[test]
     fn test_etag_parse_success() {
         // Expected success
@@ -213,7 +211,7 @@ mod tests {
         macro_rules! fails {
             ($slice:expr) => {
                 assert_eq!(parse($slice), None);
-            }
+            };
         }
 
         fails!(b"no-dquote");
