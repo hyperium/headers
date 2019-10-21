@@ -1,3 +1,5 @@
+use std::iter::FromIterator;
+
 use http::HttpTryFrom;
 
 use mime::{self, Mime};
@@ -38,12 +40,13 @@ fn qitem(mime: Mime) -> QualityValue<Mime> {
 /// # extern crate headers;
 /// extern crate mime;
 /// extern crate http;
+/// use std::iter::FromIterator;
 /// use headers::{Accept, QualityValue, HeaderMapExt};
 ///
 /// let mut headers = http::HeaderMap::new();
 ///
 /// headers.typed_insert(
-///     Accept(vec![
+///     Accept::from_iter(vec![
 ///         QualityValue::new(mime::TEXT_HTML, Default::default()),
 ///     ])
 /// );
@@ -52,11 +55,12 @@ fn qitem(mime: Mime) -> QualityValue<Mime> {
 /// ```
 /// # extern crate headers;
 /// extern crate mime;
+/// use std::iter::FromIterator;
 /// use headers::{Accept, QualityValue, HeaderMapExt};
 ///
 /// let mut headers = http::HeaderMap::new();
 /// headers.typed_insert(
-///     Accept(vec![
+///     Accept::from_iter(vec![
 ///         QualityValue::new(mime::APPLICATION_JSON, Default::default()),
 ///     ])
 /// );
@@ -64,12 +68,13 @@ fn qitem(mime: Mime) -> QualityValue<Mime> {
 /// ```
 /// # extern crate headers;
 /// extern crate mime;
+/// use std::iter::FromIterator;
 /// use headers::{Accept, QualityValue, HeaderMapExt};
 ///
 /// let mut headers = http::HeaderMap::new();
 ///
 /// headers.typed_insert(
-///     Accept(vec![
+///     Accept::from_iter(vec![
 ///         QualityValue::from(mime::TEXT_HTML),
 ///         QualityValue::from("application/xhtml+xml".parse::<mime::Mime>().unwrap()),
 ///         QualityValue::new(
@@ -85,7 +90,7 @@ fn qitem(mime: Mime) -> QualityValue<Mime> {
 /// );
 /// ```
 #[derive(Debug, PartialEq, Eq)]
-pub struct Accept(pub Vec<QualityValue<Mime>>);
+pub struct Accept(Vec<QualityValue<Mime>>);
 
 impl Header for Accept {
     fn name() -> &'static ::HeaderName {
@@ -120,6 +125,15 @@ impl Header for Accept {
     }
 }
 
+impl FromIterator<QualityValue<Mime>> for Accept {
+    fn from_iter<T>(iter: T) -> Self
+    where
+        T: IntoIterator<Item = QualityValue<Mime>>,
+    {
+        Accept(iter.into_iter().collect())
+    }
+}
+
 impl Accept {
     /// A constructor to easily create `Accept: */*`.
     pub fn star() -> Accept {
@@ -139,6 +153,11 @@ impl Accept {
     /// A constructor to easily create `Accept: image/*`.
     pub fn image() -> Accept {
         Accept(vec![qitem(mime::IMAGE_STAR)])
+    }
+
+    /// Returns an iterator over the quality values
+    pub fn iter(&self) -> impl Iterator<Item = &QualityValue<Mime>> {
+        self.0.iter()
     }
 }
 
