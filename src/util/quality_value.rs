@@ -94,13 +94,13 @@ impl<T: str::FromStr> str::FromStr for QualityValue<T> {
         let mut raw_item = s;
         let mut quality = 1f32;
 
-        let parts: Vec<&str> = s.rsplitn(2, ';').map(|x| x.trim()).collect();
-        if parts.len() == 2 {
-            if parts[0].len() < 2 {
+        let mut parts = s.rsplitn(2, ';').map(|x| x.trim());
+        if let (Some(first), Some(second), None) = (parts.next(), parts.next(), parts.next()) {
+            if first.len() < 2 {
                 return Err(::Error::invalid());
             }
-            if parts[0].starts_with("q=") || parts[0].starts_with("Q=") {
-                let q_part = &parts[0][2..parts[0].len()];
+            if first.starts_with("q=") || first.starts_with("Q=") {
+                let q_part = &first[2..];
                 if q_part.len() > 5 {
                     return Err(::Error::invalid());
                 }
@@ -108,7 +108,7 @@ impl<T: str::FromStr> str::FromStr for QualityValue<T> {
                     Ok(q_value) => {
                         if 0f32 <= q_value && q_value <= 1f32 {
                             quality = q_value;
-                            raw_item = parts[1];
+                            raw_item = second;
                         } else {
                             return Err(::Error::invalid());
                         }
