@@ -2,7 +2,7 @@ use std::fmt;
 use std::iter::FromIterator;
 use std::marker::PhantomData;
 
-use bytes::{Bytes, BytesMut};
+use bytes::BytesMut;
 use util::TryFromValues;
 use HeaderValue;
 
@@ -109,13 +109,11 @@ impl<'a, Sep: Separator> FromIterator<&'a HeaderValue> for FlatCsv<Sep> {
         }
 
         // Otherwise, there are multiple, so this should merge them into 1.
-        let bytes = values
+        let mut buf = values
             .next()
             .cloned()
-            .map(Bytes::from)
-            .unwrap_or_else(|| Bytes::new());
-
-        let mut buf = BytesMut::from(bytes);
+            .map(|val| BytesMut::from(val.as_bytes()))
+            .unwrap_or_else(|| BytesMut::new());
 
         for val in values {
             buf.extend_from_slice(&[Sep::BYTE, b' ']);
@@ -123,7 +121,7 @@ impl<'a, Sep: Separator> FromIterator<&'a HeaderValue> for FlatCsv<Sep> {
         }
 
         let val =
-            HeaderValue::from_shared(buf.freeze()).expect("comma separated HeaderValues are valid");
+            HeaderValue::from_maybe_shared(buf.freeze()).expect("comma separated HeaderValues are valid");
 
         val.into()
     }
@@ -143,12 +141,10 @@ impl<Sep: Separator> FromIterator<HeaderValue> for FlatCsv<Sep> {
         }
 
         // Otherwise, there are multiple, so this should merge them into 1.
-        let bytes = values
+        let mut buf = values
             .next()
-            .map(Bytes::from)
-            .unwrap_or_else(|| Bytes::new());
-
-        let mut buf = BytesMut::from(bytes);
+            .map(|val| BytesMut::from(val.as_bytes()))
+            .unwrap_or_else(|| BytesMut::new());
 
         for val in values {
             buf.extend_from_slice(&[Sep::BYTE, b' ']);
@@ -156,7 +152,7 @@ impl<Sep: Separator> FromIterator<HeaderValue> for FlatCsv<Sep> {
         }
 
         let val =
-            HeaderValue::from_shared(buf.freeze()).expect("comma separated HeaderValues are valid");
+            HeaderValue::from_maybe_shared(buf.freeze()).expect("comma separated HeaderValues are valid");
 
         val.into()
     }

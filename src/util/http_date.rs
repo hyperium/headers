@@ -67,7 +67,7 @@ impl<'a> From<&'a HttpDate> for HeaderValue {
         // TODO: could be just BytesMut instead of String
         let s = date.to_string();
         let bytes = Bytes::from(s);
-        HeaderValue::from_shared(bytes).expect("HttpDate always is a valid value")
+        HeaderValue::from_maybe_shared(bytes).expect("HttpDate always is a valid value")
     }
 }
 

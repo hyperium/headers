@@ -29,7 +29,7 @@ impl HeaderValueString {
     pub(crate) fn from_string(src: String) -> Option<Self> {
         // A valid `str` (the argument)...
         let bytes = Bytes::from(src);
-        HeaderValue::from_shared(bytes)
+        HeaderValue::from_maybe_shared(bytes)
             .ok()
             .map(|value| HeaderValueString { value })
     }
