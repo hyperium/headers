@@ -10,5 +10,4 @@ authors = ["Sean McArthur <sean@seanmonstar.com>"]
 keywords = ["http", "headers", "hyper", "hyperium"]
 
 [dependencies]
-bytes = "0.4"
-http = "0.1.15"
+http = "0.2.0"
