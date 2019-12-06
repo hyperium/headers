@@ -42,7 +42,7 @@ impl Header for AccessControlAllowCredentials {
         values
             .next()
             .and_then(|value| {
-                if value.as_bytes().eq_ignore_ascii_case(b"true") {
+                if value == "true" {
                     Some(AccessControlAllowCredentials)
                 } else {
                     None
@@ -53,5 +53,20 @@ impl Header for AccessControlAllowCredentials {
 
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         values.extend(::std::iter::once(HeaderValue::from_static("true")));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::test_decode;
+    use super::*;
+
+    #[test]
+    fn allow_credentials_is_case_sensitive() {
+        let allow_header = test_decode::<AccessControlAllowCredentials>(&["true"]);
+        assert!(allow_header.is_some());
+
+        let allow_header = test_decode::<AccessControlAllowCredentials>(&["True"]);
+        assert!(allow_header.is_none());
     }
 }
