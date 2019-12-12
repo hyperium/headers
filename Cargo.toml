@@ -1,6 +1,6 @@
 [package]
 name = "headers"
-version = "0.2.3" # don't forget to update html_root_url
+version = "0.3.0" # don't forget to update html_root_url
 description = "typed HTTP headers"
 license = "MIT"
 readme = "README.md"
@@ -14,13 +14,11 @@ categories = ["web-programming"]
 members = [
     "./",
     "headers-core",
-    #"headers-derive",
 ]
 
 [dependencies]
 http = "0.2.0"
-headers-core = { version = "0.1", path = "./headers-core" }
-#headers-derive = { version = "0.1", path = "./headers-derive" }
+headers-core = { version = "0.2", path = "./headers-core" }
 base64 = "0.11"
 bitflags = "1.0"
 bytes = "0.5"
