@@ -39,6 +39,7 @@ impl<'a> From<&'a Seconds> for HeaderValue {
 
 impl From<Duration> for Seconds {
     fn from(dur: Duration) -> Seconds {
+        debug_assert!(dur.subsec_nanos() == 0);
         Seconds(dur)
     }
 }
