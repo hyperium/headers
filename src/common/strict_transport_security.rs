@@ -70,6 +70,18 @@ impl StrictTransportSecurity {
             include_subdomains: false,
         }
     }
+
+    // getters
+
+    /// Get whether this should include subdomains.
+    pub fn include_subdomains(&self) -> bool {
+        self.include_subdomains
+    }
+
+    /// Get the max-age.
+    pub fn max_age(&self) -> Duration {
+        self.max_age.into()
+    }
 }
 
 enum Directive {
