@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use util::EntityTag;
 
 /// `ETag` header, defined in [RFC7232](http://tools.ietf.org/html/rfc7232#section-2.3)
@@ -26,6 +27,9 @@ use util::EntityTag;
 ///
 /// # Examples
 ///
+/// ```
+/// let etag = "\"xyzzy\"".parse::<headers::ETag>().unwrap();
+/// ```
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ETag(pub(super) EntityTag);
 
@@ -38,6 +42,21 @@ impl ETag {
     #[cfg(test)]
     pub(crate) fn from_static(src: &'static str) -> ETag {
         ETag(EntityTag::from_static(src))
+    }
+}
+
+error_type!(InvalidETag);
+
+impl FromStr for ETag {
+    type Err = InvalidETag;
+    fn from_str(src: &str) -> Result<Self, Self::Err> {
+        let val = src
+            .parse()
+            .map_err(|_| InvalidETag { _inner: () })?;
+
+        EntityTag::from_owned(val)
+            .map(ETag)
+            .ok_or_else(|| InvalidETag { _inner: () })
     }
 }
 
