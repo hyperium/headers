@@ -34,6 +34,13 @@ derive_header! {
     name: ETAG
 }
 
+impl ETag {
+    #[cfg(test)]
+    pub(crate) fn from_static(src: &'static str) -> ETag {
+        ETag(EntityTag::from_static(src))
+    }
+}
+
 /*
 test_etag {
     // From the RFC

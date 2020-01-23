@@ -1,5 +1,5 @@
 use super::ETag;
-use util::FlatCsv;
+use util::EntityTagRange;
 use HeaderValue;
 
 /// `If-Match` header, defined in
@@ -37,7 +37,7 @@ use HeaderValue;
 /// let if_match = IfMatch::any();
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct IfMatch(FlatCsv);
+pub struct IfMatch(EntityTagRange);
 
 derive_header! {
     IfMatch(_),
@@ -47,12 +47,65 @@ derive_header! {
 impl IfMatch {
     /// Create a new `If-Match: *` header.
     pub fn any() -> IfMatch {
-        IfMatch(HeaderValue::from_static("*").into())
+        IfMatch(EntityTagRange::Any)
+    }
+
+    /// Returns whether this is `If-Match: *`, matching any entity tag.
+    pub fn is_any(&self) -> bool {
+        match self.0 {
+            EntityTagRange::Any => true,
+            EntityTagRange::Tags(..) => false,
+        }
+    }
+
+    /// Checks whether the `ETag` strongly matches.
+    pub fn precondition_passes(&self, etag: &ETag) -> bool {
+        self.0.matches_strong(&etag.0)
     }
 }
 
 impl From<ETag> for IfMatch {
     fn from(etag: ETag) -> IfMatch {
-        IfMatch(HeaderValue::from(etag.0).into())
+        IfMatch(EntityTagRange::Tags(HeaderValue::from(etag.0).into()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn is_any() {
+        assert!(IfMatch::any().is_any());
+        assert!(!IfMatch::from(ETag::from_static("\"yolo\"")).is_any());
+    }
+
+    #[test]
+    fn precondition_fails() {
+        let if_match = IfMatch::from(ETag::from_static("\"foo\""));
+
+        let bar = ETag::from_static("\"bar\"");
+        let weak_foo = ETag::from_static("W/\"foo\"");
+
+        assert!(!if_match.precondition_passes(&bar));
+        assert!(!if_match.precondition_passes(&weak_foo));
+    }
+
+    #[test]
+    fn precondition_passes() {
+        let foo = ETag::from_static("\"foo\"");
+
+        let if_match = IfMatch::from(foo.clone());
+
+        assert!(if_match.precondition_passes(&foo));
+    }
+
+    #[test]
+    fn precondition_any() {
+        let foo = ETag::from_static("\"foo\"");
+
+        let if_match = IfMatch::any();
+
+        assert!(if_match.precondition_passes(&foo));
     }
 }
