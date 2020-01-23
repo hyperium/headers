@@ -1,3 +1,5 @@
+use std::fmt;
+
 use super::{FlatCsv, IterExt};
 use HeaderValue;
 
@@ -31,7 +33,7 @@ use HeaderValue;
 /// | `W/"1"` | `W/"2"` | no match          | no match        |
 /// | `W/"1"` | `"1"`   | no match          | match           |
 /// | `"1"`   | `"1"`   | match             | match           |
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq)]
 pub(crate) struct EntityTag<T = HeaderValue>(T);
 
 #[derive(Clone, Debug, PartialEq)]
@@ -159,11 +161,21 @@ impl EntityTag {
         }
     }
 
+    pub(crate) fn from_owned(val: HeaderValue) -> Option<EntityTag> {
+        EntityTag::parse(val.as_bytes())?;
+        Some(EntityTag(val))
+    }
 
     pub(crate) fn from_val(val: &HeaderValue) -> Option<EntityTag> {
         EntityTag::parse(val.as_bytes()).map(|_entity| {
             EntityTag(val.clone())
         })
+    }
+}
+
+impl<T: fmt::Debug> fmt::Debug for EntityTag<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
     }
 }
 
