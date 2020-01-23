@@ -61,10 +61,10 @@ impl IfRange {
 
     /// Checks if the resource has been modified, or if the range request
     /// can be served.
-    pub fn is_modified(&self, _etag: Option<&ETag>, last_modified: Option<&LastModified>) -> bool {
+    pub fn is_modified(&self, etag: Option<&ETag>, last_modified: Option<&LastModified>) -> bool {
         match self.0 {
             IfRange_::Date(since) => last_modified.map(|time| since < time.0).unwrap_or(true),
-            IfRange_::EntityTag(_) => true,
+            IfRange_::EntityTag(ref entity) => etag.map(|etag| !etag.0.strong_eq(entity)).unwrap_or(true),
         }
     }
 }
@@ -116,3 +116,19 @@ mod tests {
     test_header!(test3, vec![b"this-is-invalid"], None::<IfRange>);
 }
 */
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_modified_etag() {
+        let etag = ETag::from_static("\"xyzzy\"");
+        let if_range = IfRange::etag(etag.clone());
+
+        assert!(!if_range.is_modified(Some(&etag), None));
+
+        let etag = ETag::from_static("W/\"xyzzy\"");
+        assert!(if_range.is_modified(Some(&etag), None));
+    }
+}
