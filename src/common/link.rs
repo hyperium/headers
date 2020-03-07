@@ -1,3 +1,5 @@
+//! Link header and types.
+
 use std::fmt;
 use std::borrow::Cow;
 use std::str::FromStr;
@@ -58,7 +60,7 @@ use {Header, Raw};
 /// # Examples
 ///
 /// ```
-/// use headers::{Headers, Link, LinkValue, RelationType};
+/// use headers::{Headers, link::{Link, LinkValue, RelationType}};
 ///
 /// let link_value = LinkValue::new("http://example.com/TheBook/chapter2")
 ///     .push_rel(RelationType::Previous)
