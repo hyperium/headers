@@ -9,9 +9,6 @@ use std::ascii::AsciiExt;
 use mime::Mime;
 use language_tags::LanguageTag;
 
-use parsing;
-use {Header, Raw};
-
 /// The `Link` header, defined in
 /// [RFC5988](http://tools.ietf.org/html/rfc5988#section-5)
 ///
@@ -387,18 +384,24 @@ impl LinkValue {
 // Trait implementations
 ////////////////////////////////////////////////////////////////////////////////
 
-impl Header for Link {
-    fn header_name() -> &'static str {
-        static NAME: &'static str = "Link";
-        NAME
+impl ::Header for Link {
+    fn name() -> &'static ::HeaderName {
+        &::http::header::LINK
     }
 
-    fn parse_header(raw: &Raw) -> Result<Link, ::Error> {
+    fn decode<'i, I>(values: &mut I) -> Result<Self, ::Error>
+    where
+        I: Iterator<Item = &'i ::HeaderValue>,
+    {
         // If more that one `Link` headers are present in a request's
         // headers they are combined in a single `Link` header containing
         // all the `link-value`s present in each of those `Link` headers.
-        raw.iter()
-            .map(parsing::from_raw_str::<Link>)
+        values
+            .map(|line| {
+                line.to_str()
+                    .map_err(|_| ::Error::invalid())
+                    .and_then(|line| Link::from_str(line))
+            })
             .fold(None, |p, c| {
                 match (p, c) {
                     (None, c) => Some(c),
@@ -414,14 +417,23 @@ impl Header for Link {
             .unwrap_or(Err(::Error::invalid()))
     }
 
-    fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
-        f.fmt_line(self)
+    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+        values.extend(std::iter::once(::HeaderValue::from_str(&self.to_string()).unwrap()));
     }
 }
 
 impl fmt::Display for Link {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt_delimited(f, self.values.as_slice(), ", ", ("", ""))
+        let mut first = true;
+        for value in &self.values {
+            if !first {
+                write!(f, ", ")?;
+            }
+            first = false;
+
+            write!(f, "{}", value)?;
+        }
+        Ok(())
     }
 }
 
