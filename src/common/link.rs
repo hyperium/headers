@@ -971,41 +971,32 @@ mod tests {
         assert_eq!(link.ok(), Some(expected_link));
     }
 
-    // TODO
-    // #[test]
-    // fn test_link_multiple_link_headers() {
-    //     let first_link = LinkValue::new("/TheBook/chapter2")
-    //         .push_rel(RelationType::Previous)
-    //         .set_title_star("UTF-8'de'letztes%20Kapitel");
+    #[test]
+    fn test_link_multiple_link_headers() {
+        let first_link = LinkValue::new("/TheBook/chapter2")
+            .push_rel(RelationType::Previous)
+            .set_title_star("UTF-8'de'letztes%20Kapitel");
 
-    //     let second_link = LinkValue::new("/TheBook/chapter4")
-    //         .push_rel(RelationType::Next)
-    //         .set_title_star("UTF-8'de'n%c3%a4chstes%20Kapitel");
+        let second_link = LinkValue::new("/TheBook/chapter4")
+            .push_rel(RelationType::Next)
+            .set_title_star("UTF-8'de'n%c3%a4chstes%20Kapitel");
 
-    //     let third_link = LinkValue::new("http://example.com/TheBook/chapter2")
-    //         .push_rel(RelationType::Previous)
-    //         .push_rev(RelationType::Next)
-    //         .set_title("previous chapter");
+        let third_link = LinkValue::new("http://example.com/TheBook/chapter2")
+            .push_rel(RelationType::Previous)
+            .push_rev(RelationType::Next)
+            .set_title("previous chapter");
 
-    //     let expected_link = Link::new(vec![first_link, second_link, third_link]);
+        let expected_link = Link::new(vec![first_link, second_link, third_link]);
 
-    //     let mut raw = BytesMut::from(b"GET /super_short_uri/and_whatever HTTP/1.1\r\nHost: \
-    //                               hyper.rs\r\nAccept: a lot of things\r\nAccept-Charset: \
-    //                               utf8\r\nAccept-Encoding: *\r\nLink: </TheBook/chapter2>; \
-    //                               rel=\"previous\"; title*=UTF-8'de'letztes%20Kapitel, \
-    //                               </TheBook/chapter4>; rel=\"next\"; title*=\
-    //                               UTF-8'de'n%c3%a4chstes%20Kapitel\r\n\
-    //                               Access-Control-Allow-Credentials: None\r\nLink: \
-    //                               <http://example.com/TheBook/chapter2>; \
-    //                               rel=\"previous\"; rev=next; title=\"previous chapter\"\
-    //                               \r\n\r\n".to_vec());
+        let link = parse_header(&[
+            b"</TheBook/chapter2>; rel=\"previous\"; title*=UTF-8'de'letztes%20Kapitel, \
+              </TheBook/chapter4>; rel=\"next\"; title*=UTF-8'de'n%c3%a4chstes%20Kapitel",
+            b"<http://example.com/TheBook/chapter2>; rel=\"previous\"; rev=next; \
+              title=\"previous chapter\"",
+        ]).unwrap();
 
-    //     let (mut res, _) = ServerTransaction::parse(&mut raw).unwrap().unwrap();
-
-    //     let link = res.headers.remove::<Link>().unwrap();
-
-    //     assert_eq!(link, expected_link);
-    // }
+        assert_eq!(link, expected_link);
+    }
 
     #[test]
     fn test_link_display() {
