@@ -1103,5 +1103,3 @@ mod tests {
         assert_eq!(err.is_err(), true);
     }
 }
-
-bench_header!(bench_link, Link, { vec![b"<http://example.com/TheBook/chapter2>; rel=\"previous\"; rev=next; title=\"previous chapter\"; type=\"text/html\"; media=\"screen, tty\"".to_vec()] });
