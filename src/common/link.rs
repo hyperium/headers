@@ -60,14 +60,14 @@ use {Header, Raw};
 /// # Examples
 ///
 /// ```
-/// use headers::{Headers, link::{Link, LinkValue, RelationType}};
+/// use headers::{HeaderMap, HeaderMapExt, link::{Link, LinkValue, RelationType}};
 ///
 /// let link_value = LinkValue::new("http://example.com/TheBook/chapter2")
 ///     .push_rel(RelationType::Previous)
 ///     .set_title("previous chapter");
 ///
-/// let mut headers = Headers::new();
-/// headers.set(
+/// let mut headers = HeaderMap::new();
+/// headers.typed_insert(
 ///     Link::new(vec![link_value])
 /// );
 /// ```
@@ -901,10 +901,14 @@ mod tests {
 
     use Header;
 
-    // use proto::ServerTransaction;
-    use bytes::BytesMut;
-
     use mime;
+
+    fn parse_header(values: &[&[u8]]) -> Result<Link, ::Error> {
+        let values = values.iter()
+            .map(|val| ::HeaderValue::from_bytes(val).expect("invalid header value"))
+            .collect::<Vec<_>>();
+        Link::decode(&mut values.iter())
+    }
 
     #[test]
     fn test_link() {
@@ -918,7 +922,7 @@ mod tests {
 
         let expected_link = Link::new(vec![link_value]);
 
-        let link = Header::parse_header(&vec![link_header.to_vec()].into());
+        let link = parse_header(&[link_header]);
         assert_eq!(link.ok(), Some(expected_link));
     }
 
@@ -939,7 +943,7 @@ mod tests {
 
         let expected_link = Link::new(vec![first_link, second_link]);
 
-        let link = Header::parse_header(&vec![link_header.to_vec()].into());
+        let link = parse_header(&[link_header]);
         assert_eq!(link.ok(), Some(expected_link));
     }
 
@@ -963,7 +967,7 @@ mod tests {
 
         let expected_link = Link::new(vec![link_value]);
 
-        let link = Header::parse_header(&vec![link_header.to_vec()].into());
+        let link = parse_header(&[link_header]);
         assert_eq!(link.ok(), Some(expected_link));
     }
 
@@ -1034,31 +1038,31 @@ mod tests {
         let link_a  = b"http://example.com/TheBook/chapter2; \
             rel=\"previous\"; rev=next; title=\"previous chapter\"";
 
-        let mut err: Result<Link, _> = Header::parse_header(&vec![link_a.to_vec()].into());
+        let mut err: Result<Link, _> = parse_header(&[link_a]);
         assert_eq!(err.is_err(), true);
 
         let link_b = b"<http://example.com/TheBook/chapter2>; \
             =\"previous\"; rev=next; title=\"previous chapter\"";
 
-        err = Header::parse_header(&vec![link_b.to_vec()].into());
+        err = parse_header(&[link_b]);
         assert_eq!(err.is_err(), true);
 
         let link_c = b"<http://example.com/TheBook/chapter2>; \
             rel=; rev=next; title=\"previous chapter\"";
 
-        err = Header::parse_header(&vec![link_c.to_vec()].into());
+        err = parse_header(&[link_c]);
         assert_eq!(err.is_err(), true);
 
         let link_d = b"<http://example.com/TheBook/chapter2>; \
             rel=\"previous\"; rev=next; title=";
 
-        err = Header::parse_header(&vec![link_d.to_vec()].into());
+        err = parse_header(&[link_d]);
         assert_eq!(err.is_err(), true);
 
         let link_e = b"<http://example.com/TheBook/chapter2>; \
             rel=\"previous\"; rev=next; attr=unknown";
 
-        err = Header::parse_header(&vec![link_e.to_vec()].into());
+        err = parse_header(&[link_e]);
         assert_eq!(err.is_err(), true);
      }
 
