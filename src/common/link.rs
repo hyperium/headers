@@ -393,7 +393,7 @@ impl Header for Link {
         NAME
     }
 
-    fn parse_header(raw: &Raw) -> ::Result<Link> {
+    fn parse_header(raw: &Raw) -> Result<Link, ::Error> {
         // If more that one `Link` headers are present in a request's
         // headers they are combined in a single `Link` header containing
         // all the `link-value`s present in each of those `Link` headers.
@@ -408,10 +408,10 @@ impl Header for Link {
 
                         Some(Ok(p))
                     },
-                    _ => Some(Err(::Error::Header)),
+                    _ => Some(Err(::Error::invalid())),
                 }
             })
-            .unwrap_or(Err(::Error::Header))
+            .unwrap_or(Err(::Error::invalid()))
     }
 
     fn fmt_header(&self, f: &mut ::Formatter) -> fmt::Result {
@@ -463,7 +463,7 @@ impl fmt::Display for LinkValue {
 impl FromStr for Link {
     type Err = ::Error;
 
-    fn from_str(s: &str) -> ::Result<Link> {
+    fn from_str(s: &str) -> Result<Link, ::Error> {
         // Create a split iterator with delimiters: `;`, `,`
         let link_split = SplitAsciiUnquoted::new(s, ";,");
 
@@ -477,7 +477,7 @@ impl FromStr for Link {
             if segment.trim().starts_with('<') {
                 link_values.push(
                     match verify_and_trim(segment.trim(), (b'<', b'>')) {
-                        Err(_) => return Err(::Error::Header),
+                        Err(_) => return Err(::Error::invalid()),
                         Ok(s) => {
                             LinkValue {
                                 link: s.to_owned().into(),
@@ -498,12 +498,12 @@ impl FromStr for Link {
                 let mut link_param_split = segment.splitn(2, '=');
 
                 let link_param_name = match link_param_split.next() {
-                    None => return Err(::Error::Header),
+                    None => return Err(::Error::invalid()),
                     Some(p) => p.trim(),
                 };
 
                 let link_header = match link_values.last_mut() {
-                    None => return Err(::Error::Header),
+                    None => return Err(::Error::invalid()),
                     Some(l) => l,
                 };
 
@@ -512,13 +512,13 @@ impl FromStr for Link {
                     // https://tools.ietf.org/html/rfc5988#section-5.3
                     if link_header.rel.is_none() {
                         link_header.rel = match link_param_split.next() {
-                            None | Some("") => return Err(::Error::Header),
+                            None | Some("") => return Err(::Error::invalid()),
                             Some(s) => {
                                 s.trim_matches(|c: char| c == '"' || c.is_whitespace())
                                     .split(' ')
                                     .map(|t| t.trim().parse())
                                     .collect::<Result<Vec<RelationType>, _>>()
-                                    .or_else(|_| Err(::Error::Header))
+                                    .or_else(|_| Err(::Error::invalid()))
                                     .ok()
                             },
                         };
@@ -527,9 +527,9 @@ impl FromStr for Link {
                     // Parse the `Context IRI`.
                     // https://tools.ietf.org/html/rfc5988#section-5.2
                     link_header.anchor = match link_param_split.next() {
-                        None | Some("") => return Err(::Error::Header),
+                        None | Some("") => return Err(::Error::invalid()),
                         Some(s) => match verify_and_trim(s.trim(), (b'"', b'"')) {
-                            Err(_) => return Err(::Error::Header),
+                            Err(_) => return Err(::Error::invalid()),
                             Ok(a) => Some(String::from(a)),
                         },
                     };
@@ -538,13 +538,13 @@ impl FromStr for Link {
                     // https://tools.ietf.org/html/rfc5988#section-5.3
                     if link_header.rev.is_none() {
                         link_header.rev = match link_param_split.next() {
-                            None | Some("") => return Err(::Error::Header),
+                            None | Some("") => return Err(::Error::invalid()),
                             Some(s) => {
                                 s.trim_matches(|c: char| c == '"' || c.is_whitespace())
                                     .split(' ')
                                     .map(|t| t.trim().parse())
                                     .collect::<Result<Vec<RelationType>, _>>()
-                                    .or_else(|_| Err(::Error::Header))
+                                    .or_else(|_| Err(::Error::invalid()))
                                     .ok()
                             },
                         }
@@ -556,9 +556,9 @@ impl FromStr for Link {
 
                     v.push(
                         match link_param_split.next() {
-                            None | Some("") => return Err(::Error::Header),
+                            None | Some("") => return Err(::Error::invalid()),
                             Some(s) => match s.trim().parse() {
-                                Err(_) => return Err(::Error::Header),
+                                Err(_) => return Err(::Error::invalid()),
                                 Ok(t) => t,
                             },
                         }
@@ -570,13 +570,13 @@ impl FromStr for Link {
                     // https://tools.ietf.org/html/rfc5988#section-5.4
                     if link_header.media_desc.is_none() {
                         link_header.media_desc = match link_param_split.next() {
-                            None | Some("") => return Err(::Error::Header),
+                            None | Some("") => return Err(::Error::invalid()),
                             Some(s) => {
                                 s.trim_matches(|c: char| c == '"' || c.is_whitespace())
                                     .split(',')
                                     .map(|t| t.trim().parse())
                                     .collect::<Result<Vec<MediaDesc>, _>>()
-                                    .or_else(|_| Err(::Error::Header))
+                                    .or_else(|_| Err(::Error::invalid()))
                                     .ok()
                             },
                         };
@@ -586,9 +586,9 @@ impl FromStr for Link {
                     // https://tools.ietf.org/html/rfc5988#section-5.4
                     if link_header.title.is_none() {
                         link_header.title = match link_param_split.next() {
-                            None | Some("") => return Err(::Error::Header),
+                            None | Some("") => return Err(::Error::invalid()),
                             Some(s) => match verify_and_trim(s.trim(), (b'"', b'"')) {
-                                Err(_) => return Err(::Error::Header),
+                                Err(_) => return Err(::Error::invalid()),
                                 Ok(t) => Some(String::from(t)),
                             },
                         };
@@ -601,7 +601,7 @@ impl FromStr for Link {
                     //       https://tools.ietf.org/html/rfc5987#section-3.2.1
                     if link_header.title_star.is_none() {
                         link_header.title_star = match link_param_split.next() {
-                            None | Some("") => return Err(::Error::Header),
+                            None | Some("") => return Err(::Error::invalid()),
                             Some(s) => Some(String::from(s.trim())),
                         };
                     }
@@ -610,11 +610,11 @@ impl FromStr for Link {
                     // https://tools.ietf.org/html/rfc5988#section-5.4
                     if link_header.media_type.is_none() {
                         link_header.media_type = match link_param_split.next() {
-                            None | Some("") => return Err(::Error::Header),
+                            None | Some("") => return Err(::Error::invalid()),
                             Some(s) => match verify_and_trim(s.trim(), (b'"', b'"')) {
-                                Err(_) => return Err(::Error::Header),
+                                Err(_) => return Err(::Error::invalid()),
                                 Ok(t) => match t.parse() {
-                                    Err(_) => return Err(::Error::Header),
+                                    Err(_) => return Err(::Error::invalid()),
                                     Ok(m) => Some(m),
                                 },
                             },
@@ -622,7 +622,7 @@ impl FromStr for Link {
                         };
                     }
                 } else {
-                    return Err(::Error::Header);
+                    return Err(::Error::invalid());
                 }
             }
         }
@@ -651,7 +651,7 @@ impl fmt::Display for MediaDesc {
 impl FromStr for MediaDesc {
     type Err = ::Error;
 
-    fn from_str(s: &str) -> ::Result<MediaDesc> {
+    fn from_str(s: &str) -> Result<MediaDesc, ::Error> {
         match s {
             "screen" => Ok(MediaDesc::Screen),
             "tty" => Ok(MediaDesc::Tty),
@@ -718,7 +718,7 @@ impl fmt::Display for RelationType {
 impl FromStr for RelationType {
     type Err = ::Error;
 
-    fn from_str(s: &str) -> ::Result<RelationType> {
+    fn from_str(s: &str) -> Result<RelationType, ::Error> {
         if "alternate".eq_ignore_ascii_case(s) {
             Ok(RelationType::Alternate)
         } else if "appendix".eq_ignore_ascii_case(s) {
@@ -872,7 +872,7 @@ fn fmt_delimited<T: fmt::Display>(f: &mut fmt::Formatter, p: &[T], d: &str, b: (
     Ok(())
 }
 
-fn verify_and_trim(s: &str, b: (u8, u8)) -> ::Result<&str> {
+fn verify_and_trim(s: &str, b: (u8, u8)) -> Result<&str, ::Error> {
     let length = s.len();
     let byte_array = s.as_bytes();
 
@@ -883,7 +883,7 @@ fn verify_and_trim(s: &str, b: (u8, u8)) -> ::Result<&str> {
             |c: char| c == b.0 as char || c == b.1 as char || c.is_whitespace())
         )
     } else {
-        Err(::Error::Header)
+        Err(::Error::invalid())
     }
 }
 
