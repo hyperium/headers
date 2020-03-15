@@ -60,7 +60,7 @@ use language_tags::LanguageTag;
 /// use headers::{HeaderMap, HeaderMapExt, link::{Link, LinkValue, RelationType}};
 ///
 /// let link_value = LinkValue::new("http://example.com/TheBook/chapter2")
-///     .push_rel(RelationType::Previous)
+///     .push_rel(RelationType::PREVIOUS)
 ///     .set_title("previous chapter");
 ///
 /// let mut headers = HeaderMap::new();
@@ -108,120 +108,134 @@ pub struct LinkValue {
     media_type: Option<Mime>,
 }
 
-/// A Media Descriptors Enum based on:
-/// [https://www.w3.org/TR/html401/types.html#h-6.13][url]
-///
-/// [url]: https://www.w3.org/TR/html401/types.html#h-6.13
-#[derive(Clone, PartialEq, Debug)]
-pub enum MediaDesc {
-    /// screen.
-    Screen,
-    /// tty.
-    Tty,
-    /// tv.
-    Tv,
-    /// projection.
-    Projection,
-    /// handheld.
-    Handheld,
-    /// print.
-    Print,
-    /// braille.
-    Braille,
-    /// aural.
-    Aural,
-    /// all.
-    All,
-    /// Unrecognized media descriptor extension.
-    Extension(String)
+////////////////////////////////////////////////////////////////////////////////
+// Typed variants
+////////////////////////////////////////////////////////////////////////////////
+
+macro_rules! impl_variants {
+    (
+        $(#[$attrs:meta])*
+        name: $name:ident,
+        mod_name: $mod_name:ident,
+        $($typed:ident => $string:expr,)*
+    ) => {
+        mod $mod_name {
+            use std::{fmt, str::FromStr};
+
+            $(#[$attrs])*
+            #[derive(Clone, PartialEq, Debug)]
+            pub struct $name(Inner);
+
+            impl $name {
+                $(
+                    #[doc = $string]
+                    pub const $typed: $name = $name(Inner::$typed);
+                )*
+            }
+
+            impl fmt::Display for $name {
+                fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                    match &self.0 {
+                        $(Inner::$typed => fmt::Display::fmt($string, f),)*
+                        Inner::Custom(custom) => fmt::Display::fmt(&custom, f),
+                    }
+                }
+            }
+
+            impl FromStr for $name {
+                type Err = ::Error;
+
+                fn from_str(input: &str) -> Result<$name, ::Error> {
+                    if false {
+                        unreachable!();
+                    }
+                    $(else if $string.eq_ignore_ascii_case(input) {
+                        Ok(Self(Inner::$typed))
+                    })*
+                    else {
+                        Ok(Self(Inner::Custom(input.into())))
+                    }
+                }
+            }
+
+            #[derive(Clone, PartialEq, Debug)]
+            #[allow(nonstandard_style)]
+            enum Inner {
+                $($typed,)*
+                Custom(String),
+            }
+        }
+
+        pub use self::$mod_name::$name;
+    }
 }
 
-/// A Link Relation Type Enum based on:
-/// [RFC5988](https://tools.ietf.org/html/rfc5988#section-6.2.2)
-#[derive(Clone, PartialEq, Debug)]
-pub enum RelationType {
-    /// alternate.
-    Alternate,
-    /// appendix.
-    Appendix,
-    /// bookmark.
-    Bookmark,
-    /// chapter.
-    Chapter,
-    /// contents.
-    Contents,
-    /// copyright.
-    Copyright,
-    /// current.
-    Current,
-    /// describedby.
-    DescribedBy,
-    /// edit.
-    Edit,
-    /// edit-media.
-    EditMedia,
-    /// enclosure.
-    Enclosure,
-    /// first.
-    First,
-    /// glossary.
-    Glossary,
-    /// help.
-    Help,
-    /// hub.
-    Hub,
-    /// index.
-    Index,
-    /// last.
-    Last,
-    /// latest-version.
-    LatestVersion,
-    /// license.
-    License,
-    /// next.
-    Next,
-    /// next-archive.
-    NextArchive,
-    /// payment.
-    Payment,
-    /// prev.
-    Prev,
-    /// predecessor-version.
-    PredecessorVersion,
-    /// previous.
-    Previous,
-    /// prev-archive.
-    PrevArchive,
-    /// related.
-    Related,
-    /// replies.
-    Replies,
-    /// section.
-    Section,
-    /// self.
-    RelationTypeSelf,
-    /// service.
-    Service,
-    /// start.
-    Start,
-    /// stylesheet.
-    Stylesheet,
-    /// subsection.
-    Subsection,
-    /// successor-version.
-    SuccessorVersion,
-    /// up.
-    Up,
-    /// versionHistory.
-    VersionHistory,
-    /// via.
-    Via,
-    /// working-copy.
-    WorkingCopy,
-    /// working-copy-of.
-    WorkingCopyOf,
-    /// ext-rel-type.
-    ExtRelType(String)
+
+impl_variants! {
+    /// A Media Descriptor, based on:
+    /// [https://www.w3.org/TR/html401/types.html#h-6.13][url]
+    ///
+    /// [url]: https://www.w3.org/TR/html401/types.html#h-6.13
+    name: MediaDesc,
+    mod_name: media_desc,
+
+    SCREEN => "screen",
+    TTY => "tty",
+    TV => "tv",
+    PROJECTION => "projection",
+    HANDHELD => "handheld",
+    PRINT => "print",
+    BRAILLE => "braille",
+    AURAL => "aural",
+    ALL => "all",
+}
+
+impl_variants! {
+    /// A Link Relation Type, based on:
+    /// [RFC5988](https://tools.ietf.org/html/rfc5988#section-6.2.2)
+    name: RelationType,
+    mod_name: relation_type,
+
+    ALTERNATE => "alternate",
+    APPENDIX => "appendix",
+    BOOKMARK => "bookmark",
+    CHAPTER => "chapter",
+    CONTENTS => "contents",
+    COPYRIGHT => "copyright",
+    CURRENT => "current",
+    DESCRIBED_BY => "described-by",
+    EDIT => "edit",
+    EDIT_MEDIA => "edit-media",
+    ENCLOSURE => "enclosure",
+    FIRST => "first",
+    GLOSSARY => "glossary",
+    HELP => "help",
+    HUB => "hub",
+    INDEX => "index",
+    LAST => "last",
+    LATEST_VERSION => "latest-version",
+    LICENSE => "license",
+    NEXT => "next",
+    NEXT_ARCHIVE => "next-archive",
+    PAYMENT => "payment",
+    PREV => "prev",
+    PREDECESSOR_VERSION => "predecessor-version",
+    PREVIOUS => "previous",
+    PREV_ARCHIVE => "prev-archive",
+    RELATED => "related",
+    REPLIES => "replies",
+    SECTION => "section",
+    SELF => "self",
+    SERVICE => "service",
+    START => "start",
+    STYLESHEET => "stylesheet",
+    SUBSECTION => "subsection",
+    SUCCESSOR_VERSION => "successor-version",
+    UP => "up",
+    VERSION_HISTORY => "version-history",
+    VIA => "via",
+    WORKING_COPY => "working-copy",
+    WORKING_COPY_OF => "working-copy-of",
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -643,180 +657,6 @@ impl FromStr for Link {
     }
 }
 
-impl fmt::Display for MediaDesc {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            MediaDesc::Screen => write!(f, "screen"),
-            MediaDesc::Tty => write!(f, "tty"),
-            MediaDesc::Tv => write!(f, "tv"),
-            MediaDesc::Projection => write!(f, "projection"),
-            MediaDesc::Handheld => write!(f, "handheld"),
-            MediaDesc::Print => write!(f, "print"),
-            MediaDesc::Braille => write!(f, "braille"),
-            MediaDesc::Aural => write!(f, "aural"),
-            MediaDesc::All => write!(f, "all"),
-            MediaDesc::Extension(ref other) => write!(f, "{}", other),
-         }
-    }
-}
-
-impl FromStr for MediaDesc {
-    type Err = ::Error;
-
-    fn from_str(s: &str) -> Result<MediaDesc, ::Error> {
-        match s {
-            "screen" => Ok(MediaDesc::Screen),
-            "tty" => Ok(MediaDesc::Tty),
-            "tv" => Ok(MediaDesc::Tv),
-            "projection" => Ok(MediaDesc::Projection),
-            "handheld" => Ok(MediaDesc::Handheld),
-            "print" => Ok(MediaDesc::Print),
-            "braille" => Ok(MediaDesc::Braille),
-            "aural" => Ok(MediaDesc::Aural),
-            "all" => Ok(MediaDesc::All),
-             _ => Ok(MediaDesc::Extension(String::from(s))),
-        }
-    }
-}
-
-impl fmt::Display for RelationType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            RelationType::Alternate => write!(f, "alternate"),
-            RelationType::Appendix => write!(f, "appendix"),
-            RelationType::Bookmark => write!(f, "bookmark"),
-            RelationType::Chapter => write!(f, "chapter"),
-            RelationType::Contents => write!(f, "contents"),
-            RelationType::Copyright => write!(f, "copyright"),
-            RelationType::Current => write!(f, "current"),
-            RelationType::DescribedBy => write!(f, "describedby"),
-            RelationType::Edit => write!(f, "edit"),
-            RelationType::EditMedia => write!(f, "edit-media"),
-            RelationType::Enclosure => write!(f, "enclosure"),
-            RelationType::First => write!(f, "first"),
-            RelationType::Glossary => write!(f, "glossary"),
-            RelationType::Help => write!(f, "help"),
-            RelationType::Hub => write!(f, "hub"),
-            RelationType::Index => write!(f, "index"),
-            RelationType::Last => write!(f, "last"),
-            RelationType::LatestVersion => write!(f, "latest-version"),
-            RelationType::License => write!(f, "license"),
-            RelationType::Next => write!(f, "next"),
-            RelationType::NextArchive => write!(f, "next-archive"),
-            RelationType::Payment => write!(f, "payment"),
-            RelationType::Prev => write!(f, "prev"),
-            RelationType::PredecessorVersion => write!(f, "predecessor-version"),
-            RelationType::Previous => write!(f, "previous"),
-            RelationType::PrevArchive => write!(f, "prev-archive"),
-            RelationType::Related => write!(f, "related"),
-            RelationType::Replies => write!(f, "replies"),
-            RelationType::Section => write!(f, "section"),
-            RelationType::RelationTypeSelf => write!(f, "self"),
-            RelationType::Service => write!(f, "service"),
-            RelationType::Start => write!(f, "start"),
-            RelationType::Stylesheet => write!(f, "stylesheet"),
-            RelationType::Subsection => write!(f, "subsection"),
-            RelationType::SuccessorVersion => write!(f, "successor-version"),
-            RelationType::Up => write!(f, "up"),
-            RelationType::VersionHistory => write!(f, "version-history"),
-            RelationType::Via => write!(f, "via"),
-            RelationType::WorkingCopy => write!(f, "working-copy"),
-            RelationType::WorkingCopyOf => write!(f, "working-copy-of"),
-            RelationType::ExtRelType(ref uri) => write!(f, "{}", uri),
-         }
-    }
-}
-
-impl FromStr for RelationType {
-    type Err = ::Error;
-
-    fn from_str(s: &str) -> Result<RelationType, ::Error> {
-        if "alternate".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Alternate)
-        } else if "appendix".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Appendix)
-        } else if "bookmark".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Bookmark)
-        } else if "chapter".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Chapter)
-        } else if "contents".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Contents)
-        } else if "copyright".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Copyright)
-        } else if "current".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Current)
-        } else if "describedby".eq_ignore_ascii_case(s) {
-            Ok(RelationType::DescribedBy)
-        } else if "edit".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Edit)
-        } else if "edit-media".eq_ignore_ascii_case(s) {
-            Ok(RelationType::EditMedia)
-        } else if "enclosure".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Enclosure)
-        } else if "first".eq_ignore_ascii_case(s) {
-            Ok(RelationType::First)
-        } else if "glossary".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Glossary)
-        } else if "help".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Help)
-        } else if "hub".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Hub)
-        } else if "index".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Index)
-        } else if "last".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Last)
-        } else if "latest-version".eq_ignore_ascii_case(s) {
-            Ok(RelationType::LatestVersion)
-        } else if "license".eq_ignore_ascii_case(s) {
-            Ok(RelationType::License)
-        } else if "next".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Next)
-        } else if "next-archive".eq_ignore_ascii_case(s) {
-            Ok(RelationType::NextArchive)
-        } else if "payment".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Payment)
-        } else if "prev".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Prev)
-        } else if "predecessor-version".eq_ignore_ascii_case(s) {
-            Ok(RelationType::PredecessorVersion)
-        } else if "previous".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Previous)
-        } else if "prev-archive".eq_ignore_ascii_case(s) {
-            Ok(RelationType::PrevArchive)
-        } else if "related".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Related)
-        } else if "replies".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Replies)
-        } else if "section".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Section)
-        } else if "self".eq_ignore_ascii_case(s) {
-            Ok(RelationType::RelationTypeSelf)
-        } else if "service".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Service)
-        } else if "start".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Start)
-        } else if "stylesheet".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Stylesheet)
-        } else if "subsection".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Subsection)
-        } else if "successor-version".eq_ignore_ascii_case(s) {
-            Ok(RelationType::SuccessorVersion)
-        } else if "up".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Up)
-        } else if "version-history".eq_ignore_ascii_case(s) {
-            Ok(RelationType::VersionHistory)
-        } else if "via".eq_ignore_ascii_case(s) {
-            Ok(RelationType::Via)
-        } else if "working-copy".eq_ignore_ascii_case(s) {
-            Ok(RelationType::WorkingCopy)
-        } else if "working-copy-of".eq_ignore_ascii_case(s) {
-            Ok(RelationType::WorkingCopyOf)
-        } else {
-            Ok(RelationType::ExtRelType(String::from(s)))
-        }
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // Utilities
 ////////////////////////////////////////////////////////////////////////////////
@@ -925,8 +765,8 @@ mod tests {
     #[test]
     fn test_link() {
         let link_value = LinkValue::new("http://example.com/TheBook/chapter2")
-            .push_rel(RelationType::Previous)
-            .push_rev(RelationType::Next)
+            .push_rel(RelationType::PREVIOUS)
+            .push_rev(RelationType::NEXT)
             .set_title("previous chapter");
 
         let link_header = b"<http://example.com/TheBook/chapter2>; \
@@ -941,11 +781,11 @@ mod tests {
     #[test]
     fn test_link_multiple_values() {
         let first_link = LinkValue::new("/TheBook/chapter2")
-            .push_rel(RelationType::Previous)
+            .push_rel(RelationType::PREVIOUS)
             .set_title_star("UTF-8'de'letztes%20Kapitel");
 
         let second_link = LinkValue::new("/TheBook/chapter4")
-            .push_rel(RelationType::Next)
+            .push_rel(RelationType::NEXT)
             .set_title_star("UTF-8'de'n%c3%a4chstes%20Kapitel");
 
         let link_header = b"</TheBook/chapter2>; \
@@ -962,11 +802,11 @@ mod tests {
     #[test]
     fn test_link_all_attributes() {
         let link_value = LinkValue::new("http://example.com/TheBook/chapter2")
-            .push_rel(RelationType::Previous)
+            .push_rel(RelationType::PREVIOUS)
             .set_anchor("../anchor/example/")
-            .push_rev(RelationType::Next)
+            .push_rev(RelationType::NEXT)
             .push_href_lang("de".parse().unwrap())
-            .push_media_desc(MediaDesc::Screen)
+            .push_media_desc(MediaDesc::SCREEN)
             .set_title("previous chapter")
             .set_title_star("title* unparsed")
             .set_media_type(mime::TEXT_PLAIN);
@@ -986,16 +826,16 @@ mod tests {
     #[test]
     fn test_link_multiple_link_headers() {
         let first_link = LinkValue::new("/TheBook/chapter2")
-            .push_rel(RelationType::Previous)
+            .push_rel(RelationType::PREVIOUS)
             .set_title_star("UTF-8'de'letztes%20Kapitel");
 
         let second_link = LinkValue::new("/TheBook/chapter4")
-            .push_rel(RelationType::Next)
+            .push_rel(RelationType::NEXT)
             .set_title_star("UTF-8'de'n%c3%a4chstes%20Kapitel");
 
         let third_link = LinkValue::new("http://example.com/TheBook/chapter2")
-            .push_rel(RelationType::Previous)
-            .push_rev(RelationType::Next)
+            .push_rel(RelationType::PREVIOUS)
+            .push_rev(RelationType::NEXT)
             .set_title("previous chapter");
 
         let expected_link = Link::new(vec![first_link, second_link, third_link]);
@@ -1013,11 +853,11 @@ mod tests {
     #[test]
     fn test_link_display() {
         let link_value = LinkValue::new("http://example.com/TheBook/chapter2")
-            .push_rel(RelationType::Previous)
+            .push_rel(RelationType::PREVIOUS)
             .set_anchor("/anchor/example/")
-            .push_rev(RelationType::Next)
+            .push_rev(RelationType::NEXT)
             .push_href_lang("de".parse().unwrap())
-            .push_media_desc(MediaDesc::Screen)
+            .push_media_desc(MediaDesc::SCREEN)
             .set_title("previous chapter")
             .set_title_star("title* unparsed")
             .set_media_type(mime::TEXT_PLAIN);
