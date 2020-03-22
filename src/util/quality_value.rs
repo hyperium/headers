@@ -1,10 +1,10 @@
 use std::cmp::Ordering;
-use std::convert::TryFrom;
+use std::convert::{From, TryFrom};
 use std::marker::PhantomData;
 
-use HeaderValue;
 use itertools::Itertools;
 use util::{FlatCsv, TryFromValues};
+use HeaderValue;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub(crate) struct QualityValue<QualSep = SemiQ> {
@@ -100,6 +100,19 @@ impl<Delm: QualityDelimiter> From<FlatCsv> for QualityValue<Delm> {
     }
 }
 
+impl<Delm: QualityDelimiter, F: Into<f32>> TryFrom<(&str, F)> for QualityValue<Delm> {
+    type Error = ::Error;
+
+    fn try_from(pair: (&str, F)) -> Result<Self, ::Error> {
+        let value = HeaderValue::try_from(format!("{}{}{}", pair.0, Delm::STR, pair.1.into()))
+            .map_err(|_e| ::Error::invalid())?;
+        Ok(QualityValue {
+            csv: value.into(),
+            _marker: PhantomData,
+        })
+    }
+}
+
 impl<Delm> From<HeaderValue> for QualityValue<Delm> {
     fn from(value: HeaderValue) -> Self {
         QualityValue {
@@ -115,9 +128,15 @@ impl<'a, Delm> From<&'a QualityValue<Delm>> for HeaderValue {
     }
 }
 
+impl<Delm> From<QualityValue<Delm>> for HeaderValue {
+    fn from(qual: QualityValue<Delm>) -> HeaderValue {
+        qual.csv.value
+    }
+}
+
 impl<Delm: QualityDelimiter> TryFromValues for QualityValue<Delm> {
     fn try_from_values<'i, I>(values: &mut I) -> Result<Self, ::Error>
-    where 
+    where
         I: Iterator<Item = &'i HeaderValue>,
     {
         let flat: FlatCsv = values.collect();
@@ -143,7 +162,7 @@ mod tests {
 
     #[test]
     fn multiple_qualities_wrong_order() {
-        let val = HeaderValue::from_static("br;q=0.8, gzip;q=1");
+        let val = HeaderValue::from_static("br;q=0.8, gzip;q=1.0");
         let qual = QualityValue::<SemiQ>::from(val);
 
         let mut values = qual.iter();
