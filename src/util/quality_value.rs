@@ -16,11 +16,20 @@ pub(crate) trait QualityDelimiter {
     const STR: &'static str;
 }
 
+/// enum that represents the ';q=' delimiter
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub(crate) enum SemiQ {}
 
 impl QualityDelimiter for SemiQ {
     const STR: &'static str = ";q=";
+}
+
+/// enum that represents the ';level=' delimiter (extremely rare)
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub(crate) enum SemiLevel {}
+
+impl QualityDelimiter for SemiLevel {
+    const STR: &'static str = ";level=";
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -119,14 +128,12 @@ impl<Delm: QualityDelimiter> TryFromValues for QualityValue<Delm> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use util::flat_csv::Comma;
     use HeaderValue;
 
     #[test]
     fn multiple_qualities() {
         let val = HeaderValue::from_static("gzip;q=1, br;q=0.8");
-        let csv = FlatCsv::<Comma>::from(val);
-        let qual = QualityValue::<SemiQ>::from(csv);
+        let qual = QualityValue::<SemiQ>::from(val);
 
         let mut values = qual.iter();
         assert_eq!(values.next(), Some("gzip"));
@@ -137,8 +144,7 @@ mod tests {
     #[test]
     fn multiple_qualities_wrong_order() {
         let val = HeaderValue::from_static("br;q=0.8, gzip;q=1");
-        let csv = FlatCsv::<Comma>::from(val);
-        let qual = QualityValue::<SemiQ>::from(csv);
+        let qual = QualityValue::<SemiQ>::from(val);
 
         let mut values = qual.iter();
         assert_eq!(values.next(), Some("gzip"));
@@ -149,8 +155,7 @@ mod tests {
     #[test]
     fn multiple_values() {
         let val = HeaderValue::from_static("deflate, gzip;q=1, br;q=0.8");
-        let csv = FlatCsv::<Comma>::from(val);
-        let qual = QualityValue::<SemiQ>::from(csv);
+        let qual = QualityValue::<SemiQ>::from(val);
 
         let mut values = qual.iter();
         assert_eq!(values.next(), Some("deflate"));
@@ -162,14 +167,25 @@ mod tests {
     #[test]
     fn multiple_values_wrong_order() {
         let val = HeaderValue::from_static("deflate, br;q=0.8, gzip;q=1, *;q=0.1");
-        let csv = FlatCsv::<Comma>::from(val);
-        let qual = QualityValue::<SemiQ>::from(csv);
+        let qual = QualityValue::<SemiQ>::from(val);
 
         let mut values = qual.iter();
         assert_eq!(values.next(), Some("deflate"));
         assert_eq!(values.next(), Some("gzip"));
         assert_eq!(values.next(), Some("br"));
         assert_eq!(values.next(), Some("*"));
+        assert_eq!(values.next(), None);
+    }
+
+    #[test]
+    fn alternate_delimiter() {
+        let val = HeaderValue::from_static("deflate, br;level=0.8, gzip;level=1");
+        let qual = QualityValue::<SemiLevel>::from(val);
+
+        let mut values = qual.iter();
+        assert_eq!(values.next(), Some("deflate"));
+        assert_eq!(values.next(), Some("gzip"));
+        assert_eq!(values.next(), Some("br"));
         assert_eq!(values.next(), None);
     }
 }
