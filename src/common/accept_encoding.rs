@@ -31,19 +31,19 @@ derive_header! {
 }
 
 impl AcceptEncoding {
-    /// Convience method
+    /// Convience method to create an `Accept-Encoding: gzip` header
     #[inline]
     pub fn gzip() -> AcceptEncoding {
         AcceptEncoding(HeaderValue::from_static("gzip").into())
     }
 
     /// A convience method to create an Accept-Encoding header from pairs of values and qualities
-    /// 
-    /// # Example 
-    /// 
+    ///
+    /// # Example
+    ///
     /// ```
     /// use headers::AcceptEncoding;
-    /// 
+    ///
     /// let pairs = vec![("gzip", 1.0), ("deflate", 0.8)];
     /// let header = AcceptEncoding::from_quality_pairs(&mut pairs.into_iter());
     /// ```
@@ -60,7 +60,7 @@ impl AcceptEncoding {
         Ok(AcceptEncoding(value))
     }
 
-    /// Returns the most prefered encoding that is specified by the client,
+    /// Returns the most prefered encoding that is specified by the header,
     /// if one is specified.
     ///
     /// Note: This peeks at the underlying iter, not modifying it.

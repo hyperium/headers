@@ -6,6 +6,17 @@ use itertools::Itertools;
 use util::{FlatCsv, TryFromValues};
 use HeaderValue;
 
+/// A CSV list that respects the Quality Values syntax defined in
+/// [RFC7321](https://tools.ietf.org/html/rfc7231#section-5.3.1)
+/// 
+/// Many of the request header fields for proactive negotiation use a
+/// common parameter, named "q" (case-insensitive), to assign a relative
+/// "weight" to the preference for that associated kind of content.  This
+/// weight is referred to as a "quality value" (or "qvalue") because the
+/// same parameter name is often used within server configurations to
+/// assign a weight to the relative quality of the various
+/// representations that can be selected for a resource.
+/// 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub(crate) struct QualityValue<QualSep = SemiQ> {
     csv: FlatCsv,
