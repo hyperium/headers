@@ -46,6 +46,30 @@ impl ContentEncoding {
         ContentEncoding(HeaderValue::from_static("gzip").into())
     }
 
+    /// A constructor to easily create a `Content-Encoding: compress` header.
+    #[inline]
+    pub fn compress() -> ContentEncoding {
+        ContentEncoding(HeaderValue::from_static("compress").into())
+    }
+
+    /// A constructor to easily create a `Content-Encoding: deflate` header.
+    #[inline]
+    pub fn deflate() -> ContentEncoding {
+        ContentEncoding(HeaderValue::from_static("deflate").into())
+    }
+
+    /// A constructor to easily create a `Content-Encoding: identity` header.
+    #[inline]
+    pub fn identity() -> ContentEncoding {
+        ContentEncoding(HeaderValue::from_static("identity").into())
+    }
+
+    /// A constructor to easily create a `Content-Encoding: br` header.
+    #[inline]
+    pub fn br() -> ContentEncoding {
+        ContentEncoding(HeaderValue::from_static("br").into())
+    }
+
     /// Check if this header contains a given "coding".
     ///
     /// This can be used with these argument types:
