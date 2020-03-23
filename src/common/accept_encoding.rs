@@ -23,7 +23,7 @@ use HeaderValue;
 /// * `br;q=1.0, gzip;q=0.8`
 ///
 #[derive(Clone, Debug)]
-pub struct AcceptEncoding(QualityValue);
+pub struct AcceptEncoding(pub QualityValue);
 
 derive_header! {
     AcceptEncoding(_),
@@ -87,12 +87,13 @@ impl AcceptEncoding {
     /// ```
     /// use headers::{AcceptEncoding, HeaderValue};
     ///
-    /// let pairs = vec![("gzip", 1.0), ("deflate", 0.8)];
-    /// let accept_enc = AcceptEncoding::from_quality_pairs(&mut pairs.into_iter()).unwrap();
+    /// let val = HeaderValue::from_static("deflate, gzip;q=1.0, br;q=0.8");
+    /// let accept_enc = AcceptEncoding(val.into());
     /// let mut encodings = accept_enc.sorted_encodings();
     ///
-    /// assert_eq!(encodings.next(), Some("gzip"));
     /// assert_eq!(encodings.next(), Some("deflate"));
+    /// assert_eq!(encodings.next(), Some("gzip"));
+    /// assert_eq!(encodings.next(), Some("br"));
     /// assert_eq!(encodings.next(), None);
     /// ```
     pub fn sorted_encodings(&self) -> impl Iterator<Item = &str> {
