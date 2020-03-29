@@ -39,35 +39,30 @@ derive_header! {
     name: CONTENT_ENCODING
 }
 
+macro_rules! derive_constructor {
+    ($(doc = $doc:expr; $coding:ident,)+) => {
+        $(
+            #[doc = $doc]
+            #[inline]
+            pub fn $coding() -> ContentEncoding {
+                ContentEncoding(HeaderValue::from_static(stringify!($coding)).into())
+            }
+        )+
+    };
+}
+
 impl ContentEncoding {
-    /// A constructor to easily create a `Content-Encoding: gzip` header.
-    #[inline]
-    pub fn gzip() -> ContentEncoding {
-        ContentEncoding(HeaderValue::from_static("gzip").into())
-    }
-
-    /// A constructor to easily create a `Content-Encoding: compress` header.
-    #[inline]
-    pub fn compress() -> ContentEncoding {
-        ContentEncoding(HeaderValue::from_static("compress").into())
-    }
-
-    /// A constructor to easily create a `Content-Encoding: deflate` header.
-    #[inline]
-    pub fn deflate() -> ContentEncoding {
-        ContentEncoding(HeaderValue::from_static("deflate").into())
-    }
-
-    /// A constructor to easily create a `Content-Encoding: identity` header.
-    #[inline]
-    pub fn identity() -> ContentEncoding {
-        ContentEncoding(HeaderValue::from_static("identity").into())
-    }
-
-    /// A constructor to easily create a `Content-Encoding: br` header.
-    #[inline]
-    pub fn br() -> ContentEncoding {
-        ContentEncoding(HeaderValue::from_static("br").into())
+    derive_constructor! {
+        doc = "A constructor to easily create a `Content-Encoding`: gzip header";
+        gzip,
+        doc = "A constructor to easily create a `Content-Encoding`: compress header";
+        compress,
+        doc = "A constructor to easily create a `Content-Encoding`: deflate header";
+        deflate,
+        doc = "A constructor to easily create a `Content-Encoding`: identity header";
+        identity,
+        doc = "A constructor to easily create a `Content-Encoding`: br header";
+        br,
     }
 
     /// Check if this header contains a given "coding".
