@@ -1,6 +1,7 @@
 use std::convert::TryFrom;
+
+use {ContentCoding, HeaderValue};
 use util::{QualityValue, TryFromValues};
-use HeaderValue;
 
 /// `Accept-Encoding` header, defined in
 /// [RFC7231](https://tools.ietf.org/html/rfc7231#section-5.3.4)
@@ -68,35 +69,55 @@ impl AcceptEncoding {
     /// # Example
     ///
     /// ```
-    /// use headers::AcceptEncoding;
+    /// use headers::{AcceptEncoding, ContentCoding};
     ///
     /// let pairs = vec![("gzip", 1.0), ("deflate", 0.8)];
     /// let accept_enc = AcceptEncoding::from_quality_pairs(&mut pairs.into_iter()).unwrap();
     /// let mut encodings = accept_enc.sorted_encodings();
     ///
-    /// assert_eq!(accept_enc.prefered_encoding(), Some("gzip"));
+    /// assert_eq!(accept_enc.prefered_encoding(), Some(ContentCoding::GZIP));
     /// ```
-    pub fn prefered_encoding(&self) -> Option<&str> {
-        self.0.iter().peekable().peek().map(|s| *s)
+    pub fn prefered_encoding(&self) -> Option<ContentCoding> {
+        self.0.iter().peekable().peek().map(|s| ContentCoding::from_str(*s))
     }
 
-    /// Returns a quality sorted iterator of the accepted encodings
+    /// Returns a quality sorted iterator of the `ContentCoding`
     ///
     /// # Example
     ///
     /// ```
-    /// use headers::{AcceptEncoding, HeaderValue};
+    /// use headers::{AcceptEncoding, ContentCoding, HeaderValue};
     ///
     /// let val = HeaderValue::from_static("deflate, gzip;q=1.0, br;q=0.8");
     /// let accept_enc = AcceptEncoding(val.into());
     /// let mut encodings = accept_enc.sorted_encodings();
+    ///
+    /// assert_eq!(encodings.next(), Some(ContentCoding::DEFLATE));
+    /// assert_eq!(encodings.next(), Some(ContentCoding::GZIP));
+    /// assert_eq!(encodings.next(), Some(ContentCoding::BROTLI));
+    /// assert_eq!(encodings.next(), None);
+    /// ```
+    pub fn sorted_encodings<'a>(&'a self) -> impl Iterator<Item = ContentCoding> + 'a {
+        self.0.iter().map(|s| ContentCoding::from_str(s))
+    }
+
+    /// Returns a quality sorted iterator of values
+    /// 
+    /// # Example
+    /// 
+    /// ```
+    /// use headers::{AcceptEncoding, ContentCoding, HeaderValue};
+    ///
+    /// let val = HeaderValue::from_static("deflate, gzip;q=1.0, br;q=0.8");
+    /// let accept_enc = AcceptEncoding(val.into());
+    /// let mut encodings = accept_enc.sorted_values();
     ///
     /// assert_eq!(encodings.next(), Some("deflate"));
     /// assert_eq!(encodings.next(), Some("gzip"));
     /// assert_eq!(encodings.next(), Some("br"));
     /// assert_eq!(encodings.next(), None);
     /// ```
-    pub fn sorted_encodings(&self) -> impl Iterator<Item = &str> {
+    pub fn sorted_values(&self) -> impl Iterator<Item = &str> {
         self.0.iter()
     }
 }
@@ -104,19 +125,19 @@ impl AcceptEncoding {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use HeaderValue;
+    use {ContentCoding, HeaderValue};
 
     #[test]
     fn from_static() {
         let val = HeaderValue::from_static("deflate, gzip;q=1.0, br;q=0.9");
         let accept_enc = AcceptEncoding(val.into());
 
-        assert_eq!(accept_enc.prefered_encoding(), Some("deflate"));
+        assert_eq!(accept_enc.prefered_encoding(), Some(ContentCoding::DEFLATE));
 
         let mut encodings = accept_enc.sorted_encodings();
-        assert_eq!(encodings.next(), Some("deflate"));
-        assert_eq!(encodings.next(), Some("gzip"));
-        assert_eq!(encodings.next(), Some("br"));
+        assert_eq!(encodings.next(), Some(ContentCoding::DEFLATE));
+        assert_eq!(encodings.next(), Some(ContentCoding::GZIP));
+        assert_eq!(encodings.next(), Some(ContentCoding::BROTLI));
         assert_eq!(encodings.next(), None);
     }
 
@@ -125,11 +146,11 @@ mod tests {
         let pairs = vec![("gzip", 1.0), ("br", 0.9)];
         let accept_enc = AcceptEncoding::from_quality_pairs(&mut pairs.into_iter()).unwrap();
 
-        assert_eq!(accept_enc.prefered_encoding(), Some("gzip"));
+        assert_eq!(accept_enc.prefered_encoding(), Some(ContentCoding::GZIP));
 
         let mut encodings = accept_enc.sorted_encodings();
-        assert_eq!(encodings.next(), Some("gzip"));
-        assert_eq!(encodings.next(), Some("br"));
+        assert_eq!(encodings.next(), Some(ContentCoding::GZIP));
+        assert_eq!(encodings.next(), Some(ContentCoding::BROTLI));
         assert_eq!(encodings.next(), None);
     }
 }

@@ -19,6 +19,57 @@ macro_rules! define_content_coding {
                     $(ContentCoding::$coding => $str,)+
                 }
             }
+
+            /// Given a &str returns a ContentCoding. 
+            /// 
+            /// Note this will never fail, in the case of `&str` being an invalid content coding, 
+            /// will return `ContentCoding::IDENTITY` because identity is generally always an 
+            /// accepted coding.
+            /// 
+            /// # Example
+            /// 
+            /// ```
+            /// use headers::ContentCoding;
+            /// 
+            /// let invalid = ContentCoding::from_str("not a valid coding");
+            /// assert_eq!(invalid, ContentCoding::IDENTITY);
+            /// 
+            /// let valid = ContentCoding::from_str("gzip");
+            /// assert_eq!(valid, ContentCoding::GZIP);
+            /// ```
+            /// 
+            #[inline]
+            pub fn from_str(s: &str) -> Self {
+                ContentCoding::try_from_str(s).unwrap_or_else(|_| ContentCoding::IDENTITY)
+            }
+
+            #[inline]
+            /// Given a &str will try to return a ContentCoding
+            /// 
+            /// Different from `ContentCoding::from_str(&str)`, if `&str` is an invalid content
+            /// coding, it will return `Err(())`
+            /// 
+            /// # Example
+            /// 
+            /// ```
+            /// use headers::ContentCoding;
+            /// 
+            /// let invalid = ContentCoding::try_from_str("not a valid coding");
+            /// assert!(invalid.is_err());
+            /// 
+            /// let valid = ContentCoding::try_from_str("gzip");
+            /// assert_eq!(valid.unwrap(), ContentCoding::GZIP);
+            /// ```
+            /// 
+            pub fn try_from_str(s: &str) -> Result<Self, ()> {
+                match s {
+                    $(
+                        stringify!($coding)
+                        | $str => Ok(ContentCoding::$coding),
+                    )+
+                    _ => Err(())
+                }
+            }
         }
 
         impl std::string::ToString for ContentCoding {
@@ -26,20 +77,6 @@ macro_rules! define_content_coding {
             fn to_string(&self) -> String {
                 match *self {
                     $(ContentCoding::$coding => $str.to_string(),)+
-                }
-            }
-        }
-
-        impl std::str::FromStr for ContentCoding {
-            type Err = &'static str;
-
-            fn from_str(s: &str) -> Result<Self, Self::Err> {
-                match s {
-                    $(
-                        stringify!($coding)
-                        | $str => Ok(ContentCoding::$coding),
-                    )+
-                    _ => Err("invalid content coding")
                 }
             }
         }
@@ -57,7 +94,6 @@ define_content_coding! {
 #[cfg(test)]
 mod tests {
     use super::ContentCoding;
-    use std::str::FromStr;
 
     #[test]
     fn to_static() {
@@ -71,8 +107,14 @@ mod tests {
 
     #[test]
     fn from_str() {
-        assert_eq!(ContentCoding::from_str("br"), Ok(ContentCoding::BROTLI));
-        assert_eq!(ContentCoding::from_str("GZIP"), Ok(ContentCoding::GZIP));
-        assert_eq!(ContentCoding::from_str("blah blah"), Err("invalid content coding"));
+        assert_eq!(ContentCoding::from_str("br"), ContentCoding::BROTLI);
+        assert_eq!(ContentCoding::from_str("GZIP"), ContentCoding::GZIP);
+        assert_eq!(ContentCoding::from_str("blah blah"), ContentCoding::IDENTITY);
+    }
+
+    #[test]
+    fn try_from_str() {
+        assert_eq!(ContentCoding::try_from_str("br"), Ok(ContentCoding::BROTLI));
+        assert_eq!(ContentCoding::try_from_str("blah blah"), Err(()));
     }
 }
