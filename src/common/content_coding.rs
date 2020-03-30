@@ -1,3 +1,5 @@
+use HeaderValue;
+
 macro_rules! define_content_coding {
     ($($coding:ident; $str:expr,)+) => {   
         #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -77,6 +79,14 @@ macro_rules! define_content_coding {
             fn to_string(&self) -> String {
                 match *self {
                     $(ContentCoding::$coding => $str.to_string(),)+
+                }
+            }
+        }
+
+        impl From<ContentCoding> for HeaderValue {
+            fn from(coding: ContentCoding) -> HeaderValue {
+                match coding {
+                    $(ContentCoding::$coding => HeaderValue::from_static($str),)+
                 }
             }
         }
