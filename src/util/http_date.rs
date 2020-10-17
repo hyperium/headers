@@ -4,7 +4,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use bytes::Bytes;
 use http::header::HeaderValue;
-use time;
+use time::{PrimitiveDateTime, UtcOffset, Date, OffsetDateTime};
 
 use super::IterExt;
 
@@ -32,11 +32,27 @@ use super::IterExt;
 //   HTTP-date, the sender MUST generate those timestamps in the
 //   IMF-fixdate format.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) struct HttpDate(time::Tm);
+pub(crate) struct HttpDate(OffsetDateTime);
 
 impl HttpDate {
     pub(crate) fn from_val(val: &HeaderValue) -> Option<Self> {
         val.to_str().ok()?.parse().ok()
+    }
+
+    pub(crate) fn parse_gmt_date(s: &str, format: &str) -> Result<OffsetDateTime, time::ParseError> {
+        PrimitiveDateTime::parse(s, format)
+            .map(|t| t.assume_utc().to_offset(UtcOffset::UTC))
+            // Handle malformed "abbreviated" dates like Chromium. See cookie#162.
+            .map(|date| {
+                let offset = match date.year() {
+                    0..=68 => 2000,
+                    69..=99 => 1900,
+                    _ => return date,
+                };
+    
+                let new_date = Date::try_from_ymd(date.year() + offset, date.month(), date.day());
+                PrimitiveDateTime::new(new_date.expect("date from date"), date.time()).assume_utc()
+            })
     }
 }
 
@@ -74,9 +90,9 @@ impl<'a> From<&'a HttpDate> for HeaderValue {
 impl FromStr for HttpDate {
     type Err = Error;
     fn from_str(s: &str) -> Result<HttpDate, Error> {
-        time::strptime(s, "%a, %d %b %Y %T %Z")
-            .or_else(|_| time::strptime(s, "%A, %d-%b-%y %T %Z"))
-            .or_else(|_| time::strptime(s, "%c"))
+        Self::parse_gmt_date(s, "%a, %d %b %Y %T GMT")
+            .or_else(|_| Self::parse_gmt_date(s, "%A, %d-%b-%y %T GMT"))
+            .or_else(|_| Self::parse_gmt_date(s, "%c"))
             .map(HttpDate)
             .map_err(|_| Error(()))
     }
@@ -84,40 +100,40 @@ impl FromStr for HttpDate {
 
 impl fmt::Debug for HttpDate {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Display::fmt(&self.0.to_utc().rfc822(), f)
+        fmt::Display::fmt(&self.0.format("D, d M y H:i:s O"), f)
     }
 }
 
 impl fmt::Display for HttpDate {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Display::fmt(&self.0.to_utc().rfc822(), f)
+        fmt::Display::fmt(&self.0.format("D, d M y H:i:s O"), f)
     }
 }
 
 impl From<SystemTime> for HttpDate {
     fn from(sys: SystemTime) -> HttpDate {
-        let tmspec = match sys.duration_since(UNIX_EPOCH) {
+        let odt = match sys.duration_since(UNIX_EPOCH) {
             Ok(dur) => {
                 // subsec nanos always dropped
-                time::Timespec::new(dur.as_secs() as i64, 0)
+                OffsetDateTime::from_unix_timestamp(dur.as_secs() as _)
             }
             Err(err) => {
                 let neg = err.duration();
                 // subsec nanos always dropped
-                time::Timespec::new(-(neg.as_secs() as i64), 0)
+                OffsetDateTime::from_unix_timestamp(-(neg.as_secs() as i64))
             }
         };
-        HttpDate(time::at_utc(tmspec))
+        HttpDate(odt)
     }
 }
 
 impl From<HttpDate> for SystemTime {
     fn from(date: HttpDate) -> SystemTime {
-        let spec = date.0.to_timespec();
-        if spec.sec >= 0 {
-            UNIX_EPOCH + Duration::new(spec.sec as u64, spec.nsec as u32)
+        let odt = date.0;
+        if odt.timestamp() >= 0 {
+            UNIX_EPOCH + Duration::new(odt.second().into(), odt.nanosecond().into())
         } else {
-            UNIX_EPOCH - Duration::new(spec.sec as u64, spec.nsec as u32)
+            UNIX_EPOCH - Duration::new(odt.second().into(), odt.nanosecond().into())
         }
     }
 }
@@ -125,27 +141,17 @@ impl From<HttpDate> for SystemTime {
 #[cfg(test)]
 mod tests {
     use super::HttpDate;
-    use time::Tm;
 
-    const NOV_07: HttpDate = HttpDate(Tm {
-        tm_nsec: 0,
-        tm_sec: 37,
-        tm_min: 48,
-        tm_hour: 8,
-        tm_mday: 7,
-        tm_mon: 10,
-        tm_year: 94,
-        tm_wday: 0,
-        tm_isdst: 0,
-        tm_yday: 0,
-        tm_utcoff: 0,
-    });
+    #[inline]
+    fn nov_07() -> HttpDate {
+        HttpDate(HttpDate::parse_gmt_date("Sun Nov 07 08:48:37 1994", "%c").unwrap())
+    }
 
     #[test]
     fn test_imf_fixdate() {
         assert_eq!(
             "Sun, 07 Nov 1994 08:48:37 GMT".parse::<HttpDate>().unwrap(),
-            NOV_07
+            nov_07()
         );
     }
 
@@ -155,15 +161,15 @@ mod tests {
             "Sunday, 07-Nov-94 08:48:37 GMT"
                 .parse::<HttpDate>()
                 .unwrap(),
-            NOV_07
+            nov_07()
         );
     }
 
     #[test]
     fn test_asctime() {
         assert_eq!(
-            "Sun Nov  7 08:48:37 1994".parse::<HttpDate>().unwrap(),
-            NOV_07
+            "Sun Nov 7 08:48:37 1994".parse::<HttpDate>().unwrap(),
+            nov_07()
         );
     }
 

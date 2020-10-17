@@ -107,5 +107,5 @@ mod tests {
 
     test_retry_after_datetime!(date_decode_rfc1123, "Sun, 06 Nov 1994 08:49:37 GMT");
     test_retry_after_datetime!(date_decode_rfc850, "Sunday, 06-Nov-94 08:49:37 GMT");
-    test_retry_after_datetime!(date_decode_asctime, "Sun Nov  6 08:49:37 1994");
+    test_retry_after_datetime!(date_decode_asctime, "Sun Nov 6 08:49:37 1994");
 }
