@@ -156,7 +156,8 @@ impl Credentials for Basic {
         base64::encode_config_buf(&self.decoded, base64::STANDARD, &mut encoded);
 
         let bytes = Bytes::from(encoded);
-        HeaderValue::from_maybe_shared(bytes).expect("base64 encoding is always a valid HeaderValue")
+        HeaderValue::from_maybe_shared(bytes)
+            .expect("base64 encoding is always a valid HeaderValue")
     }
 }
 

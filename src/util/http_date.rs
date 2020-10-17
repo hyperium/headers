@@ -4,7 +4,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use bytes::Bytes;
 use http::header::HeaderValue;
-use time::{PrimitiveDateTime, UtcOffset, Date, OffsetDateTime};
+use time::{Date, OffsetDateTime, PrimitiveDateTime, UtcOffset};
 
 use super::IterExt;
 
@@ -39,7 +39,10 @@ impl HttpDate {
         val.to_str().ok()?.parse().ok()
     }
 
-    pub(crate) fn parse_gmt_date(s: &str, format: &str) -> Result<OffsetDateTime, time::ParseError> {
+    pub(crate) fn parse_gmt_date(
+        s: &str,
+        format: &str,
+    ) -> Result<OffsetDateTime, time::ParseError> {
         PrimitiveDateTime::parse(s, format)
             .map(|t| t.assume_utc().to_offset(UtcOffset::UTC))
             // Handle malformed "abbreviated" dates like Chromium. See cookie#162.
@@ -49,7 +52,7 @@ impl HttpDate {
                     69..=99 => 1900,
                     _ => return date,
                 };
-    
+
                 let new_date = Date::try_from_ymd(date.year() + offset, date.month(), date.day());
                 PrimitiveDateTime::new(new_date.expect("date from date"), date.time()).assume_utc()
             })
