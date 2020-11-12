@@ -22,6 +22,7 @@ headers-core = { version = "0.2", path = "./headers-core" }
 base64 = "0.13"
 bitflags = "1.0"
 bytes = "0.5"
+itertools = "0.9"
 mime = "0.3.14"
 sha-1 = "0.8"
 time = "0.1.34"

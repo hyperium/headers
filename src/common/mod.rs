@@ -7,7 +7,7 @@
 //! is used, such as `ContentType(pub Mime)`.
 
 //pub use self::accept_charset::AcceptCharset;
-//pub use self::accept_encoding::AcceptEncoding;
+pub use self::accept_encoding::AcceptEncoding;
 //pub use self::accept_language::AcceptLanguage;
 pub use self::accept_ranges::AcceptRanges;
 //pub use self::accept::Accept;
@@ -23,6 +23,7 @@ pub use self::allow::Allow;
 pub use self::authorization::Authorization;
 pub use self::cache_control::CacheControl;
 pub use self::connection::Connection;
+pub use self::content_coding::ContentCoding;
 pub use self::content_disposition::ContentDisposition;
 pub use self::content_encoding::ContentEncoding;
 //pub use self::content_language::ContentLanguage;
@@ -127,7 +128,7 @@ macro_rules! bench_header {
 
 //mod accept;
 //mod accept_charset;
-//mod accept_encoding;
+mod accept_encoding;
 //mod accept_language;
 mod accept_ranges;
 mod access_control_allow_credentials;
@@ -142,6 +143,7 @@ mod allow;
 pub mod authorization;
 mod cache_control;
 mod connection;
+mod content_coding;
 mod content_disposition;
 mod content_encoding;
 //mod content_language;
