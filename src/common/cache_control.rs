@@ -13,6 +13,8 @@ use HeaderValue;
 /// unidirectional in that the presence of a directive in a request does
 /// not imply that the same directive is to be given in the response.
 ///
+/// The extensions defined in [RFC5861](https://tools.ietf.org/html/rfc5861) are supported.
+///
 /// ## ABNF
 ///
 /// ```text
@@ -41,6 +43,8 @@ pub struct CacheControl {
     max_stale: Option<Seconds>,
     min_fresh: Option<Seconds>,
     s_max_age: Option<Seconds>,
+    stale_while_revalidate: Option<Seconds>,
+    stale_if_error: Option<Seconds>,
 }
 
 bitflags! {
@@ -65,6 +69,8 @@ impl CacheControl {
             max_stale: None,
             min_fresh: None,
             s_max_age: None,
+            stale_while_revalidate: None,
+            stale_if_error: None,
         }
     }
 
@@ -118,6 +124,16 @@ impl CacheControl {
     /// Get the value of the `s-maxage` directive if set.
     pub fn s_max_age(&self) -> Option<Duration> {
         self.s_max_age.map(Into::into)
+    }
+
+    /// Get the value of the `stale-while-revalidate` directive if set.
+    pub fn stale_while_revalidate(&self) -> Option<Duration> {
+        self.stale_while_revalidate.map(Into::into)
+    }
+
+    /// Get the value of the `stale-if-error` directive if set.
+    pub fn stale_if_error(&self) -> Option<Duration> {
+        self.stale_if_error.map(Into::into)
     }
 
     // setters
@@ -179,6 +195,18 @@ impl CacheControl {
     /// Set the `s-maxage` directive.
     pub fn with_s_max_age(mut self, seconds: Duration) -> Self {
         self.s_max_age = Some(seconds.into());
+        self
+    }
+
+    /// Set the `stale-while-revalidate` directive.
+    pub fn with_stale_while_revalidate(mut self, seconds: Duration) -> Self {
+        self.stale_while_revalidate = Some(seconds.into());
+        self
+    }
+
+    /// Set the `stale-if-error` directive.
+    pub fn with_stale_if_error(mut self, seconds: Duration) -> Self {
+        self.stale_if_error = Some(seconds.into());
         self
     }
 }
@@ -250,6 +278,12 @@ impl FromIterator<KnownDirective> for FromIter {
                 }
                 Directive::SMaxAge(secs) => {
                     cc.s_max_age = Some(Duration::from_secs(secs.into()).into());
+                }
+                Directive::StaleWhileRevalidate(secs) => {
+                    cc.stale_while_revalidate = Some(Duration::from_secs(secs.into()).into());
+                }
+                Directive::StaleIfError(secs) => {
+                    cc.stale_if_error = Some(Duration::from_secs(secs.into()).into());
                 }
             }
         }
@@ -327,6 +361,8 @@ enum Directive {
     Private,
     ProxyRevalidate,
     SMaxAge(u64),
+    StaleWhileRevalidate(u64),
+    StaleIfError(u64),
 }
 
 impl fmt::Display for Directive {
@@ -347,6 +383,8 @@ impl fmt::Display for Directive {
                 Directive::Private => "private",
                 Directive::ProxyRevalidate => "proxy-revalidate",
                 Directive::SMaxAge(secs) => return write!(f, "s-maxage={}", secs),
+                Directive::StaleWhileRevalidate(secs) => return write!(f, "stale-while-revalidate={}", secs),
+                Directive::StaleIfError(secs) => return write!(f, "stale-if-error={}", secs),
             },
             f,
         )
@@ -378,6 +416,12 @@ impl FromStr for KnownDirective {
                         }
                         ("s-maxage", secs) => {
                             secs.parse().map(Directive::SMaxAge).map_err(|_| ())?
+                        }
+                        ("stale-while-revalidate", secs) => {
+                            secs.parse().map(Directive::StaleWhileRevalidate).map_err(|_| ())?
+                        }
+                        ("stale-if-error", secs) => {
+                            secs.parse().map(Directive::StaleIfError).map_err(|_| ())?
                         }
                         _unknown => return Ok(KnownDirective::Unknown),
                     }
