@@ -1,0 +1,43 @@
+name: CI
+
+on: [push, pull_request]
+
+env:
+  minrust: 1.41.0
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        rust: [stable, beta, nightly]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: ${{ matrix.rust }}
+
+      - run: cargo test --all
+      - run: cargo test --benches
+        if: matrix.rust == 'nightly'
+
+      - name: Check minimal versions
+        if: matrix.rust == 'nightly'
+        run: |
+          cargo clean
+          cargo update -Z minimal-versions
+          cargo check
+
+  MSRV:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install rust ${{ env.minrust }}
+        uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: ${{ env.minrust }}
+      - run: cargo build
