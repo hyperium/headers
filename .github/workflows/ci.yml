@@ -19,6 +19,8 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.rust }}
+          profile: minimal
+          override: true
 
       - name: cargo test --all
         uses: actions-rs/cargo@v1
@@ -48,6 +50,8 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ env.minrust }}
+          profile: minimal
+          override: true
 
       - name: cargo build
         uses: actions-rs/cargo@v1
