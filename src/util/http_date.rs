@@ -133,7 +133,7 @@ impl From<SystemTime> for HttpDate {
 impl From<HttpDate> for SystemTime {
     fn from(date: HttpDate) -> SystemTime {
         let odt = date.0;
-        if odt.timestamp() >= 0 {
+        if odt.unix_timestamp() >= 0 {
             UNIX_EPOCH + Duration::new(odt.second().into(), odt.nanosecond().into())
         } else {
             UNIX_EPOCH - Duration::new(odt.second().into(), odt.nanosecond().into())
