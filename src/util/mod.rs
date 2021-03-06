@@ -8,7 +8,7 @@ pub(crate) use self::fmt::fmt;
 pub(crate) use self::http_date::HttpDate;
 pub(crate) use self::iter::IterExt;
 //pub use language_tags::LanguageTag;
-//pub use self::quality_value::{Quality, QualityValue};
+pub use self::quality_value::{Quality, QualityValue};
 pub(crate) use self::seconds::Seconds;
 pub(crate) use self::value_string::HeaderValueString;
 
@@ -20,7 +20,7 @@ mod flat_csv;
 mod fmt;
 mod http_date;
 mod iter;
-//mod quality_value;
+mod quality_value;
 mod seconds;
 mod value_string;
 

@@ -78,7 +78,7 @@ extern crate bitflags;
 extern crate bytes;
 extern crate headers_core;
 extern crate http;
-extern crate mime;
+pub extern crate mime;
 extern crate sha1;
 #[cfg(all(test, feature = "nightly"))]
 extern crate test;
@@ -99,3 +99,4 @@ mod map_ext;
 
 pub use self::common::*;
 pub use self::map_ext::HeaderMapExt;
+pub use self::util::QualityValue;
