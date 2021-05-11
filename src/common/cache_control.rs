@@ -90,6 +90,11 @@ impl CacheControl {
         self.flags.contains(Flags::ONLY_IF_CACHED)
     }
 
+    /// Check if the `must-revalidate` directive is set.
+    pub fn must_revalidate(&self) -> bool {
+        self.flags.contains(Flags::MUST_REVALIDATE)
+    }
+
     /// Check if the `public` directive is set.
     pub fn public(&self) -> bool {
         self.flags.contains(Flags::PUBLIC)
@@ -98,6 +103,11 @@ impl CacheControl {
     /// Check if the `private` directive is set.
     pub fn private(&self) -> bool {
         self.flags.contains(Flags::PRIVATE)
+    }
+
+    /// Check if the `proxy-revalidate` directive is set.
+    pub fn proxy_revalidate(&self) -> bool {
+        self.flags.contains(Flags::PROXY_REVALIDATE)
     }
 
     /// Get the value of the `max-age` directive if set.
@@ -146,6 +156,12 @@ impl CacheControl {
         self
     }
 
+    /// Set the `must-revalidate` directive.
+    pub fn with_must_revalidate(mut self) -> Self {
+        self.flags.insert(Flags::MUST_REVALIDATE);
+        self
+    }
+
     /// Set the `private` directive.
     pub fn with_private(mut self) -> Self {
         self.flags.insert(Flags::PRIVATE);
@@ -155,6 +171,12 @@ impl CacheControl {
     /// Set the `public` directive.
     pub fn with_public(mut self) -> Self {
         self.flags.insert(Flags::PUBLIC);
+        self
+    }
+
+    /// Set the `proxy-revalidate` directive.
+    pub fn with_proxy_revalidate(mut self) -> Self {
+        self.flags.insert(Flags::PROXY_REVALIDATE);
         self
     }
 
