@@ -3,7 +3,7 @@ use std::iter::FromIterator;
 use std::marker::PhantomData;
 
 use bytes::BytesMut;
-use util::TryFromValues;
+use util::{trim_bytes, TryFromValues};
 use HeaderValue;
 
 // A single `HeaderValue` that can flatten multiple values with commas.
@@ -58,6 +58,30 @@ impl<Sep: Separator> FlatCsv<Sep> {
                 })
                 .map(|item| item.trim())
         })
+    }
+
+    pub(crate) fn iter_bytes(&self) -> impl Iterator<Item = &[u8]> {
+        let mut in_quotes = false;
+        self.value
+            .as_bytes()
+            .split(move |&c| {
+                if in_quotes {
+                    if c == b'"' {
+                        in_quotes = false;
+                    }
+                    false // dont split
+                } else {
+                    if c == Sep::BYTE {
+                        true // split
+                    } else {
+                        if c == b'"' {
+                            in_quotes = true;
+                        }
+                        false // dont split
+                    }
+                }
+            })
+            .map(trim_bytes)
     }
 }
 
@@ -120,8 +144,8 @@ impl<'a, Sep: Separator> FromIterator<&'a HeaderValue> for FlatCsv<Sep> {
             buf.extend_from_slice(val.as_bytes());
         }
 
-        let val =
-            HeaderValue::from_maybe_shared(buf.freeze()).expect("comma separated HeaderValues are valid");
+        let val = HeaderValue::from_maybe_shared(buf.freeze())
+            .expect("comma separated HeaderValues are valid");
 
         val.into()
     }
@@ -151,8 +175,8 @@ impl<Sep: Separator> FromIterator<HeaderValue> for FlatCsv<Sep> {
             buf.extend_from_slice(val.as_bytes());
         }
 
-        let val =
-            HeaderValue::from_maybe_shared(buf.freeze()).expect("comma separated HeaderValues are valid");
+        let val = HeaderValue::from_maybe_shared(buf.freeze())
+            .expect("comma separated HeaderValues are valid");
 
         val.into()
     }
