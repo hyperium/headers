@@ -1,4 +1,4 @@
-use util::{FlatCsv, SemiColon};
+use util::{trim_bytes, FlatCsv, SemiColon};
 
 /// `Cookie` header, defined in [RFC6265](http://tools.ietf.org/html/rfc6265#section-5.4)
 ///
@@ -48,9 +48,45 @@ impl Cookie {
             .map(|(_, val)| val)
     }
 
+    /// Lookup a value for a cookie name, treating the cookie as raw bytes.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # extern crate headers;
+    /// use headers::{Cookie, HeaderMap, HeaderMapExt, HeaderValue};
+    ///
+    /// // Setup the header map with strings...
+    /// let mut headers = HeaderMap::new();
+    /// headers.insert(
+    ///     "cookie",
+    ///     HeaderValue::from_bytes("lang=en-US; bytes=µ".as_bytes()).unwrap(),
+    /// );
+    ///
+    /// // Parse a `Cookie` so we can play with it...
+    /// let cookie = headers
+    ///     .typed_get::<Cookie>()
+    ///     .expect("we just inserted a valid Cookie");
+    ///
+    /// assert_eq!(cookie.get_bytes(b"lang"), Some(&b"en-US"[..]));
+    /// assert_eq!(cookie.get_bytes(b"bytes"), Some("µ".as_bytes()));
+    /// assert_eq!(cookie.get_bytes(b"SID"), None);
+    /// ```
+    pub fn get_bytes(&self, name: &[u8]) -> Option<&[u8]> {
+        self.iter_bytes()
+            .find(|&(key, _)| key == name)
+            .map(|(_, val)| val)
+    }
+
     /// Get the number of key-value pairs this `Cookie` contains.
     pub fn len(&self) -> usize {
         self.iter().count()
+    }
+
+    /// Get the number of key-value pairs this `Cookie` contains when treating the cookie as raw
+    /// bytes.
+    pub fn len_bytes(&self) -> usize {
+        self.iter_bytes().count()
     }
 
     /// Iterator the key-value pairs of this `Cookie` header.
@@ -59,6 +95,16 @@ impl Cookie {
             let mut iter = kv.splitn(2, '=');
             let key = iter.next()?.trim();
             let val = iter.next()?.trim();
+            Some((key, val))
+        })
+    }
+
+    /// Iterator the key-value byte pairs of this `Cookie` header.
+    pub fn iter_bytes(&self) -> impl Iterator<Item = (&[u8], &[u8])> {
+        self.0.iter_bytes().filter_map(|kv| {
+            let mut iter = kv.splitn(2, |&b| b == b'=');
+            let key = trim_bytes(iter.next()?);
+            let val = trim_bytes(iter.next()?);
             Some((key, val))
         })
     }
