@@ -26,6 +26,15 @@ impl HeaderValueString {
         }
     }
 
+    pub(crate) fn from_str(src: &str) -> Result<Self, ::Error> {
+        let value = HeaderValue::from_str(src).map_err(|_| ::Error::invalid())?;
+        if value.to_str().is_ok() {
+            Ok(HeaderValueString { value })
+        } else {
+            Err(::Error::invalid())
+        }
+    }
+
     pub(crate) fn from_string(src: String) -> Option<Self> {
         // A valid `str` (the argument)...
         let bytes = Bytes::from(src);
