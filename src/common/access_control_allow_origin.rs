@@ -31,7 +31,7 @@ use HeaderValue;
 ///
 /// let any_origin = AccessControlAllowOrigin::ANY;
 /// let null_origin = AccessControlAllowOrigin::NULL;
-/// let origin = AccessControlAllowOrigin::try_from("http://web-platform.test:8000".to_string());
+/// let origin = AccessControlAllowOrigin::try_from("http://web-platform.test:8000");
 /// ```
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct AccessControlAllowOrigin(OriginOrAny);
@@ -64,13 +64,23 @@ impl AccessControlAllowOrigin {
     }
 }
 
-impl TryFrom<String> for AccessControlAllowOrigin {
+impl TryFrom<&str> for AccessControlAllowOrigin {
     type Error = ::Error;
 
-    fn try_from(s: String) -> Result<Self, ::Error> {
-        let header_value = HeaderValue::from_str(&s).map_err(|_| headers_core::Error::invalid())?;
-        let origin = OriginOrAny::try_from_values(&mut vec![header_value].iter())?;
+    fn try_from(s: &str) -> Result<Self, ::Error> {
+        let header_value = HeaderValue::from_str(s).map_err(|_| ::Error::invalid())?;
+        let origin = OriginOrAny::try_from(&header_value)?;
         Ok(Self(origin))
+    }
+}
+
+impl TryFrom<&HeaderValue> for OriginOrAny {
+    type Error = ::Error;
+
+    fn try_from(header_value: &HeaderValue) -> Result<Self, ::Error> {
+        Origin::try_from_value(header_value)
+            .map(OriginOrAny::Origin)
+            .ok_or_else(::Error::invalid)
     }
 }
 
@@ -127,7 +137,7 @@ mod tests {
     fn try_from_origin() {
         let s = "http://web-platform.test:8000";
 
-        let allow_origin = AccessControlAllowOrigin::try_from(s.to_string()).unwrap();
+        let allow_origin = AccessControlAllowOrigin::try_from(s).unwrap();
         {
             let origin = allow_origin.origin().unwrap();
             assert_eq!(origin.scheme(), "http");
