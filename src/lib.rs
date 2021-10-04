@@ -79,6 +79,7 @@ extern crate bytes;
 extern crate headers_core;
 extern crate http;
 extern crate httpdate;
+extern crate language_tags;
 extern crate mime;
 extern crate sha1;
 #[cfg(all(test, feature = "nightly"))]
