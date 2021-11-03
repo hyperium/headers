@@ -46,6 +46,11 @@ impl Referer {
     pub fn from_static(s: &'static str) -> Referer {
         Referer(HeaderValue::from_static(s))
     }
+
+    /// View this `Referer` as a `&str`.
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
+    }
 }
 
 error_type!(InvalidReferer);
@@ -56,5 +61,11 @@ impl FromStr for Referer {
         HeaderValue::from_str(src)
             .map(Referer)
             .map_err(|_| InvalidReferer { _inner: () })
+    }
+}
+
+impl fmt::Display for Referer {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self.0, f)
     }
 }
