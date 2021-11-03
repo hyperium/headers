@@ -1,7 +1,7 @@
 use std::fmt;
 use std::str::FromStr;
 
-use http::header::HeaderValue;
+use util::HeaderValueString;
 
 /// `Referer` header, defined in
 /// [RFC7231](http://tools.ietf.org/html/rfc7231#section-5.5.2)
@@ -31,7 +31,7 @@ use http::header::HeaderValue;
 /// let r = Referer::from_static("/People.html#tim");
 /// ```
 #[derive(Debug, Clone, PartialEq)]
-pub struct Referer(HeaderValue);
+pub struct Referer(HeaderValueString);
 
 derive_header! {
     Referer(_),
@@ -45,7 +45,7 @@ impl Referer {
     ///
     /// Panics if the string is not a legal header value.
     pub fn from_static(s: &'static str) -> Referer {
-        Referer(HeaderValue::from_static(s))
+        Referer(HeaderValueString::from_static(s))
     }
 
     /// View this `Referer` as a `&str`.
@@ -59,7 +59,7 @@ error_type!(InvalidReferer);
 impl FromStr for Referer {
     type Err = InvalidReferer;
     fn from_str(src: &str) -> Result<Self, Self::Err> {
-        HeaderValue::from_str(src)
+        HeaderValueString::from_str(src)
             .map(Referer)
             .map_err(|_| InvalidReferer { _inner: () })
     }
