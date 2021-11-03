@@ -1,3 +1,4 @@
+use std::fmt;
 use std::str::FromStr;
 
 use http::header::HeaderValue;
