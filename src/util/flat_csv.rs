@@ -45,15 +45,13 @@ impl<Sep: Separator> FlatCsv<Sep> {
                             in_quotes = false;
                         }
                         false // dont split
+                    } else if c == Sep::CHAR {
+                        true // split
                     } else {
-                        if c == Sep::CHAR {
-                            true // split
-                        } else {
-                            if c == '"' {
-                                in_quotes = true;
-                            }
-                            false // dont split
+                        if c == '"' {
+                            in_quotes = true;
                         }
+                        false // dont split
                     }
                 })
                 .map(|item| item.trim())
