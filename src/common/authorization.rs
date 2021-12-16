@@ -1,5 +1,7 @@
 //! Authorization header and types.
 
+use std::ops::Deref;
+
 use base64;
 use bytes::Bytes;
 
@@ -53,6 +55,14 @@ impl Authorization<Bearer> {
         HeaderValueString::from_string(format!("Bearer {}", token))
             .map(|val| Authorization(Bearer(val)))
             .ok_or_else(|| InvalidBearerToken { _inner: () })
+    }
+}
+
+impl<C: Credentials> Deref for Authorization<C> {
+    type Target = C;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
