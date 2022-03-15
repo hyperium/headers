@@ -52,4 +52,23 @@ impl Upgrade {
     pub fn websocket() -> Upgrade {
         Upgrade(HeaderValue::from_static("websocket"))
     }
+
+    /// Constructs an `Upgrade: HTTP/2.0` header.
+    pub fn http2() -> Upgrade {
+        // must be uppercase, see
+        // <https://datatracker.ietf.org/doc/html/rfc7230#section-2.6>
+        Upgrade(HeaderValue::from_static("HTTP/2.0"))
+    }
+
+    /// Constructs an `Upgrade` header with the given `HeaderValue`
+    pub fn new(value: HeaderValue) -> Upgrade {
+        Upgrade(value)
+    }
+
+    /// Returns the header value, e.g. "websocket" or "HTTP/2.0", or a
+    /// comma-separated list of protocols, see RFC 7230:
+    /// <https://datatracker.ietf.org/doc/html/rfc7230#section-6.7>
+    pub fn value(&self) -> &HeaderValue {
+        &self.0
+    }
 }
