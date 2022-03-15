@@ -1,3 +1,5 @@
+use std::convert::TryFrom;
+
 use http::Uri;
 use HeaderValue;
 
@@ -30,12 +32,17 @@ derive_header! {
 }
 
 impl Location {
-    /// Creates a `Location` header from a uri
-    pub fn uri(uri: Uri) -> Self {
-        let uri = uri.to_string();
-        // cf. https://www.rfc-editor.org/rfc/rfc3986#section-2
+    /// Accesses the header's value
+    pub fn value(&self) -> &HeaderValue {
+        &self.0
+    }
+}
+
+impl From<Uri> for Location {
+    fn from(uri: Uri) -> Self {
         Self(
-            HeaderValue::from_str(&uri)
+            HeaderValue::try_from(uri.to_string())
+                // cf. https://www.rfc-editor.org/rfc/rfc3986#section-2
                 .expect("All URI characters should be valid HTTP header value characters"),
         )
     }
@@ -66,9 +73,10 @@ mod tests {
     fn uri_constructor() {
         let s = "https://www.rust-lang.org/tools";
         let uri: Uri = s.parse().unwrap();
-        let loc = Location::uri(uri);
+        let loc = Location::from(uri);
 
         assert_eq!(loc, Location(HeaderValue::from_static(s)));
+        assert_eq!(loc.value().to_str().unwrap(), s);
     }
 
     #[test]
