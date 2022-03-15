@@ -53,11 +53,11 @@ impl Upgrade {
         Upgrade(HeaderValue::from_static("websocket"))
     }
 
-    /// Constructs an `Upgrade: HTTP/2.0` header.
-    pub fn http2() -> Upgrade {
-        // must be uppercase, see
-        // <https://datatracker.ietf.org/doc/html/rfc7230#section-2.6>
-        Upgrade(HeaderValue::from_static("HTTP/2.0"))
+    /// Constructs an `Upgrade: h2c` header, for HTTP/2 over TCP. There's no
+    /// constructor for HTTP/2 over TLS, as using ALPN or prior knowledge is
+    /// better-suited to that usecase.
+    pub fn h2c() -> Upgrade {
+        Upgrade(HeaderValue::from_static("h2c"))
     }
 
     /// Constructs an `Upgrade` header with the given `HeaderValue`
@@ -65,10 +65,27 @@ impl Upgrade {
         Upgrade(value)
     }
 
-    /// Returns the header value, e.g. "websocket" or "HTTP/2.0", or a
-    /// comma-separated list of protocols, see RFC 7230:
+    /// Returns the header value, e.g. "websocket" or "h2c", or a
+    /// comma-separated list, see RFC 7230:
     /// <https://datatracker.ietf.org/doc/html/rfc7230#section-6.7>
-    pub fn value(&self) -> &HeaderValue {
-        &self.0
+    ///
+    /// If the header value cannot be represented as a utf-8 string,
+    /// `None` is returned.
+    pub fn to_str(&self) -> Option<&str> {
+        self.0.to_str().ok()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::test_decode;
+    use super::*;
+
+    #[test]
+    fn websocket() {
+        let s = "websocket";
+        let loc = test_decode::<Upgrade>(&[s]).unwrap();
+
+        assert_eq!(loc.to_str(), Some(s));
     }
 }
