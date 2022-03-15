@@ -1,3 +1,4 @@
+use http::Uri;
 use HeaderValue;
 
 /// `Location` header, defined in
@@ -28,6 +29,18 @@ derive_header! {
     name: LOCATION
 }
 
+impl Location {
+    /// Creates a `Location` header from a uri
+    pub fn uri(uri: Uri) -> Self {
+        let uri = uri.to_string();
+        // cf. https://www.rfc-editor.org/rfc/rfc3986#section-2
+        Self(
+            HeaderValue::from_str(&uri)
+                .expect("All URI characters should be valid HTTP header value characters"),
+        )
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::super::test_decode;
@@ -47,5 +60,21 @@ mod tests {
         let loc = test_decode::<Location>(&[s]).unwrap();
 
         assert_eq!(loc, Location(HeaderValue::from_static(s)));
+    }
+
+    #[test]
+    fn uri_constructor() {
+        let s = "https://www.rust-lang.org/tools";
+        let uri: Uri = s.parse().unwrap();
+        let loc = Location::uri(uri);
+
+        assert_eq!(loc, Location(HeaderValue::from_static(s)));
+    }
+
+    #[test]
+    fn uri_constructor_invalid_chars() {
+        let s = "https://www.rust-lang.org/hélas";
+        let uri: Result<Uri, _> = s.parse();
+        assert!(uri.is_err());
     }
 }
