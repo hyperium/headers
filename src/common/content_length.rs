@@ -1,4 +1,5 @@
-use {Header, HeaderValue};
+use crate::core::{Decodable, Encodable, Named};
+use crate::HeaderValue;
 
 /// `Content-Length` header, defined in
 /// [RFC7230](http://tools.ietf.org/html/rfc7230#section-3.3.2)
@@ -40,11 +41,13 @@ use {Header, HeaderValue};
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ContentLength(pub u64);
 
-impl Header for ContentLength {
+impl Named for ContentLength {
     fn name() -> &'static ::http::header::HeaderName {
         &::http::header::CONTENT_LENGTH
     }
+}
 
+impl Decodable for ContentLength {
     fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         // If multiple Content-Length headers were sent, everything can still
         // be alright if they all contain the same value, and all parse
@@ -68,7 +71,9 @@ impl Header for ContentLength {
 
         len.map(ContentLength).ok_or_else(::Error::invalid)
     }
+}
 
+impl Encodable for ContentLength {
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         values.extend(::std::iter::once(self.0.into()));
     }

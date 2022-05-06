@@ -1,5 +1,7 @@
+use crate::core::{Decodable, Encodable, Named};
+use crate::{HeaderName, HeaderValue};
+
 use http::Method;
-use {Header, HeaderName, HeaderValue};
 
 /// `Access-Control-Request-Method` header, part of
 /// [CORS](http://www.w3.org/TR/cors/#access-control-request-method-request-header)
@@ -28,11 +30,13 @@ use {Header, HeaderName, HeaderValue};
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct AccessControlRequestMethod(Method);
 
-impl Header for AccessControlRequestMethod {
+impl Named for AccessControlRequestMethod {
     fn name() -> &'static HeaderName {
         &::http::header::ACCESS_CONTROL_REQUEST_METHOD
     }
+}
 
+impl Decodable for AccessControlRequestMethod {
     fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values
             .next()
@@ -40,7 +44,9 @@ impl Header for AccessControlRequestMethod {
             .map(AccessControlRequestMethod)
             .ok_or_else(::Error::invalid)
     }
+}
 
+impl Encodable for AccessControlRequestMethod {
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         // For the more common methods, try to use a static string.
         let s = match self.0 {

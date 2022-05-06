@@ -1,5 +1,7 @@
 //! Authorization header and types.
 
+use crate::core::{Decodable, Encodable, Named};
+
 use base64;
 use bytes::Bytes;
 
@@ -71,11 +73,13 @@ impl Authorization<Bearer> {
     }
 }
 
-impl<C: Credentials> ::Header for Authorization<C> {
+impl<C: Credentials> Named for Authorization<C> {
     fn name() -> &'static ::HeaderName {
         &::http::header::AUTHORIZATION
     }
+}
 
+impl<C: Credentials> Decodable for Authorization<C> {
     fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values
             .next()
@@ -92,7 +96,9 @@ impl<C: Credentials> ::Header for Authorization<C> {
             })
             .ok_or_else(::Error::invalid)
     }
+}
 
+impl<C: Credentials> Encodable for Authorization<C> {
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         let value = self.0.encode();
         debug_assert!(
@@ -171,7 +177,8 @@ impl Credentials for Basic {
         base64::encode_config_buf(&self.decoded, base64::STANDARD, &mut encoded);
 
         let bytes = Bytes::from(encoded);
-        HeaderValue::from_maybe_shared(bytes).expect("base64 encoding is always a valid HeaderValue")
+        HeaderValue::from_maybe_shared(bytes)
+            .expect("base64 encoding is always a valid HeaderValue")
     }
 }
 

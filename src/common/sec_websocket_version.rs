@@ -1,3 +1,5 @@
+use crate::core::{Decodable, Encodable, Named};
+
 /// The `Sec-Websocket-Version` header.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct SecWebsocketVersion(u8);
@@ -7,11 +9,13 @@ impl SecWebsocketVersion {
     pub const V13: SecWebsocketVersion = SecWebsocketVersion(13);
 }
 
-impl ::Header for SecWebsocketVersion {
+impl Named for SecWebsocketVersion {
     fn name() -> &'static ::HeaderName {
         &::http::header::SEC_WEBSOCKET_VERSION
     }
+}
 
+impl Decodable for SecWebsocketVersion {
     fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values
             .next()
@@ -24,7 +28,9 @@ impl ::Header for SecWebsocketVersion {
             })
             .ok_or_else(::Error::invalid)
     }
+}
 
+impl Encodable for SecWebsocketVersion {
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         debug_assert_eq!(self.0, 13);
 

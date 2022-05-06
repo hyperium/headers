@@ -1,3 +1,5 @@
+use crate::core::{Decodable, Encodable, Named};
+
 /// `Set-Cookie` header, defined [RFC6265](http://tools.ietf.org/html/rfc6265#section-4.1)
 ///
 /// The Set-Cookie HTTP response header is used to send cookies from the
@@ -54,11 +56,13 @@
 #[derive(Clone, Debug)]
 pub struct SetCookie(Vec<::HeaderValue>);
 
-impl ::Header for SetCookie {
+impl Named for SetCookie {
     fn name() -> &'static ::HeaderName {
         &::http::header::SET_COOKIE
     }
+}
 
+impl Decodable for SetCookie {
     fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         let vec = values.cloned().collect::<Vec<_>>();
 
@@ -68,7 +72,9 @@ impl ::Header for SetCookie {
             Err(::Error::invalid())
         }
     }
+}
 
+impl Encodable for SetCookie {
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         values.extend(self.0.iter().cloned());
     }

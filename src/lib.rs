@@ -20,7 +20,7 @@
 //!
 //! # Defining Custom Headers
 //!
-//! ## Implementing the `Header` trait
+//! ## Implementing the header traits
 //!
 //! Consider a Do Not Track header. It can be true or false, but it represents
 //! that via the numerals `1` and `0`.
@@ -29,15 +29,18 @@
 //! extern crate http;
 //! extern crate headers;
 //!
-//! use headers::{Header, HeaderName, HeaderValue};
+//! use headers::{HeaderName, HeaderValue};
+//! use headers::core::{Decodable, Encodable, Named};
 //!
 //! struct Dnt(bool);
 //!
-//! impl Header for Dnt {
+//! impl Named for Dnt {
 //!     fn name() -> &'static HeaderName {
 //!          &http::header::DNT
 //!     }
+//! }
 //!
+//! impl Decodable for Dnt {
 //!     fn decode<'i, I>(values: &mut I) -> Result<Self, headers::Error>
 //!     where
 //!         I: Iterator<Item = &'i HeaderValue>,
@@ -54,7 +57,9 @@
 //!             Err(headers::Error::invalid())
 //!         }
 //!     }
+//! }
 //!
+//! impl Encodable for Dnt {
 //!     fn encode<E>(&self, values: &mut E)
 //!     where
 //!         E: Extend<HeaderValue>,
@@ -76,7 +81,7 @@ extern crate base64;
 #[macro_use]
 extern crate bitflags;
 extern crate bytes;
-extern crate headers_core;
+pub extern crate headers_core;
 extern crate http;
 extern crate httpdate;
 extern crate mime;
@@ -84,6 +89,8 @@ extern crate sha1;
 #[cfg(all(test, feature = "nightly"))]
 extern crate test;
 
+pub use headers_core as core;
+#[allow(deprecated)]
 pub use headers_core::{Error, Header};
 
 #[doc(hidden)]

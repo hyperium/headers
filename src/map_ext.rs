@@ -1,29 +1,22 @@
-use super::{Error, Header, HeaderValue};
+use super::{Error, HeaderValue};
+use crate::core::{Decodable, Encodable};
+
 use http;
 
 /// An extension trait adding "typed" methods to `http::HeaderMap`.
 pub trait HeaderMapExt: self::sealed::Sealed {
     /// Inserts the typed `Header` into this `HeaderMap`.
-    fn typed_insert<H>(&mut self, header: H)
-    where
-        H: Header;
+    fn typed_insert<H: Encodable>(&mut self, header: H);
 
     /// Tries to find the header by name, and then decode it into `H`.
-    fn typed_get<H>(&self) -> Option<H>
-    where
-        H: Header;
+    fn typed_get<H: Decodable>(&self) -> Option<H>;
 
     /// Tries to find the header by name, and then decode it into `H`.
-    fn typed_try_get<H>(&self) -> Result<Option<H>, Error>
-    where
-        H: Header;
+    fn typed_try_get<H: Decodable>(&self) -> Result<Option<H>, Error>;
 }
 
 impl HeaderMapExt for http::HeaderMap {
-    fn typed_insert<H>(&mut self, header: H)
-    where
-        H: Header,
-    {
+    fn typed_insert<H: Encodable>(&mut self, header: H) {
         let entry = self.entry(H::name());
         let mut values = ToValues {
             state: State::First(entry),
@@ -31,17 +24,11 @@ impl HeaderMapExt for http::HeaderMap {
         header.encode(&mut values);
     }
 
-    fn typed_get<H>(&self) -> Option<H>
-    where
-        H: Header,
-    {
+    fn typed_get<H: Decodable>(&self) -> Option<H> {
         HeaderMapExt::typed_try_get(self).unwrap_or(None)
     }
 
-    fn typed_try_get<H>(&self) -> Result<Option<H>, Error>
-    where
-        H: Header,
-    {
+    fn typed_try_get<H: Decodable>(&self) -> Result<Option<H>, Error> {
         let mut values = self.get_all(H::name()).iter();
         if values.size_hint() == (0, Some(0)) {
             Ok(None)

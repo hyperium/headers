@@ -49,18 +49,22 @@ macro_rules! error_type {
 
 macro_rules! derive_header {
     ($type:ident(_), name: $name:ident) => {
-        impl crate::Header for $type {
+        impl ::headers_core::Named for $type {
             fn name() -> &'static ::http::header::HeaderName {
                 &::http::header::$name
             }
+        }
 
+        impl ::headers_core::Decodable for $type {
             fn decode<'i, I>(values: &mut I) -> Result<Self, ::Error>
             where
                 I: Iterator<Item = &'i ::http::header::HeaderValue>,
             {
                 ::util::TryFromValues::try_from_values(values).map($type)
             }
+        }
 
+        impl ::headers_core::Encodable for $type {
             fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
                 values.extend(::std::iter::once((&self.0).into()));
             }
