@@ -74,6 +74,12 @@ impl TryFrom<&str> for AccessControlAllowOrigin {
     }
 }
 
+impl From<Origin> for AccessControlAllowOrigin {
+    fn from(origin: Origin) -> Self {
+        Self(OriginOrAny::Origin(origin))
+    }
+}
+
 impl TryFrom<&HeaderValue> for OriginOrAny {
     type Error = ::Error;
 
