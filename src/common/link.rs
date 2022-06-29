@@ -923,7 +923,7 @@ mod tests {
 
     #[test]
     fn test_link_fmt_delimited() {
-        struct TestFormatterStruct<'a> { v: Vec<&'a str> };
+        struct TestFormatterStruct<'a> { v: Vec<&'a str> }
 
         impl<'a> fmt::Display for TestFormatterStruct<'a> {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
