@@ -1,6 +1,6 @@
 //! Link header and types.
 
-use std::fmt;
+use std::{fmt, iter::FromIterator};
 use std::borrow::Cow;
 use std::str::FromStr;
 #[allow(unused, deprecated)]
@@ -68,10 +68,10 @@ use language_tags::LanguageTag;
 ///     Link::new(vec![link_value])
 /// );
 /// ```
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, Default, PartialEq, Debug)]
 pub struct Link {
     /// A list of the `link-value`s of the Link entity-header.
-    values: Vec<LinkValue>
+    values: Vec<LinkValue>,
 }
 
 /// A single `link-value` of a `Link` header, based on:
@@ -243,14 +243,14 @@ impl_variants! {
 ////////////////////////////////////////////////////////////////////////////////
 
 impl Link {
-    /// Create `Link` from a `Vec<LinkValue>`.
-    pub fn new(link_values: Vec<LinkValue>) -> Link {
-        Link { values: link_values }
+    /// Create `Link` with an empty list of values.
+    pub fn new() -> Link {
+        Self::default()
     }
 
-    /// Get the `Link` header's `LinkValue`s.
-    pub fn values(&self) -> &[LinkValue] {
-        self.values.as_ref()
+    /// Get an iterator over the `Link` header's `LinkValue`s.
+    pub fn iter(&self) -> impl Iterator<Item = LinkValue> + '_ {
+        self.values.iter().cloned()
     }
 
     /// Add a `LinkValue` instance to the `Link` header's values.
@@ -653,7 +653,13 @@ impl FromStr for Link {
             }
         }
 
-        Ok(Link::new(link_values))
+        Ok(Link { values: link_values })
+    }
+}
+
+impl FromIterator<LinkValue> for Link {
+    fn from_iter<T: IntoIterator<Item = LinkValue>>(iter: T) -> Self {
+        Self { values: Vec::from_iter(iter) }
     }
 }
 
@@ -745,7 +751,7 @@ fn verify_and_trim(s: &str, b: (u8, u8)) -> Result<&str, ::Error> {
 
 #[cfg(test)]
 mod tests {
-    use std::fmt;
+    use std::{fmt, iter::FromIterator};
     use std::fmt::Write;
 
     use super::{Link, LinkValue, MediaDesc, RelationType, SplitAsciiUnquoted};
@@ -772,7 +778,7 @@ mod tests {
         let link_header = b"<http://example.com/TheBook/chapter2>; \
             rel=\"previous\"; rev=next; title=\"previous chapter\"";
 
-        let expected_link = Link::new(vec![link_value]);
+        let expected_link = Link::from_iter([link_value]);
 
         let link = parse_header(&[link_header]);
         assert_eq!(link.ok(), Some(expected_link));
@@ -793,7 +799,7 @@ mod tests {
             </TheBook/chapter4>; \
             rel=\"next\"; title*=UTF-8'de'n%c3%a4chstes%20Kapitel";
 
-        let expected_link = Link::new(vec![first_link, second_link]);
+        let expected_link = Link::from_iter([first_link, second_link]);
 
         let link = parse_header(&[link_header]);
         assert_eq!(link.ok(), Some(expected_link));
@@ -817,7 +823,7 @@ mod tests {
             title=\"previous chapter\"; title*=title* unparsed; \
             type=\"text/plain\"";
 
-        let expected_link = Link::new(vec![link_value]);
+        let expected_link = Link::from_iter([link_value]);
 
         let link = parse_header(&[link_header]);
         assert_eq!(link.ok(), Some(expected_link));
@@ -838,7 +844,7 @@ mod tests {
             .push_rev(RelationType::NEXT)
             .set_title("previous chapter");
 
-        let expected_link = Link::new(vec![first_link, second_link, third_link]);
+        let expected_link = Link::from_iter([first_link, second_link, third_link]);
 
         let link = parse_header(&[
             b"</TheBook/chapter2>; rel=\"previous\"; title*=UTF-8'de'letztes%20Kapitel, \
@@ -862,7 +868,7 @@ mod tests {
             .set_title_star("title* unparsed")
             .set_media_type(mime::TEXT_PLAIN);
 
-        let link = Link::new(vec![link_value]);
+        let link = Link::from_iter([link_value]);
 
         let mut link_header = String::new();
         write!(&mut link_header, "{}", link).unwrap();
