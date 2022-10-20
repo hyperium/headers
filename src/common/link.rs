@@ -1,6 +1,7 @@
 //! Link header and types.
 
-use std::{fmt, iter::FromIterator};
+use std::fmt;
+use std::iter::FromIterator;
 use std::borrow::Cow;
 use std::str::FromStr;
 #[allow(unused, deprecated)]
