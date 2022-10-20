@@ -58,6 +58,7 @@ use language_tags::LanguageTag;
 /// # Examples
 ///
 /// ```
+/// use std::iter::FromIterator;
 /// use headers::{HeaderMap, HeaderMapExt, link::{Link, LinkValue, RelationType}};
 ///
 /// let link_value = LinkValue::new("http://example.com/TheBook/chapter2")
@@ -66,7 +67,7 @@ use language_tags::LanguageTag;
 ///
 /// let mut headers = HeaderMap::new();
 /// headers.typed_insert(
-///     Link::new(vec![link_value])
+///     Link::from_iter([link_value])
 /// );
 /// ```
 #[derive(Clone, Default, PartialEq, Debug)]
