@@ -1,5 +1,7 @@
-use std::fmt;
 use std::convert::TryFrom;
+use std::fmt;
+
+use crate::core::{Decodable, Encodable, Named};
 
 use http::uri::Authority;
 
@@ -19,11 +21,13 @@ impl Host {
     }
 }
 
-impl ::Header for Host {
+impl Named for Host {
     fn name() -> &'static ::HeaderName {
         &::http::header::HOST
     }
+}
 
+impl Decodable for Host {
     fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values
             .next()
@@ -32,7 +36,9 @@ impl ::Header for Host {
             .map(Host)
             .ok_or_else(::Error::invalid)
     }
+}
 
+impl Encodable for Host {
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         let bytes = self.0.as_str().as_bytes();
         let val = ::HeaderValue::from_bytes(bytes).expect("Authority is a valid HeaderValue");

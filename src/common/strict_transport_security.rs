@@ -1,6 +1,8 @@
 use std::fmt;
 use std::time::Duration;
 
+use crate::core::{Decodable, Encodable, Named};
+
 use util::{self, IterExt, Seconds};
 
 /// `StrictTransportSecurity` header, defined in [RFC6797](https://tools.ietf.org/html/rfc6797)
@@ -129,11 +131,13 @@ fn from_str(s: &str) -> Result<StrictTransportSecurity, ::Error> {
         .ok_or_else(::Error::invalid)
 }
 
-impl ::Header for StrictTransportSecurity {
+impl Named for StrictTransportSecurity {
     fn name() -> &'static ::HeaderName {
         &::http::header::STRICT_TRANSPORT_SECURITY
     }
+}
 
+impl Decodable for StrictTransportSecurity {
     fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values
             .just_one()
@@ -141,7 +145,9 @@ impl ::Header for StrictTransportSecurity {
             .map(from_str)
             .unwrap_or_else(|| Err(::Error::invalid()))
     }
+}
 
+impl Encodable for StrictTransportSecurity {
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         struct Adapter<'a>(&'a StrictTransportSecurity);
 

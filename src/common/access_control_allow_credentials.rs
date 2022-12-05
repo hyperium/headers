@@ -1,4 +1,5 @@
-use {Header, HeaderName, HeaderValue};
+use crate::core::{Decodable, Encodable, Named};
+use crate::{HeaderName, HeaderValue};
 
 /// `Access-Control-Allow-Credentials` header, part of
 /// [CORS](http://www.w3.org/TR/cors/#access-control-allow-headers-response-header)
@@ -33,11 +34,13 @@ use {Header, HeaderName, HeaderValue};
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct AccessControlAllowCredentials;
 
-impl Header for AccessControlAllowCredentials {
+impl Named for AccessControlAllowCredentials {
     fn name() -> &'static HeaderName {
         &::http::header::ACCESS_CONTROL_ALLOW_CREDENTIALS
     }
+}
 
+impl Decodable for AccessControlAllowCredentials {
     fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values
             .next()
@@ -50,7 +53,9 @@ impl Header for AccessControlAllowCredentials {
             })
             .ok_or_else(::Error::invalid)
     }
+}
 
+impl Encodable for AccessControlAllowCredentials {
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         values.extend(::std::iter::once(HeaderValue::from_static("true")));
     }

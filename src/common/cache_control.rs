@@ -3,6 +3,8 @@ use std::iter::FromIterator;
 use std::str::FromStr;
 use std::time::Duration;
 
+use crate::core::{Decodable, Encodable, Named};
+
 use util::{self, csv, Seconds};
 use HeaderValue;
 
@@ -183,15 +185,19 @@ impl CacheControl {
     }
 }
 
-impl ::Header for CacheControl {
+impl Named for CacheControl {
     fn name() -> &'static ::HeaderName {
         &::http::header::CACHE_CONTROL
     }
+}
 
+impl Decodable for CacheControl {
     fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         csv::from_comma_delimited(values).map(|FromIter(cc)| cc)
     }
+}
 
+impl Encodable for CacheControl {
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         values.extend(::std::iter::once(util::fmt(Fmt(self))));
     }

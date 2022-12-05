@@ -70,7 +70,7 @@ pub use self::vary::Vary;
 //pub use self::warning::Warning;
 
 #[cfg(test)]
-fn test_decode<T: ::Header>(values: &[&str]) -> Option<T> {
+fn test_decode<T: headers_core::Decodable>(values: &[&str]) -> Option<T> {
     use HeaderMapExt;
     let mut map = ::http::HeaderMap::new();
     for val in values {
@@ -80,7 +80,7 @@ fn test_decode<T: ::Header>(values: &[&str]) -> Option<T> {
 }
 
 #[cfg(test)]
-fn test_encode<T: ::Header>(header: T) -> ::http::HeaderMap {
+fn test_encode<T: headers_core::Encodable>(header: T) -> ::http::HeaderMap {
     use HeaderMapExt;
     let mut map = ::http::HeaderMap::new();
     map.typed_insert(header);

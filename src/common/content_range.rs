@@ -1,7 +1,8 @@
 use std::fmt;
 use std::ops::{Bound, RangeBounds};
 
-use {util, HeaderValue};
+use crate::core::{Decodable, Encodable, Named};
+use crate::{util, HeaderValue};
 
 /// Content-Range, described in [RFC7233](https://tools.ietf.org/html/rfc7233#section-4.2)
 ///
@@ -98,11 +99,13 @@ impl ContentRange {
     }
 }
 
-impl ::Header for ContentRange {
+impl Named for ContentRange {
     fn name() -> &'static ::HeaderName {
         &::http::header::CONTENT_RANGE
     }
+}
 
+impl Decodable for ContentRange {
     fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values
             .next()
@@ -141,7 +144,9 @@ impl ::Header for ContentRange {
             })
             .ok_or_else(::Error::invalid)
     }
+}
 
+impl Encodable for ContentRange {
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         struct Adapter<'a>(&'a ContentRange);
 
@@ -178,22 +183,23 @@ fn split_in_two(s: &str, separator: char) -> Option<(&str, &str)> {
 }
 
 /*
-        test_header!(test_bytes,
-            vec![b"bytes 0-499/500"],
-            Some(ContentRange(ContentRangeSpec::Bytes {
-                range: Some((0, 499)),
-                complete_length: Some(500)
-            })));
+test_header!(test_bytes,
+    vec![b"bytes 0-499/500"],
+    Some(ContentRange(ContentRangeSpec::Bytes {
+        range: Some((0, 499)),
+        complete_length: Some(500)
+    })));
 
-        test_header!(test_bytes_unknown_len,
-            vec![b"bytes 0-499/*"],
-            Some(ContentRange(ContentRangeSpec::Bytes {
-                range: Some((0, 499)),
-                complete_length: None
-            })));
+test_header!(test_bytes_unknown_len,
+    vec![b"bytes 0-499/*"],
+    Some(ContentRange(ContentRangeSpec::Bytes {
+        range: Some((0, 499)),
+        complete_length: None
+    })));
 
-        test_header!(test_bytes_unknown_range,
-            vec![b"bytes */500"],
+test_header!(test_bytes_unknown_range,
+    vec![b"bytes */
+500"],
             Some(ContentRange(ContentRangeSpec::Bytes {
                 range: None,
                 complete_length: Some(500)

@@ -6,6 +6,8 @@
 // Browser conformance tests at: http://greenbytes.de/tech/tc2231/
 // IANA assignment: http://www.iana.org/assignments/cont-disp/cont-disp.xhtml
 
+use crate::core::{Decodable, Encodable, Named};
+
 /// A `Content-Disposition` header, (re)defined in [RFC6266](https://tools.ietf.org/html/rfc6266).
 ///
 /// The Content-Disposition response header field is used to convey
@@ -89,11 +91,13 @@ impl ContentDisposition {
     }
 }
 
-impl ::Header for ContentDisposition {
+impl Named for ContentDisposition {
     fn name() -> &'static ::HeaderName {
         &::http::header::CONTENT_DISPOSITION
     }
+}
 
+impl Decodable for ContentDisposition {
     fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         //TODO: parse harder
         values
@@ -102,7 +106,9 @@ impl ::Header for ContentDisposition {
             .map(ContentDisposition)
             .ok_or_else(::Error::invalid)
     }
+}
 
+impl Encodable for ContentDisposition {
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         values.extend(::std::iter::once(self.0.clone()));
     }

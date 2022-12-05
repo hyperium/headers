@@ -1,5 +1,7 @@
 use std::fmt;
 
+use crate::core::{Decodable, Encodable, Named};
+
 use mime::{self, Mime};
 
 /// `Content-Type` header, defined in
@@ -94,11 +96,13 @@ impl ContentType {
     }
 }
 
-impl ::Header for ContentType {
+impl Named for ContentType {
     fn name() -> &'static ::HeaderName {
         &::http::header::CONTENT_TYPE
     }
+}
 
+impl Decodable for ContentType {
     fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values
             .next()
@@ -106,7 +110,9 @@ impl ::Header for ContentType {
             .map(ContentType)
             .ok_or_else(::Error::invalid)
     }
+}
 
+impl Encodable for ContentType {
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         let value = self
             .0

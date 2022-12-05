@@ -1,5 +1,7 @@
 use std::ops::{Bound, RangeBounds};
 
+use crate::core::{Decodable, Encodable, Named};
+
 /// `Range` header, defined in [RFC7233](https://tools.ietf.org/html/rfc7233#section-3.1)
 ///
 /// The "Range" header field on a GET request modifies the method
@@ -83,11 +85,13 @@ fn parse_bound(s: &str) -> Option<Bound<u64>> {
     s.parse().ok().map(Bound::Included)
 }
 
-impl ::Header for Range {
+impl Named for Range {
     fn name() -> &'static ::HeaderName {
         &::http::header::RANGE
     }
+}
 
+impl Decodable for Range {
     fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
         values
             .next()
@@ -100,7 +104,9 @@ impl ::Header for Range {
             })
             .ok_or_else(::Error::invalid)
     }
+}
 
+impl Encodable for Range {
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
         values.extend(::std::iter::once(self.0.clone()));
     }
