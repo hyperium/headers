@@ -45,14 +45,15 @@ pub struct CacheControl {
 
 bitflags! {
     struct Flags: u32 {
-        const NO_CACHE         = 0b00000001;
-        const NO_STORE         = 0b00000010;
-        const NO_TRANSFORM     = 0b00000100;
-        const ONLY_IF_CACHED   = 0b00001000;
-        const MUST_REVALIDATE  = 0b00010000;
-        const PUBLIC           = 0b00100000;
-        const PRIVATE          = 0b01000000;
-        const PROXY_REVALIDATE = 0b10000000;
+        const NO_CACHE         = 0b00000000_00000001;
+        const NO_STORE         = 0b00000000_00000010;
+        const NO_TRANSFORM     = 0b00000000_00000100;
+        const ONLY_IF_CACHED   = 0b00000000_00001000;
+        const MUST_REVALIDATE  = 0b00000000_00010000;
+        const PUBLIC           = 0b00000000_00100000;
+        const PRIVATE          = 0b00000000_01000000;
+        const PROXY_REVALIDATE = 0b00000000_10000000;
+        const IMMUTABLE        = 0b00000001_00000000;
     }
 }
 
@@ -90,6 +91,16 @@ impl CacheControl {
         self.flags.contains(Flags::ONLY_IF_CACHED)
     }
 
+    /// Check if the `immutable` directive is set.
+    pub fn immutable(&self) -> bool {
+        self.flags.contains(Flags::IMMUTABLE)
+    }
+
+    /// Check if the `must-revalidate` directive is set.
+    pub fn must_revalidate(&self) -> bool {
+        self.flags.contains(Flags::MUST_REVALIDATE)
+    }
+
     /// Check if the `public` directive is set.
     pub fn public(&self) -> bool {
         self.flags.contains(Flags::PUBLIC)
@@ -98,6 +109,11 @@ impl CacheControl {
     /// Check if the `private` directive is set.
     pub fn private(&self) -> bool {
         self.flags.contains(Flags::PRIVATE)
+    }
+
+    /// Check if the `proxy-revalidate` directive is set.
+    pub fn proxy_revalidate(&self) -> bool {
+        self.flags.contains(Flags::PROXY_REVALIDATE)
     }
 
     /// Get the value of the `max-age` directive if set.
@@ -146,15 +162,33 @@ impl CacheControl {
         self
     }
 
-    /// Set the `private` directive.
-    pub fn with_private(mut self) -> Self {
-        self.flags.insert(Flags::PRIVATE);
+    /// Set the `immutable` directive.
+    pub fn with_immutable(mut self) -> Self {
+        self.flags.insert(Flags::IMMUTABLE);
+        self
+    }
+
+    /// Set the `must-revalidate` directive.
+    pub fn with_must_revalidate(mut self) -> Self {
+        self.flags.insert(Flags::MUST_REVALIDATE);
         self
     }
 
     /// Set the `public` directive.
     pub fn with_public(mut self) -> Self {
         self.flags.insert(Flags::PUBLIC);
+        self
+    }
+
+    /// Set the `private` directive.
+    pub fn with_private(mut self) -> Self {
+        self.flags.insert(Flags::PRIVATE);
+        self
+    }
+
+    /// Set the `proxy-revalidate` directive.
+    pub fn with_proxy_revalidate(mut self) -> Self {
+        self.flags.insert(Flags::PROXY_REVALIDATE);
         self
     }
 
@@ -227,6 +261,9 @@ impl FromIterator<KnownDirective> for FromIter {
                 Directive::OnlyIfCached => {
                     cc.flags.insert(Flags::ONLY_IF_CACHED);
                 }
+                Directive::Immutable => {
+                    cc.flags.insert(Flags::IMMUTABLE);
+                }
                 Directive::MustRevalidate => {
                     cc.flags.insert(Flags::MUST_REVALIDATE);
                 }
@@ -275,6 +312,7 @@ impl<'a> fmt::Display for Fmt<'a> {
             if_flag(Flags::NO_STORE, Directive::NoStore),
             if_flag(Flags::NO_TRANSFORM, Directive::NoTransform),
             if_flag(Flags::ONLY_IF_CACHED, Directive::OnlyIfCached),
+            if_flag(Flags::IMMUTABLE, Directive::Immutable),
             if_flag(Flags::MUST_REVALIDATE, Directive::MustRevalidate),
             if_flag(Flags::PUBLIC, Directive::Public),
             if_flag(Flags::PRIVATE, Directive::Private),
@@ -322,6 +360,7 @@ enum Directive {
     MinFresh(u64),
 
     // response directives
+    Immutable,
     MustRevalidate,
     Public,
     Private,
@@ -342,6 +381,7 @@ impl fmt::Display for Directive {
                 Directive::MaxStale(secs) => return write!(f, "max-stale={}", secs),
                 Directive::MinFresh(secs) => return write!(f, "min-fresh={}", secs),
 
+                Directive::Immutable => "immutable",
                 Directive::MustRevalidate => "must-revalidate",
                 Directive::Public => "public",
                 Directive::Private => "private",
@@ -361,6 +401,7 @@ impl FromStr for KnownDirective {
             "no-store" => Directive::NoStore,
             "no-transform" => Directive::NoTransform,
             "only-if-cached" => Directive::OnlyIfCached,
+            "immutable" => Directive::Immutable,
             "must-revalidate" => Directive::MustRevalidate,
             "public" => Directive::Public,
             "private" => Directive::Private,
