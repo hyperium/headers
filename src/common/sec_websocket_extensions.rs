@@ -61,7 +61,7 @@ use {Error, Header, HeaderValue};
 /// [RFC6455_11.3.2]: https://tools.ietf.org/html/rfc6455#section-11.3.2
 /// [RFC7692_7]: https://tools.ietf.org/html/rfc7692#section-7
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct SecWebsocketExtensions(pub Vec<WebsocketExtension>);
+pub struct SecWebsocketExtensions(Vec<WebsocketExtension>);
 
 impl Header for SecWebsocketExtensions {
     fn name() -> &'static ::HeaderName {
@@ -93,6 +93,11 @@ impl Header for SecWebsocketExtensions {
 }
 
 impl SecWebsocketExtensions {
+    /// Construct a `SecWebSocketExtensions` from `Vec<WebsocketExtension>`.
+    pub fn new(extensions: Vec<WebsocketExtension>) -> Self {
+        SecWebsocketExtensions(extensions)
+    }
+
     /// Construct a `SecWebSocketExtensions` from a static string.
     ///
     /// ## Panic
@@ -313,13 +318,13 @@ mod tests {
     #[test]
     fn extensions_encode() {
         let extensions =
-            SecWebsocketExtensions(vec![WebsocketExtension::from_static("foo; bar; baz=1")]);
+            SecWebsocketExtensions::new(vec![WebsocketExtension::from_static("foo; bar; baz=1")]);
         let headers = test_encode(extensions);
         let mut vals = headers.get_all(SEC_WEBSOCKET_EXTENSIONS).into_iter();
         assert_eq!(vals.next().unwrap(), "foo; bar; baz=1");
         assert_eq!(vals.next(), None);
 
-        let extensions = SecWebsocketExtensions(vec![]);
+        let extensions = SecWebsocketExtensions::new(vec![]);
         let headers = test_encode(extensions);
         let mut vals = headers.get_all(SEC_WEBSOCKET_EXTENSIONS).into_iter();
         assert_eq!(vals.next(), None);
@@ -328,7 +333,7 @@ mod tests {
     #[test]
     fn extensions_encode_combine() {
         // Multiple extensions are combined into a single header
-        let extensions = SecWebsocketExtensions(vec![
+        let extensions = SecWebsocketExtensions::new(vec![
             WebsocketExtension::from_static("foo1; bar"),
             WebsocketExtension::from_static("foo2; bar"),
             WebsocketExtension::from_static("baz; quux"),
@@ -341,7 +346,7 @@ mod tests {
 
     #[test]
     fn extensions_iter() {
-        let extensions = SecWebsocketExtensions(vec![
+        let extensions = SecWebsocketExtensions::new(vec![
             WebsocketExtension::from_static("foo; bar1; bar2=3"),
             WebsocketExtension::from_static("baz; quux"),
         ]);
