@@ -97,7 +97,7 @@
 //!         let value = values.next().ok_or_else(headers::Error::invalid)?;
 //!
 //!         let real_ip_str =
-//!             String::from_utf8(value.as_bytes().to_vec()).map_err(|_| headers::Error::invalid())?;
+//!             std::str::from_utf8(value.as_bytes()).map_err(|_| headers::Error::invalid())?;
 //!         let real_ip = real_ip_str.parse().map_err(|_| headers::Error::invalid())?;
 //!
 //!         Ok(RealIp(real_ip))
