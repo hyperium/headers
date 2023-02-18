@@ -136,10 +136,12 @@ impl fmt::Display for ContentType {
 }
 
 impl std::str::FromStr for ContentType {
-    type Err = mime::FromStrError;
+    type Err = ::Error;
 
     fn from_str(s: &str) -> Result<ContentType, Self::Err> {
-        s.parse::<Mime>().map(|m| m.into())
+        s.parse::<Mime>()
+            .map(|m| m.into())
+            .map_err(|_| ::Error::invalid())
     }
 }
 
@@ -160,8 +162,10 @@ mod tests {
     fn from_str() {
         assert_eq!(
             "application/json".parse::<ContentType>().unwrap(),
-            ContentType::json()
+            ContentType::json(),
         );
+        println!("{:?}", "invalid/mimetypeeee".parse::<ContentType>());
+        assert!("invalid-mimetype".parse::<ContentType>().is_err());
     }
 
     bench_header!(bench_plain, ContentType, "text/plain");
