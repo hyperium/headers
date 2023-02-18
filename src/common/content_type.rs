@@ -164,7 +164,6 @@ mod tests {
             "application/json".parse::<ContentType>().unwrap(),
             ContentType::json(),
         );
-        println!("{:?}", "invalid/mimetypeeee".parse::<ContentType>());
         assert!("invalid-mimetype".parse::<ContentType>().is_err());
     }
 
