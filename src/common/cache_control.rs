@@ -159,26 +159,26 @@ impl CacheControl {
     }
 
     /// Set the `max-age` directive.
-    pub fn with_max_age(mut self, seconds: Duration) -> Self {
-        self.max_age = Some(seconds.into());
+    pub fn with_max_age(mut self, duration: Duration) -> Self {
+        self.max_age = Some(duration.into());
         self
     }
 
     /// Set the `max-stale` directive.
-    pub fn with_max_stale(mut self, seconds: Duration) -> Self {
-        self.max_stale = Some(seconds.into());
+    pub fn with_max_stale(mut self, duration: Duration) -> Self {
+        self.max_stale = Some(duration.into());
         self
     }
 
     /// Set the `min-fresh` directive.
-    pub fn with_min_fresh(mut self, seconds: Duration) -> Self {
-        self.min_fresh = Some(seconds.into());
+    pub fn with_min_fresh(mut self, duration: Duration) -> Self {
+        self.min_fresh = Some(duration.into());
         self
     }
 
     /// Set the `s-maxage` directive.
-    pub fn with_s_max_age(mut self, seconds: Duration) -> Self {
-        self.s_max_age = Some(seconds.into());
+    pub fn with_s_max_age(mut self, duration: Duration) -> Self {
+        self.s_max_age = Some(duration.into());
         self
     }
 }
