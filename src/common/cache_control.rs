@@ -454,6 +454,7 @@ mod tests {
         let headers = test_encode(cc.clone());
         assert_eq!(headers["cache-control"], "immutable");
         assert_eq!(test_decode::<CacheControl>(&["immutable"]).unwrap(), cc);
+        assert!(cc.immutable());
     }
 
     #[test]
