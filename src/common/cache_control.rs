@@ -7,6 +7,7 @@ use util::{self, csv, Seconds};
 use HeaderValue;
 
 /// `Cache-Control` header, defined in [RFC7234](https://tools.ietf.org/html/rfc7234#section-5.2)
+/// with extensions in [RFC8246](https://www.rfc-editor.org/rfc/rfc8246)
 ///
 /// The `Cache-Control` header field is used to specify directives for
 /// caches along the request/response chain.  Such cache directives are
@@ -45,14 +46,15 @@ pub struct CacheControl {
 
 bitflags! {
     struct Flags: u32 {
-        const NO_CACHE         = 0b00000001;
-        const NO_STORE         = 0b00000010;
-        const NO_TRANSFORM     = 0b00000100;
-        const ONLY_IF_CACHED   = 0b00001000;
-        const MUST_REVALIDATE  = 0b00010000;
-        const PUBLIC           = 0b00100000;
-        const PRIVATE          = 0b01000000;
-        const PROXY_REVALIDATE = 0b10000000;
+        const NO_CACHE         = 0b000000001;
+        const NO_STORE         = 0b000000010;
+        const NO_TRANSFORM     = 0b000000100;
+        const ONLY_IF_CACHED   = 0b000001000;
+        const MUST_REVALIDATE  = 0b000010000;
+        const PUBLIC           = 0b000100000;
+        const PRIVATE          = 0b001000000;
+        const PROXY_REVALIDATE = 0b010000000;
+        const IMMUTABLE        = 0b100000000;
     }
 }
 
@@ -98,6 +100,11 @@ impl CacheControl {
     /// Check if the `private` directive is set.
     pub fn private(&self) -> bool {
         self.flags.contains(Flags::PRIVATE)
+    }
+
+    /// Check if the `immutable` directive is set.
+    pub fn immutable(&self) -> bool {
+        self.flags.contains(Flags::IMMUTABLE)
     }
 
     /// Get the value of the `max-age` directive if set.
@@ -155,6 +162,12 @@ impl CacheControl {
     /// Set the `public` directive.
     pub fn with_public(mut self) -> Self {
         self.flags.insert(Flags::PUBLIC);
+        self
+    }
+
+    /// Set the `immutable` directive.
+    pub fn with_immutable(mut self) -> Self {
+        self.flags.insert(Flags::IMMUTABLE);
         self
     }
 
@@ -236,6 +249,9 @@ impl FromIterator<KnownDirective> for FromIter {
                 Directive::Private => {
                     cc.flags.insert(Flags::PRIVATE);
                 }
+                Directive::Immutable => {
+                    cc.flags.insert(Flags::IMMUTABLE);
+                }
                 Directive::ProxyRevalidate => {
                     cc.flags.insert(Flags::PROXY_REVALIDATE);
                 }
@@ -278,6 +294,7 @@ impl<'a> fmt::Display for Fmt<'a> {
             if_flag(Flags::MUST_REVALIDATE, Directive::MustRevalidate),
             if_flag(Flags::PUBLIC, Directive::Public),
             if_flag(Flags::PRIVATE, Directive::Private),
+            if_flag(Flags::IMMUTABLE, Directive::Immutable),
             if_flag(Flags::PROXY_REVALIDATE, Directive::ProxyRevalidate),
             self.0
                 .max_age
@@ -325,6 +342,7 @@ enum Directive {
     MustRevalidate,
     Public,
     Private,
+    Immutable,
     ProxyRevalidate,
     SMaxAge(u64),
 }
@@ -345,6 +363,7 @@ impl fmt::Display for Directive {
                 Directive::MustRevalidate => "must-revalidate",
                 Directive::Public => "public",
                 Directive::Private => "private",
+                Directive::Immutable => "immutable",
                 Directive::ProxyRevalidate => "proxy-revalidate",
                 Directive::SMaxAge(secs) => return write!(f, "s-maxage={}", secs),
             },
@@ -364,6 +383,7 @@ impl FromStr for KnownDirective {
             "must-revalidate" => Directive::MustRevalidate,
             "public" => Directive::Public,
             "private" => Directive::Private,
+            "immutable" => Directive::Immutable,
             "proxy-revalidate" => Directive::ProxyRevalidate,
             "" => return Err(()),
             _ => match s.find('=') {
@@ -429,8 +449,17 @@ mod tests {
     }
 
     #[test]
+    fn test_immutable() {
+        let cc = CacheControl::new().with_immutable();
+        let headers = test_encode(cc.clone());
+        assert_eq!(headers["cache-control"], "immutable");
+        assert_eq!(test_decode::<CacheControl>(&["immutable"]).unwrap(), cc);
+        assert!(cc.immutable());
+    }
+
+    #[test]
     fn test_parse_bad_syntax() {
-        assert_eq!(test_decode::<CacheControl>(&["max-age=lolz"]), None,);
+        assert_eq!(test_decode::<CacheControl>(&["max-age=lolz"]), None);
     }
 
     #[test]
