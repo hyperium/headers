@@ -1,6 +1,5 @@
 //! Authorization header and types.
 
-use base64;
 use bytes::Bytes;
 
 use util::HeaderValueString;
@@ -168,8 +167,10 @@ impl Credentials for Basic {
     }
 
     fn encode(&self) -> HeaderValue {
+        const ENGINE: base64::engine::fast_portable::FastPortable = base64::engine::DEFAULT_ENGINE;
+
         let mut encoded = String::from("Basic ");
-        base64::encode_config_buf(&self.decoded, base64::STANDARD, &mut encoded);
+        base64::encode_engine_string(&self.decoded, &mut encoded, &ENGINE);
 
         let bytes = Bytes::from(encoded);
         HeaderValue::from_maybe_shared(bytes)
