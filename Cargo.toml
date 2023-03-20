@@ -20,7 +20,7 @@ members = [
 http = "0.2.0"
 headers-core = { version = "0.2", path = "./headers-core" }
 base64 = "0.13"
-bitflags = "1.0"
+bitflags = "2.0.2"
 bytes = "1"
 mime = "0.3.14"
 sha1 = "0.10"

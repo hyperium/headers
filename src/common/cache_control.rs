@@ -45,6 +45,7 @@ pub struct CacheControl {
 }
 
 bitflags! {
+    #[derive(Debug, Clone, PartialEq)]
     struct Flags: u32 {
         const NO_CACHE         = 0b000000001;
         const NO_STORE         = 0b000000010;
