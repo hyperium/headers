@@ -19,8 +19,8 @@ members = [
 [dependencies]
 http = "0.2.0"
 headers-core = { version = "0.2", path = "./headers-core" }
-base64 = "0.13"
 bytes = "1"
+data-encoding = "2"
 mime = "0.3.14"
 sha1 = "0.10"
 httpdate = "1"

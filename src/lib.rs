@@ -72,8 +72,8 @@
 //! }
 //! ```
 
-extern crate base64;
 extern crate bytes;
+extern crate data_encoding;
 extern crate headers_core;
 extern crate http;
 extern crate httpdate;
