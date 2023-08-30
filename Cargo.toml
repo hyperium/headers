@@ -9,6 +9,7 @@ repository = "https://github.com/hyperium/headers"
 authors = ["Sean McArthur <sean@seanmonstar.com>"]
 keywords = ["http", "headers", "hyper", "hyperium"]
 categories = ["web-programming"]
+rust-version = "1.56"
 
 [workspace]
 members = [
