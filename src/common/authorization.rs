@@ -1,6 +1,7 @@
 //! Authorization header and types.
 
-use base64;
+use base64::engine::general_purpose::STANDARD as ENGINE;
+use base64::Engine;
 use bytes::Bytes;
 
 use util::HeaderValueString;
@@ -158,7 +159,8 @@ impl Credentials for Basic {
         let bytes = &value.as_bytes()["Basic ".len()..];
         let non_space_pos = bytes.iter().position(|b| *b != b' ')?;
         let bytes = &bytes[non_space_pos..];
-        let bytes = base64::decode(bytes).ok()?;
+
+        let bytes = ENGINE.decode(bytes).ok()?;
 
         let decoded = String::from_utf8(bytes).ok()?;
 
@@ -169,7 +171,7 @@ impl Credentials for Basic {
 
     fn encode(&self) -> HeaderValue {
         let mut encoded = String::from("Basic ");
-        base64::encode_config_buf(&self.decoded, base64::STANDARD, &mut encoded);
+        ENGINE.encode_string(&self.decoded, &mut encoded);
 
         let bytes = Bytes::from(encoded);
         HeaderValue::from_maybe_shared(bytes)
