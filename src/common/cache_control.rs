@@ -270,7 +270,7 @@ impl FromIterator<KnownDirective> for FromIter {
                 }
                 Directive::MustUnderstand => {
                     cc.flags.insert(Flags::MUST_UNDERSTAND);
-                 }
+                }
                 Directive::Public => {
                     cc.flags.insert(Flags::PUBLIC);
                 }
@@ -494,7 +494,10 @@ mod tests {
         let cc = CacheControl::new().with_must_understand();
         let headers = test_encode(cc.clone());
         assert_eq!(headers["cache-control"], "must-understand");
-        assert_eq!(test_decode::<CacheControl>(&["must-understand"]).unwrap(), cc);
+        assert_eq!(
+            test_decode::<CacheControl>(&["must-understand"]).unwrap(),
+            cc
+        );
         assert!(cc.must_understand());
     }
 
