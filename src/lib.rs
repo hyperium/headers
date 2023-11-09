@@ -2,7 +2,7 @@
 #![deny(missing_debug_implementations)]
 #![cfg_attr(test, deny(warnings))]
 #![cfg_attr(all(test, feature = "nightly"), feature(test))]
-#![doc(html_root_url = "https://docs.rs/headers/0.2.3")]
+#![doc(html_root_url = "https://docs.rs/headers/0.3.9")]
 
 //! # Typed HTTP Headers
 //!
@@ -73,16 +73,14 @@
 //! ```
 
 extern crate base64;
-#[macro_use]
-extern crate bitflags;
 extern crate bytes;
 extern crate headers_core;
 extern crate http;
+extern crate httpdate;
 pub extern crate mime;
 extern crate sha1;
 #[cfg(all(test, feature = "nightly"))]
 extern crate test;
-extern crate time;
 
 pub use headers_core::{Error, Header};
 

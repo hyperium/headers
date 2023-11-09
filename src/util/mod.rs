@@ -2,7 +2,7 @@ use HeaderValue;
 
 //pub use self::charset::Charset;
 //pub use self::encoding::Encoding;
-pub(crate) use self::entity::EntityTag;
+pub(crate) use self::entity::{EntityTag, EntityTagRange};
 pub(crate) use self::flat_csv::{FlatCsv, SemiColon};
 pub(crate) use self::fmt::fmt;
 pub(crate) use self::http_date::HttpDate;
@@ -43,11 +43,7 @@ macro_rules! error_type {
             }
         }
 
-        impl ::std::error::Error for $name {
-            fn description(&self) -> &str {
-                stringify!($name)
-            }
-        }
+        impl ::std::error::Error for $name {}
     };
 }
 

@@ -7,6 +7,7 @@ use util::{self, csv, Seconds};
 use HeaderValue;
 
 /// `Cache-Control` header, defined in [RFC7234](https://tools.ietf.org/html/rfc7234#section-5.2)
+/// with extensions in [RFC8246](https://www.rfc-editor.org/rfc/rfc8246)
 ///
 /// The `Cache-Control` header field is used to specify directives for
 /// caches along the request/response chain.  Such cache directives are
@@ -43,16 +44,33 @@ pub struct CacheControl {
     s_max_age: Option<Seconds>,
 }
 
-bitflags! {
-    struct Flags: u32 {
-        const NO_CACHE         = 0b00000001;
-        const NO_STORE         = 0b00000010;
-        const NO_TRANSFORM     = 0b00000100;
-        const ONLY_IF_CACHED   = 0b00001000;
-        const MUST_REVALIDATE  = 0b00010000;
-        const PUBLIC           = 0b00100000;
-        const PRIVATE          = 0b01000000;
-        const PROXY_REVALIDATE = 0b10000000;
+#[derive(Debug, Clone, PartialEq)]
+struct Flags {
+    bits: u64,
+}
+
+impl Flags {
+    const NO_CACHE: Self = Self { bits: 0b000000001 };
+    const NO_STORE: Self = Self { bits: 0b000000010 };
+    const NO_TRANSFORM: Self = Self { bits: 0b000000100 };
+    const ONLY_IF_CACHED: Self = Self { bits: 0b000001000 };
+    const MUST_REVALIDATE: Self = Self { bits: 0b000010000 };
+    const PUBLIC: Self = Self { bits: 0b000100000 };
+    const PRIVATE: Self = Self { bits: 0b001000000 };
+    const PROXY_REVALIDATE: Self = Self { bits: 0b010000000 };
+    const IMMUTABLE: Self = Self { bits: 0b100000000 };
+    const MUST_UNDERSTAND: Self = Self { bits: 0b1000000000 };
+
+    fn empty() -> Self {
+        Self { bits: 0 }
+    }
+
+    fn contains(&self, flag: Self) -> bool {
+        (self.bits & flag.bits) != 0
+    }
+
+    fn insert(&mut self, flag: Self) {
+        self.bits |= flag.bits;
     }
 }
 
@@ -98,6 +116,15 @@ impl CacheControl {
     /// Check if the `private` directive is set.
     pub fn private(&self) -> bool {
         self.flags.contains(Flags::PRIVATE)
+    }
+
+    /// Check if the `immutable` directive is set.
+    pub fn immutable(&self) -> bool {
+        self.flags.contains(Flags::IMMUTABLE)
+    }
+    /// Check if the `must_understand` directive is set.
+    pub fn must_understand(&self) -> bool {
+        self.flags.contains(Flags::MUST_UNDERSTAND)
     }
 
     /// Get the value of the `max-age` directive if set.
@@ -158,27 +185,38 @@ impl CacheControl {
         self
     }
 
+    /// Set the `immutable` directive.
+    pub fn with_immutable(mut self) -> Self {
+        self.flags.insert(Flags::IMMUTABLE);
+        self
+    }
+
+    /// Set the `must_understand` directive.
+    pub fn with_must_understand(mut self) -> Self {
+        self.flags.insert(Flags::MUST_UNDERSTAND);
+        self
+    }
     /// Set the `max-age` directive.
-    pub fn with_max_age(mut self, seconds: Duration) -> Self {
-        self.max_age = Some(seconds.into());
+    pub fn with_max_age(mut self, duration: Duration) -> Self {
+        self.max_age = Some(duration.into());
         self
     }
 
     /// Set the `max-stale` directive.
-    pub fn with_max_stale(mut self, seconds: Duration) -> Self {
-        self.max_stale = Some(seconds.into());
+    pub fn with_max_stale(mut self, duration: Duration) -> Self {
+        self.max_stale = Some(duration.into());
         self
     }
 
     /// Set the `min-fresh` directive.
-    pub fn with_min_fresh(mut self, seconds: Duration) -> Self {
-        self.min_fresh = Some(seconds.into());
+    pub fn with_min_fresh(mut self, duration: Duration) -> Self {
+        self.min_fresh = Some(duration.into());
         self
     }
 
     /// Set the `s-maxage` directive.
-    pub fn with_s_max_age(mut self, seconds: Duration) -> Self {
-        self.s_max_age = Some(seconds.into());
+    pub fn with_s_max_age(mut self, duration: Duration) -> Self {
+        self.s_max_age = Some(duration.into());
         self
     }
 }
@@ -230,11 +268,17 @@ impl FromIterator<KnownDirective> for FromIter {
                 Directive::MustRevalidate => {
                     cc.flags.insert(Flags::MUST_REVALIDATE);
                 }
+                Directive::MustUnderstand => {
+                    cc.flags.insert(Flags::MUST_UNDERSTAND);
+                }
                 Directive::Public => {
                     cc.flags.insert(Flags::PUBLIC);
                 }
                 Directive::Private => {
                     cc.flags.insert(Flags::PRIVATE);
+                }
+                Directive::Immutable => {
+                    cc.flags.insert(Flags::IMMUTABLE);
                 }
                 Directive::ProxyRevalidate => {
                     cc.flags.insert(Flags::PROXY_REVALIDATE);
@@ -278,6 +322,8 @@ impl<'a> fmt::Display for Fmt<'a> {
             if_flag(Flags::MUST_REVALIDATE, Directive::MustRevalidate),
             if_flag(Flags::PUBLIC, Directive::Public),
             if_flag(Flags::PRIVATE, Directive::Private),
+            if_flag(Flags::IMMUTABLE, Directive::Immutable),
+            if_flag(Flags::MUST_UNDERSTAND, Directive::MustUnderstand),
             if_flag(Flags::PROXY_REVALIDATE, Directive::ProxyRevalidate),
             self.0
                 .max_age
@@ -323,8 +369,10 @@ enum Directive {
 
     // response directives
     MustRevalidate,
+    MustUnderstand,
     Public,
     Private,
+    Immutable,
     ProxyRevalidate,
     SMaxAge(u64),
 }
@@ -343,8 +391,10 @@ impl fmt::Display for Directive {
                 Directive::MinFresh(secs) => return write!(f, "min-fresh={}", secs),
 
                 Directive::MustRevalidate => "must-revalidate",
+                Directive::MustUnderstand => "must-understand",
                 Directive::Public => "public",
                 Directive::Private => "private",
+                Directive::Immutable => "immutable",
                 Directive::ProxyRevalidate => "proxy-revalidate",
                 Directive::SMaxAge(secs) => return write!(f, "s-maxage={}", secs),
             },
@@ -364,6 +414,8 @@ impl FromStr for KnownDirective {
             "must-revalidate" => Directive::MustRevalidate,
             "public" => Directive::Public,
             "private" => Directive::Private,
+            "immutable" => Directive::Immutable,
+            "must-understand" => Directive::MustUnderstand,
             "proxy-revalidate" => Directive::ProxyRevalidate,
             "" => return Err(()),
             _ => match s.find('=') {
@@ -429,8 +481,29 @@ mod tests {
     }
 
     #[test]
+    fn test_immutable() {
+        let cc = CacheControl::new().with_immutable();
+        let headers = test_encode(cc.clone());
+        assert_eq!(headers["cache-control"], "immutable");
+        assert_eq!(test_decode::<CacheControl>(&["immutable"]).unwrap(), cc);
+        assert!(cc.immutable());
+    }
+
+    #[test]
+    fn test_must_understand() {
+        let cc = CacheControl::new().with_must_understand();
+        let headers = test_encode(cc.clone());
+        assert_eq!(headers["cache-control"], "must-understand");
+        assert_eq!(
+            test_decode::<CacheControl>(&["must-understand"]).unwrap(),
+            cc
+        );
+        assert!(cc.must_understand());
+    }
+
+    #[test]
     fn test_parse_bad_syntax() {
-        assert_eq!(test_decode::<CacheControl>(&["max-age=lolz"]), None,);
+        assert_eq!(test_decode::<CacheControl>(&["max-age=lolz"]), None);
     }
 
     #[test]

@@ -24,7 +24,7 @@ impl HeaderMapExt for http::HeaderMap {
     where
         H: Header,
     {
-        let entry = self.entry(H::name()).expect("HeaderName is always valid");
+        let entry = self.entry(H::name());
         let mut values = ToValues {
             state: State::First(entry),
         };

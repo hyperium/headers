@@ -1,6 +1,7 @@
 //! Authorization header and types.
 
-use base64;
+use base64::engine::general_purpose::STANDARD as ENGINE;
+use base64::Engine;
 use bytes::Bytes;
 
 use util::HeaderValueString;
@@ -45,6 +46,16 @@ impl Authorization<Basic> {
 
         Authorization(Basic { decoded, colon_pos })
     }
+
+    /// View the decoded username.
+    pub fn username(&self) -> &str {
+        self.0.username()
+    }
+
+    /// View the decoded password.
+    pub fn password(&self) -> &str {
+        self.0.password()
+    }
 }
 
 impl Authorization<Bearer> {
@@ -53,6 +64,11 @@ impl Authorization<Bearer> {
         HeaderValueString::from_string(format!("Bearer {}", token))
             .map(|val| Authorization(Bearer(val)))
             .ok_or_else(|| InvalidBearerToken { _inner: () })
+    }
+
+    /// View the token part as a `&str`.
+    pub fn token(&self) -> &str {
+        self.0.token()
     }
 }
 
@@ -79,7 +95,8 @@ impl<C: Credentials> ::Header for Authorization<C> {
     }
 
     fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
-        let value = self.0.encode();
+        let mut value = self.0.encode();
+        value.set_sensitive(true);
         debug_assert!(
             value.as_bytes().starts_with(C::SCHEME.as_bytes()),
             "Credentials::encode should include its scheme: scheme = {:?}, encoded = {:?}",
@@ -142,7 +159,8 @@ impl Credentials for Basic {
         let bytes = &value.as_bytes()["Basic ".len()..];
         let non_space_pos = bytes.iter().position(|b| *b != b' ')?;
         let bytes = &bytes[non_space_pos..];
-        let bytes = base64::decode(bytes).ok()?;
+
+        let bytes = ENGINE.decode(bytes).ok()?;
 
         let decoded = String::from_utf8(bytes).ok()?;
 
@@ -153,10 +171,11 @@ impl Credentials for Basic {
 
     fn encode(&self) -> HeaderValue {
         let mut encoded = String::from("Basic ");
-        base64::encode_config_buf(&self.decoded, base64::STANDARD, &mut encoded);
+        ENGINE.encode_string(&self.decoded, &mut encoded);
 
         let bytes = Bytes::from(encoded);
-        HeaderValue::from_shared(bytes).expect("base64 encoding is always a valid HeaderValue")
+        HeaderValue::from_maybe_shared(bytes)
+            .expect("base64 encoding is always a valid HeaderValue")
     }
 }
 

@@ -1,3 +1,4 @@
+use std::convert::TryFrom;
 use std::fmt;
 
 use bytes::Bytes;
@@ -73,7 +74,7 @@ impl Origin {
     #[inline]
     pub fn port(&self) -> Option<u16> {
         match self.0 {
-            OriginOrNull::Origin(_, ref auth) => auth.port_part().map(|p| p.as_u16()),
+            OriginOrNull::Origin(_, ref auth) => auth.port_u16(),
             OriginOrNull::Null => None,
         }
     }
@@ -97,7 +98,7 @@ impl Origin {
         }
 
         let bytes = Bytes::from(format!("{}://{}{}", scheme, host, MaybePort(port.into())));
-        HeaderValue::from_shared(bytes)
+        HeaderValue::from_maybe_shared(bytes)
             .ok()
             .and_then(|val| Self::try_from_value(&val))
             .ok_or_else(|| InvalidOrigin { _inner: () })
@@ -130,9 +131,7 @@ impl OriginOrNull {
             return Some(OriginOrNull::Null);
         }
 
-        let bytes = Bytes::from(value.clone());
-
-        let uri = Uri::from_shared(bytes).ok()?;
+        let uri = Uri::try_from(value.as_bytes()).ok()?;
 
         let (scheme, auth) = match uri.into_parts() {
             uri::Parts {
@@ -174,7 +173,7 @@ impl<'a> From<&'a OriginOrNull> for HeaderValue {
             OriginOrNull::Origin(ref scheme, ref auth) => {
                 let s = format!("{}://{}", scheme, auth);
                 let bytes = Bytes::from(s);
-                HeaderValue::from_shared(bytes)
+                HeaderValue::from_maybe_shared(bytes)
                     .expect("Scheme and Authority are valid header values")
             }
             // Serialized as "null" per ASCII serialization of an origin
