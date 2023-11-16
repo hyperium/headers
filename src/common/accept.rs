@@ -1,7 +1,5 @@
 use std::iter::FromIterator;
 
-use http::HttpTryFrom;
-
 use mime::{self, Mime};
 
 use {util::QualityValue, Header};
@@ -121,7 +119,7 @@ impl Header for Accept {
                 )
             )
         );
-        values.extend(Some(::HeaderValue::try_from(s).unwrap()))
+        values.extend(Some(::HeaderValue::from_str(s.as_str()).unwrap()))
     }
 }
 
