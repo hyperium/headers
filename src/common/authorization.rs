@@ -84,8 +84,7 @@ impl<C: Credentials> ::Header for Authorization<C> {
                 let slice = val.as_bytes();
                 if slice.len() > C::SCHEME.len()
                     && slice[C::SCHEME.len()] == b' '
-                    && slice[..C::SCHEME.len()].to_ascii_lowercase()
-                        == C::SCHEME.to_ascii_lowercase().as_bytes()
+                    && slice[..C::SCHEME.len()].eq_ignore_ascii_case(C::SCHEME.as_bytes())
                 {
                     C::decode(val).map(Authorization)
                 } else {
@@ -152,7 +151,7 @@ impl Credentials for Basic {
 
     fn decode(value: &HeaderValue) -> Option<Self> {
         debug_assert!(
-            value.as_bytes().to_ascii_lowercase().starts_with(b"basic "),
+            value.as_bytes()[..Self::SCHEME.len()].eq_ignore_ascii_case(Self::SCHEME.as_bytes()),
             "HeaderValue to decode should start with \"Basic ..\", received = {:?}",
             value,
         );
@@ -196,10 +195,7 @@ impl Credentials for Bearer {
 
     fn decode(value: &HeaderValue) -> Option<Self> {
         debug_assert!(
-            value
-                .as_bytes()
-                .to_ascii_lowercase()
-                .starts_with(b"bearer "),
+            value.as_bytes()[..Self::SCHEME.len()].eq_ignore_ascii_case(Self::SCHEME.as_bytes()),
             "HeaderValue to decode should start with \"Bearer ..\", received = {:?}",
             value,
         );
