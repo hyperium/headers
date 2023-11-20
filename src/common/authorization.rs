@@ -82,9 +82,9 @@ impl<C: Credentials> ::Header for Authorization<C> {
             .next()
             .and_then(|val| {
                 let slice = val.as_bytes();
-                if slice.starts_with(C::SCHEME.as_bytes())
-                    && slice.len() > C::SCHEME.len()
+                if slice.len() > C::SCHEME.len()
                     && slice[C::SCHEME.len()] == b' '
+                    && slice[..C::SCHEME.len()].eq_ignore_ascii_case(C::SCHEME.as_bytes())
                 {
                     C::decode(val).map(Authorization)
                 } else {
@@ -151,7 +151,7 @@ impl Credentials for Basic {
 
     fn decode(value: &HeaderValue) -> Option<Self> {
         debug_assert!(
-            value.as_bytes().starts_with(b"Basic "),
+            value.as_bytes()[..Self::SCHEME.len()].eq_ignore_ascii_case(Self::SCHEME.as_bytes()),
             "HeaderValue to decode should start with \"Basic ..\", received = {:?}",
             value,
         );
@@ -186,7 +186,7 @@ pub struct Bearer(HeaderValueString);
 impl Bearer {
     /// View the token part as a `&str`.
     pub fn token(&self) -> &str {
-        &self.0.as_str()["Bearer ".len()..]
+        self.0.as_str()["Bearer ".len()..].trim_start()
     }
 }
 
@@ -195,7 +195,7 @@ impl Credentials for Bearer {
 
     fn decode(value: &HeaderValue) -> Option<Self> {
         debug_assert!(
-            value.as_bytes().starts_with(b"Bearer "),
+            value.as_bytes()[..Self::SCHEME.len()].eq_ignore_ascii_case(Self::SCHEME.as_bytes()),
             "HeaderValue to decode should start with \"Bearer ..\", received = {:?}",
             value,
         );
@@ -253,6 +253,22 @@ mod tests {
     }
 
     #[test]
+    fn basic_decode_case_insensitive() {
+        let auth: Authorization<Basic> =
+            test_decode(&["basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="]).unwrap();
+        assert_eq!(auth.0.username(), "Aladdin");
+        assert_eq!(auth.0.password(), "open sesame");
+    }
+
+    #[test]
+    fn basic_decode_extra_whitespaces() {
+        let auth: Authorization<Basic> =
+            test_decode(&["Basic  QWxhZGRpbjpvcGVuIHNlc2FtZQ=="]).unwrap();
+        assert_eq!(auth.0.username(), "Aladdin");
+        assert_eq!(auth.0.password(), "open sesame");
+    }
+
+    #[test]
     fn basic_decode_no_password() {
         let auth: Authorization<Basic> = test_decode(&["Basic QWxhZGRpbjo="]).unwrap();
         assert_eq!(auth.0.username(), "Aladdin");
@@ -271,6 +287,18 @@ mod tests {
     #[test]
     fn bearer_decode() {
         let auth: Authorization<Bearer> = test_decode(&["Bearer fpKL54jvWmEGVoRdCNjG"]).unwrap();
+        assert_eq!(auth.0.token().as_bytes(), b"fpKL54jvWmEGVoRdCNjG");
+    }
+
+    #[test]
+    fn bearer_decode_case_insensitive() {
+        let auth: Authorization<Bearer> = test_decode(&["bearer fpKL54jvWmEGVoRdCNjG"]).unwrap();
+        assert_eq!(auth.0.token().as_bytes(), b"fpKL54jvWmEGVoRdCNjG");
+    }
+
+    #[test]
+    fn bearer_decode_extra_whitespaces() {
+        let auth: Authorization<Bearer> = test_decode(&["Bearer   fpKL54jvWmEGVoRdCNjG"]).unwrap();
         assert_eq!(auth.0.token().as_bytes(), b"fpKL54jvWmEGVoRdCNjG");
     }
 }
