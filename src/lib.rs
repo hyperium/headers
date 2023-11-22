@@ -91,7 +91,7 @@ pub use http::HeaderMap;
 pub use http::header::{HeaderName, HeaderValue};
 
 #[macro_use]
-mod util;
+pub mod util;
 mod common;
 mod map_ext;
 
