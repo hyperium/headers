@@ -19,7 +19,7 @@ members = [
 
 [dependencies]
 http = "1.0.0"
-headers-core = { version = "0.2", path = "./headers-core" }
+headers-core = { version = "0.3", path = "./headers-core" }
 base64 = "0.21.3"
 bytes = "1"
 mime = "0.3.14"
