@@ -22,6 +22,9 @@ use HeaderValue;
 /// # Example values
 ///
 /// * `gzip`
+/// * `compress`
+/// * `deflate`
+/// * `br`
 ///
 /// # Examples
 ///
@@ -44,6 +47,24 @@ impl ContentEncoding {
     #[inline]
     pub fn gzip() -> ContentEncoding {
         ContentEncoding(HeaderValue::from_static("gzip").into())
+    }
+
+    /// A constructor to easily create a `Content-Encoding: compress` header.
+    #[inline]
+    pub fn compress() -> ContentEncoding {
+        ContentEncoding(HeaderValue::from_static("compress").into())
+    }
+
+    /// A constructor to easily create a `Content-Encoding: deflate` header.
+    #[inline]
+    pub fn deflate() -> ContentEncoding {
+        ContentEncoding(HeaderValue::from_static("deflate").into())
+    }
+
+    /// A constructor to easily create a `Content-Encoding: br` header.
+    #[inline]
+    pub fn br() -> ContentEncoding {
+        ContentEncoding(HeaderValue::from_static("br").into())
     }
 
     /// Check if this header contains a given "coding".
