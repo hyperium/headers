@@ -22,6 +22,7 @@ use HeaderValue;
 /// # Example values
 ///
 /// * `gzip`
+/// * `br`
 ///
 /// # Examples
 ///
@@ -44,6 +45,12 @@ impl ContentEncoding {
     #[inline]
     pub fn gzip() -> ContentEncoding {
         ContentEncoding(HeaderValue::from_static("gzip").into())
+    }
+
+    /// A constructor to easily create a `Content-Encoding: br` header.
+    #[inline]
+    pub fn brotli() -> ContentEncoding {
+        ContentEncoding(HeaderValue::from_static("br").into())
     }
 
     /// Check if this header contains a given "coding".
