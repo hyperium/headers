@@ -29,7 +29,7 @@ pub trait Header {
         Self: Sized,
         I: Iterator<Item = &'i HeaderValue>;
 
-    /// Encode this type to a `HeaderMap`.
+    /// Encode this type to a `HeaderValue`.
     ///
     /// This function should be infallible. Any errors converting to a
     /// `HeaderValue` should have been caught when parsing or constructing
