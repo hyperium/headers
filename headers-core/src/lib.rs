@@ -23,13 +23,13 @@ pub trait Header {
     /// The name of this header.
     fn name() -> &'static HeaderName;
 
-    /// Decode this type from an iterator of `HeaderValue`s.
+    /// Decode this type from an iterator of [`HeaderValue`]s.
     fn decode<'i, I>(values: &mut I) -> Result<Self, Error>
     where
         Self: Sized,
         I: Iterator<Item = &'i HeaderValue>;
 
-    /// Encode this type to a `HeaderValue`.
+    /// Encode this type to a [`HeaderValue`].
     ///
     /// This function should be infallible. Any errors converting to a
     /// `HeaderValue` should have been caught when parsing or constructing
