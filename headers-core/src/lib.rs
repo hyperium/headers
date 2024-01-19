@@ -29,7 +29,8 @@ pub trait Header {
         Self: Sized,
         I: Iterator<Item = &'i HeaderValue>;
 
-    /// Encode this type to a [`HeaderValue`].
+    /// Encode this type to a [`HeaderValue`], and add it to a container
+    /// which has [`HeaderValue`] type as each element.
     ///
     /// This function should be infallible. Any errors converting to a
     /// `HeaderValue` should have been caught when parsing or constructing
