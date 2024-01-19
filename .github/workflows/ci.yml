@@ -15,7 +15,7 @@ jobs:
         rust: [stable, beta, nightly]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install rust ${{ env.minrust }}
         uses: dtolnay/rust-toolchain@master
         with:
