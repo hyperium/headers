@@ -97,4 +97,4 @@ mod map_ext;
 
 pub use self::common::*;
 pub use self::map_ext::HeaderMapExt;
-pub use self::util::QualityValue;
+pub use self::util::{Quality, QualityValue};
