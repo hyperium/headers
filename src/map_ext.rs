@@ -4,7 +4,7 @@ use http;
 /// An extension trait adding "typed" methods to `http::HeaderMap`.
 pub trait HeaderMapExt: self::sealed::Sealed {
     /// Inserts the typed `Header` into this `HeaderMap`.
-    fn typed_insert<H>(&mut self, header: H)
+    fn typed_insert<H>(&mut self, header: &H)
     where
         H: Header;
 
@@ -20,7 +20,7 @@ pub trait HeaderMapExt: self::sealed::Sealed {
 }
 
 impl HeaderMapExt for http::HeaderMap {
-    fn typed_insert<H>(&mut self, header: H)
+    fn typed_insert<H>(&mut self, header: &H)
     where
         H: Header,
     {
