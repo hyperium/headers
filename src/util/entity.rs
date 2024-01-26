@@ -254,6 +254,9 @@ impl super::TryFromValues for EntityTagRange {
         if flat.value == "*" {
             Ok(EntityTagRange::Any)
         } else {
+            for tag in flat.iter() {
+                EntityTag::parse(tag.as_bytes()).ok_or_else(::Error::invalid)?;
+            }
             Ok(EntityTagRange::Tags(flat))
         }
     }
