@@ -93,7 +93,9 @@ pub use http::header::{HeaderName, HeaderValue};
 #[macro_use]
 mod util;
 mod common;
+mod ext;
 mod map_ext;
 
 pub use self::common::*;
+pub use self::ext::HeaderExt;
 pub use self::map_ext::HeaderMapExt;
