@@ -1,5 +1,4 @@
 use super::{Error, Header, HeaderValue};
-use http;
 
 /// An extension trait adding "typed" methods to `http::HeaderMap`.
 pub trait HeaderMapExt: self::sealed::Sealed {

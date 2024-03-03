@@ -4,7 +4,6 @@ use std::time::SystemTime;
 
 use bytes::Bytes;
 use http::header::HeaderValue;
-use httpdate;
 
 use super::IterExt;
 
