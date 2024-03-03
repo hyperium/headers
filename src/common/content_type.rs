@@ -1,6 +1,6 @@
 use std::fmt;
 
-use mime::{self, Mime};
+use mime::Mime;
 
 /// `Content-Type` header, defined in
 /// [RFC7231](http://tools.ietf.org/html/rfc7231#section-3.1.1.5)
