@@ -66,10 +66,10 @@ impl Range {
     ///
     /// The length of the content is passed as an argument, and all ranges
     /// that can be satisfied will be iterated.
-    pub fn satisfiable_ranges<'a>(
-        &'a self,
+    pub fn satisfiable_ranges(
+        &self,
         len: u64,
-    ) -> impl Iterator<Item = (Bound<u64>, Bound<u64>)> + 'a {
+    ) -> impl Iterator<Item = (Bound<u64>, Bound<u64>)> + '_ {
         let s = self
             .0
             .to_str()
