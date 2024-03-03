@@ -284,16 +284,16 @@ impl FromIterator<KnownDirective> for FromIter {
                     cc.flags.insert(Flags::PROXY_REVALIDATE);
                 }
                 Directive::MaxAge(secs) => {
-                    cc.max_age = Some(Duration::from_secs(secs.into()).into());
+                    cc.max_age = Some(Duration::from_secs(secs).into());
                 }
                 Directive::MaxStale(secs) => {
-                    cc.max_stale = Some(Duration::from_secs(secs.into()).into());
+                    cc.max_stale = Some(Duration::from_secs(secs).into());
                 }
                 Directive::MinFresh(secs) => {
-                    cc.min_fresh = Some(Duration::from_secs(secs.into()).into());
+                    cc.min_fresh = Some(Duration::from_secs(secs).into());
                 }
                 Directive::SMaxAge(secs) => {
-                    cc.s_max_age = Some(Duration::from_secs(secs.into()).into());
+                    cc.s_max_age = Some(Duration::from_secs(secs).into());
                 }
             }
         }
