@@ -63,7 +63,7 @@ impl Authorization<Bearer> {
     pub fn bearer(token: &str) -> Result<Self, InvalidBearerToken> {
         HeaderValueString::from_string(format!("Bearer {}", token))
             .map(|val| Authorization(Bearer(val)))
-            .ok_or_else(|| InvalidBearerToken { _inner: () })
+            .ok_or(InvalidBearerToken { _inner: () })
     }
 
     /// View the token part as a `&str`.

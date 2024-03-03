@@ -101,7 +101,7 @@ impl Origin {
         HeaderValue::from_maybe_shared(bytes)
             .ok()
             .and_then(|val| Self::try_from_value(&val))
-            .ok_or_else(|| InvalidOrigin { _inner: () })
+            .ok_or(InvalidOrigin { _inner: () })
     }
 
     // Used in AccessControlAllowOrigin
