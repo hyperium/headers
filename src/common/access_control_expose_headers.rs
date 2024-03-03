@@ -42,7 +42,7 @@ derive_header! {
 
 impl AccessControlExposeHeaders {
     /// Returns an iterator over `HeaderName`s contained within.
-    pub fn iter<'a>(&'a self) -> impl Iterator<Item = HeaderName> + 'a {
+    pub fn iter(&self) -> impl Iterator<Item = HeaderName> + '_ {
         self.0.iter().filter_map(|s| s.parse().ok())
     }
 }
