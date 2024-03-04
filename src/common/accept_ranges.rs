@@ -1,5 +1,3 @@
-use http::HeaderValue;
-
 use util::FlatCsv;
 
 /// `Accept-Ranges` header, defined in [RFC7233](http://tools.ietf.org/html/rfc7233#section-2.3)
@@ -36,12 +34,12 @@ derive_header! {
     name: ACCEPT_RANGES
 }
 
-const ACCEPT_RANGES_BYTES: HeaderValue = ::HeaderValue::from_static("bytes");
+const ACCEPT_RANGES_BYTES: &str = "bytes";
 
 impl AcceptRanges {
     /// A constructor to easily create the common `Accept-Ranges: bytes` header.
     pub fn bytes() -> Self {
-        AcceptRanges(ACCEPT_RANGES_BYTES.into())
+        AcceptRanges(::HeaderValue::from_static(ACCEPT_RANGES_BYTES).into())
     }
 
     /// Check if the unit is `bytes`.
