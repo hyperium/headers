@@ -105,7 +105,7 @@ impl TryFromValues for OriginOrAny {
 impl<'a> From<&'a OriginOrAny> for HeaderValue {
     fn from(origin: &'a OriginOrAny) -> HeaderValue {
         match origin {
-            OriginOrAny::Origin(ref origin) => origin.into_value(),
+            OriginOrAny::Origin(ref origin) => origin.to_value(),
             OriginOrAny::Any => HeaderValue::from_static("*"),
         }
     }

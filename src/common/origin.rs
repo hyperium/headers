@@ -106,7 +106,7 @@ impl Origin {
         OriginOrNull::try_from_value(value).map(Origin)
     }
 
-    pub(super) fn into_value(&self) -> HeaderValue {
+    pub(super) fn to_value(&self) -> HeaderValue {
         (&self.0).into()
     }
 }
