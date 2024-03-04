@@ -25,6 +25,7 @@ bytes = "1"
 mime = "0.3.14"
 sha1 = "0.10"
 httpdate = "1"
+language-tags = "0.3.2"
 
 [features]
 nightly = []
