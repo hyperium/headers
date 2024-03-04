@@ -114,7 +114,7 @@ impl<'a, Sep: Separator> FromIterator<&'a HeaderValue> for FlatCsv<Sep> {
             .next()
             .cloned()
             .map(|val| BytesMut::from(val.as_bytes()))
-            .unwrap_or_else(|| BytesMut::new());
+            .unwrap_or_default();
 
         for val in values {
             buf.extend_from_slice(&[Sep::BYTE, b' ']);
@@ -145,7 +145,7 @@ impl<Sep: Separator> FromIterator<HeaderValue> for FlatCsv<Sep> {
         let mut buf = values
             .next()
             .map(|val| BytesMut::from(val.as_bytes()))
-            .unwrap_or_else(|| BytesMut::new());
+            .unwrap_or_default();
 
         for val in values {
             buf.extend_from_slice(&[Sep::BYTE, b' ']);
