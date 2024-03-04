@@ -112,7 +112,7 @@ mod sealed {
 
     impl<'a> AsConnectionOption for &'a str {
         fn as_connection_option(&self) -> &str {
-            *self
+            self
         }
     }
 

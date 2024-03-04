@@ -87,7 +87,7 @@ mod sealed {
 
     impl<'a> Sealed for &'a str {
         fn as_coding(&self) -> &str {
-            *self
+            self
         }
     }
 }
