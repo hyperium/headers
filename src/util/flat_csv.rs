@@ -40,6 +40,7 @@ impl<Sep: Separator> FlatCsv<Sep> {
             let mut in_quotes = false;
             value_str
                 .split(move |c| {
+                    #[allow(clippy::collapsible_else_if)]
                     if in_quotes {
                         if c == '"' {
                             in_quotes = false;
