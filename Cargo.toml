@@ -20,7 +20,7 @@ members = [
 [dependencies]
 http = "1.0.0"
 headers-core = { version = "0.3", path = "./headers-core" }
-base64 = "0.21.3"
+base64 = "0.22"
 bytes = "1"
 mime = "0.3.14"
 sha1 = "0.10"
