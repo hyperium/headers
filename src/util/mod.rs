@@ -85,3 +85,30 @@ impl TryFromValues for HeaderValue {
         values.next().cloned().ok_or_else(::Error::invalid)
     }
 }
+
+pub(crate) fn trim_bytes(mut b: &[u8]) -> &[u8] {
+    let start = b
+        .iter()
+        .position(|&b| !b.is_ascii_whitespace())
+        .unwrap_or_else(|| b.len());
+    b = &b[start..];
+    let end = b
+        .iter()
+        .rposition(|&b| !b.is_ascii_whitespace())
+        .map_or_else(|| b.len(), |i| i + 1);
+    &b[..end]
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn trim_test() {
+        assert_eq!(trim_bytes(b"  123  "), b"123");
+        assert_eq!(trim_bytes(b"123  "), b"123");
+        assert_eq!(trim_bytes(b"  123"), b"123");
+        assert_eq!(trim_bytes(b"123"), b"123");
+        assert_eq!(trim_bytes(b"   "), b"");
+    }
+}
