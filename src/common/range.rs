@@ -10,7 +10,7 @@ use std::ops::{Bound, RangeBounds};
 /// # ABNF
 ///
 /// ```text
-/// Range =	byte-ranges-specifier / other-ranges-specifier
+/// Range = byte-ranges-specifier / other-ranges-specifier
 /// other-ranges-specifier = other-range-unit "=" other-range-set
 /// other-range-set = 1*VCHAR
 ///
