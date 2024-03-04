@@ -420,7 +420,7 @@ impl FromStr for KnownDirective {
             "" => return Err(()),
             _ => match s.find('=') {
                 Some(idx) if idx + 1 < s.len() => {
-                    match (&s[..idx], (&s[idx + 1..]).trim_matches('"')) {
+                    match (&s[..idx], (s[idx + 1..]).trim_matches('"')) {
                         ("max-age", secs) => secs.parse().map(Directive::MaxAge).map_err(|_| ())?,
                         ("max-stale", secs) => {
                             secs.parse().map(Directive::MaxStale).map_err(|_| ())?
