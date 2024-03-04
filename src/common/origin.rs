@@ -46,10 +46,7 @@ impl Origin {
     /// Checks if `Origin` is `null`.
     #[inline]
     pub fn is_null(&self) -> bool {
-        match self.0 {
-            OriginOrNull::Null => true,
-            _ => false,
-        }
+        matches!(self.0, OriginOrNull::Null)
     }
 
     /// Get the "scheme" part of this origin.

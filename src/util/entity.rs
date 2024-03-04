@@ -213,7 +213,7 @@ fn check_slice_validity(slice: &[u8]) -> bool {
         // The debug_assert is just in case we use check_slice_validity in
         // some new context that didnt come from a HeaderValue.
         debug_assert!(
-            (c >= b'\x21' && c <= b'\x7e') | (c >= b'\x80'),
+            (b'\x21'..=b'\x7e').contains(&c) | (c >= b'\x80'),
             "EntityTag expects HeaderValue to have check for control characters"
         );
         c != b'"'
