@@ -72,7 +72,7 @@ impl ContentEncoding {
     /// ```
     pub fn contains(&self, coding: impl AsCoding) -> bool {
         let s = coding.as_coding();
-        self.0.iter().find(|&opt| opt == s).is_some()
+        self.0.iter().any(|opt| opt == s)
     }
 }
 

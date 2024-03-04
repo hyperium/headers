@@ -111,13 +111,13 @@ fn from_str(s: &str) -> Result<StrictTransportSecurity, ::Error> {
                 }
             }
         })
-        .fold(Some((None, None)), |res, dir| match (res, dir) {
-            (Some((None, sub)), Some(Directive::MaxAge(age))) => Some((Some(age), sub)),
-            (Some((age, None)), Some(Directive::IncludeSubdomains)) => Some((age, Some(()))),
-            (Some((Some(_), _)), Some(Directive::MaxAge(_)))
-            | (Some((_, Some(_))), Some(Directive::IncludeSubdomains))
+        .try_fold((None, None), |res, dir| match (res, dir) {
+            ((None, sub), Some(Directive::MaxAge(age))) => Some((Some(age), sub)),
+            ((age, None), Some(Directive::IncludeSubdomains)) => Some((age, Some(()))),
+            ((Some(_), _), Some(Directive::MaxAge(_)))
+            | ((_, Some(_)), Some(Directive::IncludeSubdomains))
             | (_, None) => None,
-            (res, _) => res,
+            (res, _) => Some(res),
         })
         .and_then(|res| match res {
             (Some(age), sub) => Some(StrictTransportSecurity {

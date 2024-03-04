@@ -46,7 +46,7 @@ impl AccessControlAllowHeaders {
             .iter()
             .map(|s| s.parse().ok())
             .take_while(|val| val.is_some())
-            .filter_map(|val| val)
+            .flatten()
     }
 }
 
