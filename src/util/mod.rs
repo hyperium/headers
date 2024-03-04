@@ -82,6 +82,6 @@ impl TryFromValues for HeaderValue {
     where
         I: Iterator<Item = &'i HeaderValue>,
     {
-        values.next().cloned().ok_or_else(|| ::Error::invalid())
+        values.next().cloned().ok_or_else(::Error::invalid)
     }
 }
