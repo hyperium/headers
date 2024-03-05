@@ -36,8 +36,5 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Install rust ${{ env.minrust }}
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ env.minrust }}
-      - run: cargo build
+      - uses: taiki-e/install-action@cargo-hack
+      - run: cargo hack --rust-version --no-dev-deps check --workspace

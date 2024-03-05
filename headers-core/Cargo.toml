@@ -8,6 +8,7 @@ homepage = "https://hyper.rs"
 repository = "https://github.com/hyperium/headers"
 authors = ["Sean McArthur <sean@seanmonstar.com>"]
 keywords = ["http", "headers", "hyper", "hyperium"]
+rust-version = "1.49"
 
 [dependencies]
 http = "1.0.0"
