@@ -88,6 +88,8 @@ pub use http::header::{HeaderName, HeaderValue};
 mod util;
 mod common;
 mod map_ext;
+mod request_builder_ext;
 
 pub use self::common::*;
 pub use self::map_ext::HeaderMapExt;
+pub use self::request_builder_ext::RequestBuilderExt;
