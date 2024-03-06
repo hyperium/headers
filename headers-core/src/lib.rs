@@ -8,8 +8,6 @@
 //! This is the core crate of the typed HTTP headers system, providing only
 //! the relevant traits. All actual header implementations are in other crates.
 
-extern crate http;
-
 pub use http::header::{self, HeaderName, HeaderValue};
 
 use std::error;
