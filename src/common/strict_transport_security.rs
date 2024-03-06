@@ -1,7 +1,10 @@
 use std::fmt;
 use std::time::Duration;
 
-use util::{self, IterExt, Seconds};
+use http::{HeaderName, HeaderValue};
+
+use crate::util::{self, IterExt, Seconds};
+use crate::{Error, Header};
 
 /// `StrictTransportSecurity` header, defined in [RFC6797](https://tools.ietf.org/html/rfc6797)
 ///
@@ -90,7 +93,7 @@ enum Directive {
     Unknown,
 }
 
-fn from_str(s: &str) -> Result<StrictTransportSecurity, ::Error> {
+fn from_str(s: &str) -> Result<StrictTransportSecurity, Error> {
     s.split(';')
         .map(str::trim)
         .map(|sub| {
@@ -126,23 +129,23 @@ fn from_str(s: &str) -> Result<StrictTransportSecurity, ::Error> {
             }),
             _ => None,
         })
-        .ok_or_else(::Error::invalid)
+        .ok_or_else(Error::invalid)
 }
 
-impl ::Header for StrictTransportSecurity {
-    fn name() -> &'static ::HeaderName {
+impl Header for StrictTransportSecurity {
+    fn name() -> &'static HeaderName {
         &::http::header::STRICT_TRANSPORT_SECURITY
     }
 
-    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, Error> {
         values
             .just_one()
             .and_then(|v| v.to_str().ok())
             .map(from_str)
-            .unwrap_or_else(|| Err(::Error::invalid()))
+            .unwrap_or_else(|| Err(Error::invalid()))
     }
 
-    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+    fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
         struct Adapter<'a>(&'a StrictTransportSecurity);
 
         impl<'a> fmt::Display for Adapter<'a> {

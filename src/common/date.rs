@@ -1,5 +1,6 @@
 use std::time::SystemTime;
-use util::HttpDate;
+
+use crate::util::HttpDate;
 
 /// `Date` header, defined in [RFC7231](http://tools.ietf.org/html/rfc7231#section-7.1.1.2)
 ///

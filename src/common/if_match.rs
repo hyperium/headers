@@ -1,6 +1,7 @@
+use http::HeaderValue;
+
 use super::ETag;
-use util::EntityTagRange;
-use HeaderValue;
+use crate::util::EntityTagRange;
 
 /// `If-Match` header, defined in
 /// [RFC7232](https://tools.ietf.org/html/rfc7232#section-3.1)

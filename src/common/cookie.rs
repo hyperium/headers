@@ -1,4 +1,4 @@
-use util::{FlatCsv, SemiColon};
+use crate::util::{FlatCsv, SemiColon};
 
 /// `Cookie` header, defined in [RFC6265](http://tools.ietf.org/html/rfc6265#section-5.4)
 ///

@@ -1,6 +1,6 @@
-use util::FlatCsv;
+use http::HeaderValue;
 
-use HeaderValue;
+use crate::util::FlatCsv;
 
 /// `Vary` header, defined in [RFC7231](https://tools.ietf.org/html/rfc7231#section-7.1.4)
 ///

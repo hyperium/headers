@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use util::Seconds;
+use crate::util::Seconds;
 
 /// `Age` header, defined in [RFC7234](https://tools.ietf.org/html/rfc7234#section-5.1)
 ///

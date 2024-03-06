@@ -1,8 +1,8 @@
 use std::iter::FromIterator;
 
-use http::Method;
+use http::{HeaderValue, Method};
 
-use util::FlatCsv;
+use crate::util::FlatCsv;
 
 /// `Access-Control-Allow-Methods` header, part of
 /// [CORS](http://www.w3.org/TR/cors/#access-control-allow-methods-response-header)
@@ -57,7 +57,7 @@ impl FromIterator<Method> for AccessControlAllowMethods {
             .map(|method| {
                 method
                     .as_str()
-                    .parse::<::HeaderValue>()
+                    .parse::<HeaderValue>()
                     .expect("Method is a valid HeaderValue")
             })
             .collect();

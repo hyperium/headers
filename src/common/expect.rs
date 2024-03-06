@@ -1,6 +1,9 @@
 use std::fmt;
 
-use util::IterExt;
+use http::{HeaderName, HeaderValue};
+
+use crate::util::IterExt;
+use crate::{Error, Header};
 
 /// The `Expect` header.
 ///
@@ -27,12 +30,12 @@ impl Expect {
     pub const CONTINUE: Expect = Expect(());
 }
 
-impl ::Header for Expect {
-    fn name() -> &'static ::HeaderName {
+impl Header for Expect {
+    fn name() -> &'static HeaderName {
         &::http::header::EXPECT
     }
 
-    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, Error> {
         values
             .just_one()
             .and_then(|value| {
@@ -42,13 +45,11 @@ impl ::Header for Expect {
                     None
                 }
             })
-            .ok_or_else(::Error::invalid)
+            .ok_or_else(Error::invalid)
     }
 
-    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
-        values.extend(::std::iter::once(::HeaderValue::from_static(
-            "100-continue",
-        )));
+    fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
+        values.extend(::std::iter::once(HeaderValue::from_static("100-continue")));
     }
 }
 

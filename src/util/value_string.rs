@@ -7,6 +7,7 @@ use bytes::Bytes;
 use http::header::HeaderValue;
 
 use super::IterExt;
+use crate::Error;
 
 /// A value that is both a valid `HeaderValue` and `String`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -18,11 +19,11 @@ pub(crate) struct HeaderValueString {
 }
 
 impl HeaderValueString {
-    pub(crate) fn from_val(val: &HeaderValue) -> Result<Self, ::Error> {
+    pub(crate) fn from_val(val: &HeaderValue) -> Result<Self, Error> {
         if val.to_str().is_ok() {
             Ok(HeaderValueString { value: val.clone() })
         } else {
-            Err(::Error::invalid())
+            Err(Error::invalid())
         }
     }
 
@@ -61,14 +62,14 @@ impl fmt::Display for HeaderValueString {
 }
 
 impl super::TryFromValues for HeaderValueString {
-    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, ::Error>
+    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, Error>
     where
         I: Iterator<Item = &'i HeaderValue>,
     {
         values
             .just_one()
             .map(HeaderValueString::from_val)
-            .unwrap_or_else(|| Err(::Error::invalid()))
+            .unwrap_or_else(|| Err(Error::invalid()))
     }
 }
 

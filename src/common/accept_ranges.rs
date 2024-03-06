@@ -1,4 +1,6 @@
-use util::FlatCsv;
+use http::HeaderValue;
+
+use crate::util::FlatCsv;
 
 /// `Accept-Ranges` header, defined in [RFC7233](http://tools.ietf.org/html/rfc7233#section-2.3)
 ///
@@ -39,7 +41,7 @@ const ACCEPT_RANGES_BYTES: &str = "bytes";
 impl AcceptRanges {
     /// A constructor to easily create the common `Accept-Ranges: bytes` header.
     pub fn bytes() -> Self {
-        AcceptRanges(::HeaderValue::from_static(ACCEPT_RANGES_BYTES).into())
+        AcceptRanges(HeaderValue::from_static(ACCEPT_RANGES_BYTES).into())
     }
 
     /// Check if the unit is `bytes`.
@@ -60,7 +62,7 @@ mod tests {
 
     #[test]
     fn bytes_fails() {
-        let none_range = AcceptRanges(::HeaderValue::from_static("none").into());
+        let none_range = AcceptRanges(HeaderValue::from_static("none").into());
         assert!(!none_range.is_bytes());
     }
 }

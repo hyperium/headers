@@ -1,7 +1,8 @@
 use std::iter::FromIterator;
 
-use util::FlatCsv;
-use {HeaderName, HeaderValue};
+use http::{HeaderName, HeaderValue};
+
+use crate::util::FlatCsv;
 
 /// `Access-Control-Expose-Headers` header, part of
 /// [CORS](http://www.w3.org/TR/cors/#access-control-expose-headers-response-header)

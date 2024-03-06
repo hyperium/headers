@@ -1,4 +1,4 @@
-use HeaderValue;
+use http::HeaderValue;
 
 /// `Upgrade` header, defined in [RFC7230](http://tools.ietf.org/html/rfc7230#section-6.7)
 ///

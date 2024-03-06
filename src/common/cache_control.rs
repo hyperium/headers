@@ -3,8 +3,10 @@ use std::iter::FromIterator;
 use std::str::FromStr;
 use std::time::Duration;
 
-use util::{self, csv, Seconds};
-use HeaderValue;
+use http::{HeaderName, HeaderValue};
+
+use crate::util::{self, csv, Seconds};
+use crate::{Error, Header};
 
 /// `Cache-Control` header, defined in [RFC7234](https://tools.ietf.org/html/rfc7234#section-5.2)
 /// with extensions in [RFC8246](https://www.rfc-editor.org/rfc/rfc8246)
@@ -221,16 +223,16 @@ impl CacheControl {
     }
 }
 
-impl ::Header for CacheControl {
-    fn name() -> &'static ::HeaderName {
+impl Header for CacheControl {
+    fn name() -> &'static HeaderName {
         &::http::header::CACHE_CONTROL
     }
 
-    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, Error> {
         csv::from_comma_delimited(values).map(|FromIter(cc)| cc)
     }
 
-    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+    fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
         values.extend(::std::iter::once(util::fmt(Fmt(self))));
     }
 }

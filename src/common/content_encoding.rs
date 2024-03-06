@@ -1,6 +1,7 @@
+use http::HeaderValue;
+
 use self::sealed::AsCoding;
-use util::FlatCsv;
-use HeaderValue;
+use crate::util::FlatCsv;
 
 /// `Content-Encoding` header, defined in
 /// [RFC7231](http://tools.ietf.org/html/rfc7231#section-3.1.2.2)

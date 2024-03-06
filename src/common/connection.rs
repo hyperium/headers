@@ -1,8 +1,9 @@
 use std::iter::FromIterator;
 
+use http::{HeaderName, HeaderValue};
+
 use self::sealed::AsConnectionOption;
-use util::FlatCsv;
-use {HeaderName, HeaderValue};
+use crate::util::FlatCsv;
 
 /// `Connection` header, defined in
 /// [RFC7230](http://tools.ietf.org/html/rfc7230#section-6.1)
@@ -102,6 +103,8 @@ impl FromIterator<HeaderName> for Connection {
 }
 
 mod sealed {
+    use http::HeaderName;
+
     pub trait AsConnectionOption: Sealed {
         fn as_connection_option(&self) -> &str;
     }
@@ -115,19 +118,19 @@ mod sealed {
 
     impl<'a> Sealed for &'a str {}
 
-    impl<'a> AsConnectionOption for &'a ::HeaderName {
+    impl<'a> AsConnectionOption for &'a HeaderName {
         fn as_connection_option(&self) -> &str {
             self.as_ref()
         }
     }
 
-    impl<'a> Sealed for &'a ::HeaderName {}
+    impl<'a> Sealed for &'a HeaderName {}
 
-    impl AsConnectionOption for ::HeaderName {
+    impl AsConnectionOption for HeaderName {
         fn as_connection_option(&self) -> &str {
             self.as_ref()
         }
     }
 
-    impl Sealed for ::HeaderName {}
+    impl Sealed for HeaderName {}
 }

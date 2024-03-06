@@ -2,6 +2,9 @@ use std::convert::TryFrom;
 use std::fmt;
 
 use http::uri::Authority;
+use http::{HeaderName, HeaderValue};
+
+use crate::{Error, Header};
 
 /// The `Host` header.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd)]
@@ -19,23 +22,23 @@ impl Host {
     }
 }
 
-impl ::Header for Host {
-    fn name() -> &'static ::HeaderName {
+impl Header for Host {
+    fn name() -> &'static HeaderName {
         &::http::header::HOST
     }
 
-    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, Error> {
         values
             .next()
             .cloned()
             .and_then(|val| Authority::try_from(val.as_bytes()).ok())
             .map(Host)
-            .ok_or_else(::Error::invalid)
+            .ok_or_else(Error::invalid)
     }
 
-    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+    fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
         let bytes = self.0.as_str().as_bytes();
-        let val = ::HeaderValue::from_bytes(bytes).expect("Authority is a valid HeaderValue");
+        let val = HeaderValue::from_bytes(bytes).expect("Authority is a valid HeaderValue");
 
         values.extend(::std::iter::once(val));
     }
