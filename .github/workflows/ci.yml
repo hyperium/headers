@@ -3,6 +3,15 @@ name: CI
 on: [push, pull_request]
 
 jobs:
+  style:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt --all --check
+
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -26,7 +35,6 @@ jobs:
           cargo clean
           cargo update -Z minimal-versions
           cargo check
-      - run: cargo fmt --all --check
 
   MSRV:
     runs-on: ubuntu-latest
