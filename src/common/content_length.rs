@@ -1,4 +1,6 @@
-use {Header, HeaderValue};
+use http::HeaderValue;
+
+use crate::{Error, Header};
 
 /// `Content-Length` header, defined in
 /// [RFC7230](http://tools.ietf.org/html/rfc7230#section-3.3.2)
@@ -45,7 +47,7 @@ impl Header for ContentLength {
         &::http::header::CONTENT_LENGTH
     }
 
-    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, Error> {
         // If multiple Content-Length headers were sent, everything can still
         // be alright if they all contain the same value, and all parse
         // correctly. If not, then it's an error.
@@ -53,23 +55,23 @@ impl Header for ContentLength {
         for value in values {
             let parsed = value
                 .to_str()
-                .map_err(|_| ::Error::invalid())?
+                .map_err(|_| Error::invalid())?
                 .parse::<u64>()
-                .map_err(|_| ::Error::invalid())?;
+                .map_err(|_| Error::invalid())?;
 
             if let Some(prev) = len {
                 if prev != parsed {
-                    return Err(::Error::invalid());
+                    return Err(Error::invalid());
                 }
             } else {
                 len = Some(parsed);
             }
         }
 
-        len.map(ContentLength).ok_or_else(::Error::invalid)
+        len.map(ContentLength).ok_or_else(Error::invalid)
     }
 
-    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+    fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
         values.extend(::std::iter::once(self.0.into()));
     }
 }

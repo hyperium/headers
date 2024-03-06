@@ -1,5 +1,5 @@
+use crate::util::HttpDate;
 use std::time::SystemTime;
-use util::HttpDate;
 
 /// `If-Modified-Since` header, defined in
 /// [RFC7232](http://tools.ietf.org/html/rfc7232#section-3.3)

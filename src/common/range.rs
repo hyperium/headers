@@ -1,5 +1,9 @@
 use std::ops::{Bound, RangeBounds};
 
+use http::{HeaderName, HeaderValue};
+
+use crate::{Error, Header};
+
 /// `Range` header, defined in [RFC7233](https://tools.ietf.org/html/rfc7233#section-3.1)
 ///
 /// The "Range" header field on a GET request modifies the method
@@ -40,7 +44,7 @@ use std::ops::{Bound, RangeBounds};
 /// let range = Range::bytes(0..1234).unwrap();
 /// ```
 #[derive(Clone, Debug, PartialEq)]
-pub struct Range(::HeaderValue);
+pub struct Range(HeaderValue);
 
 error_type!(InvalidRange);
 
@@ -59,7 +63,7 @@ impl Range {
             _ => return Err(InvalidRange { _inner: () }),
         };
 
-        Ok(Range(::HeaderValue::from_str(&v).unwrap()))
+        Ok(Range(HeaderValue::from_str(&v).unwrap()))
     }
 
     /// Iterate the range sets as a tuple of bounds, if valid with length.
@@ -106,12 +110,12 @@ fn parse_bound(s: &str) -> Option<Bound<u64>> {
     s.parse().ok().map(Bound::Included)
 }
 
-impl ::Header for Range {
-    fn name() -> &'static ::HeaderName {
+impl Header for Range {
+    fn name() -> &'static HeaderName {
         &::http::header::RANGE
     }
 
-    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, Error> {
         values
             .next()
             .and_then(|val| {
@@ -121,10 +125,10 @@ impl ::Header for Range {
                     None
                 }
             })
-            .ok_or_else(::Error::invalid)
+            .ok_or_else(Error::invalid)
     }
 
-    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+    fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
         values.extend(::std::iter::once(self.0.clone()));
     }
 }

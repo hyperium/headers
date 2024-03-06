@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use HeaderValue;
+use http::HeaderValue;
 
 pub(crate) fn fmt<T: Display>(fmt: T) -> HeaderValue {
     let s = fmt.to_string();

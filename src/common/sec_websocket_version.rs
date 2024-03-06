@@ -1,3 +1,7 @@
+use http::{HeaderName, HeaderValue};
+
+use crate::{Error, Header};
+
 /// The `Sec-Websocket-Version` header.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct SecWebsocketVersion(u8);
@@ -7,12 +11,12 @@ impl SecWebsocketVersion {
     pub const V13: SecWebsocketVersion = SecWebsocketVersion(13);
 }
 
-impl ::Header for SecWebsocketVersion {
-    fn name() -> &'static ::HeaderName {
+impl Header for SecWebsocketVersion {
+    fn name() -> &'static HeaderName {
         &::http::header::SEC_WEBSOCKET_VERSION
     }
 
-    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, Error> {
         values
             .next()
             .and_then(|value| {
@@ -22,13 +26,13 @@ impl ::Header for SecWebsocketVersion {
                     None
                 }
             })
-            .ok_or_else(::Error::invalid)
+            .ok_or_else(Error::invalid)
     }
 
-    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+    fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
         debug_assert_eq!(self.0, 13);
 
-        values.extend(::std::iter::once(::HeaderValue::from_static("13")));
+        values.extend(::std::iter::once(HeaderValue::from_static("13")));
     }
 }
 

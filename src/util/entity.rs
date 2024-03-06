@@ -1,7 +1,9 @@
 use std::fmt;
 
+use http::HeaderValue;
+
 use super::{FlatCsv, IterExt};
-use HeaderValue;
+use crate::Error;
 
 /// An entity tag, defined in [RFC7232](https://tools.ietf.org/html/rfc7232#section-2.3)
 ///
@@ -178,14 +180,14 @@ impl<T: fmt::Debug> fmt::Debug for EntityTag<T> {
 }
 
 impl super::TryFromValues for EntityTag {
-    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, ::Error>
+    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, Error>
     where
         I: Iterator<Item = &'i HeaderValue>,
     {
         values
             .just_one()
             .and_then(EntityTag::from_val)
-            .ok_or_else(::Error::invalid)
+            .ok_or_else(Error::invalid)
     }
 }
 
@@ -246,7 +248,7 @@ impl EntityTagRange {
 }
 
 impl super::TryFromValues for EntityTagRange {
-    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, ::Error>
+    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, Error>
     where
         I: Iterator<Item = &'i HeaderValue>,
     {

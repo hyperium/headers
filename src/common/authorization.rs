@@ -3,9 +3,10 @@
 use base64::engine::general_purpose::STANDARD as ENGINE;
 use base64::Engine;
 use bytes::Bytes;
+use http::{HeaderName, HeaderValue};
 
-use util::HeaderValueString;
-use HeaderValue;
+use crate::util::HeaderValueString;
+use crate::{Error, Header};
 
 /// `Authorization` header, defined in [RFC7235](https://tools.ietf.org/html/rfc7235#section-4.2)
 ///
@@ -72,12 +73,12 @@ impl Authorization<Bearer> {
     }
 }
 
-impl<C: Credentials> ::Header for Authorization<C> {
-    fn name() -> &'static ::HeaderName {
+impl<C: Credentials> Header for Authorization<C> {
+    fn name() -> &'static HeaderName {
         &::http::header::AUTHORIZATION
     }
 
-    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, Error> {
         values
             .next()
             .and_then(|val| {
@@ -91,10 +92,10 @@ impl<C: Credentials> ::Header for Authorization<C> {
                     None
                 }
             })
-            .ok_or_else(::Error::invalid)
+            .ok_or_else(Error::invalid)
     }
 
-    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+    fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
         let mut value = self.0.encode();
         value.set_sensitive(true);
         debug_assert!(
@@ -212,10 +213,11 @@ error_type!(InvalidBearerToken);
 
 #[cfg(test)]
 mod tests {
+    use http::header::HeaderMap;
+
     use super::super::{test_decode, test_encode};
     use super::{Authorization, Basic, Bearer};
-    use http::header::HeaderMap;
-    use HeaderMapExt;
+    use crate::HeaderMapExt;
 
     #[test]
     fn basic_encode() {

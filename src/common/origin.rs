@@ -3,9 +3,10 @@ use std::fmt;
 
 use bytes::Bytes;
 use http::uri::{self, Authority, Scheme, Uri};
+use http::HeaderValue;
 
-use util::{IterExt, TryFromValues};
-use HeaderValue;
+use crate::util::{IterExt, TryFromValues};
+use crate::Error;
 
 /// The `Origin` header.
 ///
@@ -153,14 +154,14 @@ impl OriginOrNull {
 }
 
 impl TryFromValues for OriginOrNull {
-    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, ::Error>
+    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, Error>
     where
         I: Iterator<Item = &'i HeaderValue>,
     {
         values
             .just_one()
             .and_then(OriginOrNull::try_from_value)
-            .ok_or_else(::Error::invalid)
+            .ok_or_else(Error::invalid)
     }
 }
 

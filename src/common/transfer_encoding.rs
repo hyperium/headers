@@ -1,5 +1,6 @@
-use util::FlatCsv;
-use HeaderValue;
+use http::HeaderValue;
+
+use crate::util::FlatCsv;
 
 /// `Transfer-Encoding` header, defined in
 /// [RFC7230](http://tools.ietf.org/html/rfc7230#section-3.3.1)

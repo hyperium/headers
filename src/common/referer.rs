@@ -1,7 +1,7 @@
 use std::fmt;
 use std::str::FromStr;
 
-use util::HeaderValueString;
+use crate::util::HeaderValueString;
 
 /// `Referer` header, defined in
 /// [RFC7231](http://tools.ietf.org/html/rfc7231#section-5.5.2)

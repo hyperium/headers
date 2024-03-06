@@ -1,8 +1,10 @@
 use std::convert::TryFrom;
 
+use http::HeaderValue;
+
 use super::origin::Origin;
-use util::{IterExt, TryFromValues};
-use HeaderValue;
+use crate::util::{IterExt, TryFromValues};
+use crate::Error;
 
 /// The `Access-Control-Allow-Origin` response header,
 /// part of [CORS](http://www.w3.org/TR/cors/#access-control-allow-origin-response-header)
@@ -65,27 +67,27 @@ impl AccessControlAllowOrigin {
 }
 
 impl TryFrom<&str> for AccessControlAllowOrigin {
-    type Error = ::Error;
+    type Error = Error;
 
-    fn try_from(s: &str) -> Result<Self, ::Error> {
-        let header_value = HeaderValue::from_str(s).map_err(|_| ::Error::invalid())?;
+    fn try_from(s: &str) -> Result<Self, Error> {
+        let header_value = HeaderValue::from_str(s).map_err(|_| Error::invalid())?;
         let origin = OriginOrAny::try_from(&header_value)?;
         Ok(Self(origin))
     }
 }
 
 impl TryFrom<&HeaderValue> for OriginOrAny {
-    type Error = ::Error;
+    type Error = Error;
 
-    fn try_from(header_value: &HeaderValue) -> Result<Self, ::Error> {
+    fn try_from(header_value: &HeaderValue) -> Result<Self, Error> {
         Origin::try_from_value(header_value)
             .map(OriginOrAny::Origin)
-            .ok_or_else(::Error::invalid)
+            .ok_or_else(Error::invalid)
     }
 }
 
 impl TryFromValues for OriginOrAny {
-    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, ::Error>
+    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, Error>
     where
         I: Iterator<Item = &'i HeaderValue>,
     {
@@ -98,7 +100,7 @@ impl TryFromValues for OriginOrAny {
 
                 Origin::try_from_value(value).map(OriginOrAny::Origin)
             })
-            .ok_or_else(::Error::invalid)
+            .ok_or_else(Error::invalid)
     }
 }
 

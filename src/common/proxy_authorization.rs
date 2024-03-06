@@ -1,4 +1,7 @@
+use http::{HeaderName, HeaderValue};
+
 use super::authorization::{Authorization, Credentials};
+use crate::{Error, Header};
 
 /// `Proxy-Authorization` header, defined in [RFC7235](https://tools.ietf.org/html/rfc7235#section-4.4)
 ///
@@ -24,16 +27,16 @@ use super::authorization::{Authorization, Credentials};
 #[derive(Clone, PartialEq, Debug)]
 pub struct ProxyAuthorization<C: Credentials>(pub C);
 
-impl<C: Credentials> ::Header for ProxyAuthorization<C> {
-    fn name() -> &'static ::HeaderName {
+impl<C: Credentials> Header for ProxyAuthorization<C> {
+    fn name() -> &'static HeaderName {
         &::http::header::PROXY_AUTHORIZATION
     }
 
-    fn decode<'i, I: Iterator<Item = &'i ::HeaderValue>>(values: &mut I) -> Result<Self, ::Error> {
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, Error> {
         Authorization::decode(values).map(|auth| ProxyAuthorization(auth.0))
     }
 
-    fn encode<E: Extend<::HeaderValue>>(&self, values: &mut E) {
+    fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
         let value = self.0.encode();
         debug_assert!(
             value.as_bytes().starts_with(C::SCHEME.as_bytes()),

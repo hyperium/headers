@@ -44,14 +44,14 @@ impl HttpDate {
 pub struct Error(());
 
 impl super::TryFromValues for HttpDate {
-    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, ::Error>
+    fn try_from_values<'i, I>(values: &mut I) -> Result<Self, crate::Error>
     where
         I: Iterator<Item = &'i HeaderValue>,
     {
         values
             .just_one()
             .and_then(HttpDate::from_val)
-            .ok_or_else(::Error::invalid)
+            .ok_or_else(crate::Error::invalid)
     }
 }
 

@@ -1,4 +1,4 @@
-use HeaderValue;
+use http::HeaderValue;
 
 /// The `Pragma` header defined by HTTP/1.0.
 ///

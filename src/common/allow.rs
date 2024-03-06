@@ -1,8 +1,8 @@
 use std::iter::FromIterator;
 
-use http::Method;
+use http::{HeaderValue, Method};
 
-use util::FlatCsv;
+use crate::util::FlatCsv;
 
 /// `Allow` header, defined in [RFC7231](http://tools.ietf.org/html/rfc7231#section-7.4.1)
 ///
@@ -59,7 +59,7 @@ impl FromIterator<Method> for Allow {
             .map(|method| {
                 method
                     .as_str()
-                    .parse::<::HeaderValue>()
+                    .parse::<HeaderValue>()
                     .expect("Method is a valid HeaderValue")
             })
             .collect();

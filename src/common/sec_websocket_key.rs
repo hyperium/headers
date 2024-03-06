@@ -1,6 +1,6 @@
 /// The `Sec-Websocket-Key` header.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct SecWebsocketKey(pub(super) ::HeaderValue);
+pub struct SecWebsocketKey(pub(super) http::HeaderValue);
 
 derive_header! {
     SecWebsocketKey(_),
