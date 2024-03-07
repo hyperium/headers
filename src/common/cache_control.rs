@@ -32,7 +32,6 @@ use crate::{Error, Header};
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::CacheControl;
 ///
 /// let cc = CacheControl::new();

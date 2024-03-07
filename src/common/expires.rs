@@ -23,7 +23,6 @@ use crate::util::HttpDate;
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::Expires;
 /// use std::time::{SystemTime, Duration};
 ///

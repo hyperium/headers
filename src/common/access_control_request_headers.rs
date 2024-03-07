@@ -23,7 +23,6 @@ use crate::util::FlatCsv;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// extern crate http;
 /// # fn main() {
 /// use http::header::{ACCEPT_LANGUAGE, DATE};

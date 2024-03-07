@@ -22,7 +22,6 @@ use std::time::SystemTime;
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::LastModified;
 /// use std::time::{Duration, SystemTime};
 ///

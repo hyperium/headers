@@ -27,7 +27,6 @@ use crate::Error;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::AccessControlAllowOrigin;
 /// use std::convert::TryFrom;
 ///

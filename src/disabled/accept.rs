@@ -30,7 +30,6 @@ header! {
     ///
     /// # Examples
     /// ```
-    /// # extern crate headers;
     /// extern crate mime;
     /// use headers::{Headers, Accept, qitem};
     ///
@@ -44,7 +43,6 @@ header! {
     /// ```
     ///
     /// ```
-    /// # extern crate headers;
     /// extern crate mime;
     /// use headers::{Headers, Accept, qitem};
     ///
@@ -56,7 +54,6 @@ header! {
     /// );
     /// ```
     /// ```
-    /// # extern crate headers;
     /// extern crate mime;
     /// use headers::{Headers, Accept, QualityItem, q, qitem};
     ///

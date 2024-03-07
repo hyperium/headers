@@ -37,7 +37,6 @@ header! {
     /// ```
     ///
     /// ```
-    /// # extern crate headers;
     /// # #[macro_use] extern crate language_tags;
     /// # use headers::{Headers, AcceptLanguage, QualityItem, q, qitem};
     /// #

@@ -18,7 +18,6 @@ use http::HeaderValue;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::Pragma;
 ///
 /// let pragma = Pragma::no_cache();

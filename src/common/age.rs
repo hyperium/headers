@@ -31,7 +31,6 @@ use crate::util::Seconds;
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::Age;
 ///
 /// let len = Age::from_secs(60);

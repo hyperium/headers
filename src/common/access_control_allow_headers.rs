@@ -23,7 +23,6 @@ use crate::util::FlatCsv;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// extern crate http;
 /// use http::header::{CACHE_CONTROL, CONTENT_TYPE};
 /// use headers::AccessControlAllowHeaders;

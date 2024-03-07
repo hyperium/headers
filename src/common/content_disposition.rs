@@ -42,7 +42,6 @@ use crate::{Error, Header};
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::ContentDisposition;
 ///
 /// let cd = ContentDisposition::inline();

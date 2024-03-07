@@ -25,7 +25,6 @@ use crate::util::HeaderValueString;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::Referer;
 ///
 /// let r = Referer::from_static("/People.html#tim");

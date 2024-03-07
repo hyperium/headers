@@ -17,7 +17,6 @@ use crate::Error;
 ///
 /// # Examples
 /// ```
-/// # extern crate headers;
 /// use std::time::{Duration, SystemTime};
 /// use headers::RetryAfter;
 ///

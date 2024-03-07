@@ -28,7 +28,6 @@ use crate::Error;
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::ReferrerPolicy;
 ///
 /// let rp = ReferrerPolicy::NO_REFERRER;

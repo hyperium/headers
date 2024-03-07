@@ -34,7 +34,6 @@ use http::HeaderValue;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::Upgrade;
 ///
 /// let ws = Upgrade::websocket();

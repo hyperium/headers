@@ -27,7 +27,6 @@ use crate::{Error, Header};
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::AccessControlAllowCredentials;
 ///
 /// let allow_creds = AccessControlAllowCredentials;
