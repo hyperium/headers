@@ -13,10 +13,7 @@ edition = "2018"
 rust-version = "1.56"
 
 [workspace]
-members = [
-    "./",
-    "headers-core",
-]
+members = ["headers-core"]
 
 [dependencies]
 http = "1.0.0"
