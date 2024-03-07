@@ -32,7 +32,6 @@ use crate::util::EntityTagRange;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::IfMatch;
 ///
 /// let if_match = IfMatch::any();

@@ -29,7 +29,6 @@ use crate::{util, Error, Header};
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::ContentRange;
 ///
 /// // 100 bytes (included byte 199), with a full length of 3,400

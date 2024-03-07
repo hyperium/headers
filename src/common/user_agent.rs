@@ -34,7 +34,6 @@ use crate::util::HeaderValueString;
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::UserAgent;
 ///
 /// let ua = UserAgent::from_static("hyper/0.12.2");

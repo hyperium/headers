@@ -34,7 +34,6 @@ use crate::{Error, Header};
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::ContentLength;
 ///
 /// let len = ContentLength(1_000);

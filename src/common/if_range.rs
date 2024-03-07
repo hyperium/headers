@@ -35,7 +35,6 @@ use crate::Error;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::IfRange;
 /// use std::time::{SystemTime, Duration};
 ///

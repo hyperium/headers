@@ -29,7 +29,6 @@ use crate::{Error, Header};
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::Authorization;
 ///
 /// let basic = Authorization::basic("Aladdin", "open sesame");

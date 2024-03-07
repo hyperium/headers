@@ -72,13 +72,6 @@
 //! }
 //! ```
 
-extern crate base64;
-extern crate bytes;
-extern crate headers_core;
-extern crate http;
-extern crate httpdate;
-extern crate mime;
-extern crate sha1;
 #[cfg(all(test, feature = "nightly"))]
 extern crate test;
 

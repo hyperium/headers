@@ -28,7 +28,6 @@ use crate::util::FlatCsv;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::ContentEncoding;
 ///
 /// let content_enc = ContentEncoding::gzip();
@@ -63,7 +62,6 @@ impl ContentEncoding {
     /// # Example
     ///
     /// ```
-    /// # extern crate headers;
     /// use headers::ContentEncoding;
     ///
     /// let content_enc = ContentEncoding::gzip();

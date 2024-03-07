@@ -15,7 +15,6 @@ use super::SecWebsocketKey;
 /// # Example
 ///
 /// ```no_run
-/// # extern crate headers;
 /// use headers::{SecWebsocketAccept, SecWebsocketKey};
 ///
 /// let sec_key: SecWebsocketKey = /* from request headers */

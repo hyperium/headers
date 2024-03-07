@@ -25,7 +25,6 @@ use crate::util::HeaderValueString;
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::Server;
 ///
 /// let server = Server::from_static("hyper/0.12.2");

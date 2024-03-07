@@ -21,7 +21,6 @@ use crate::util::Seconds;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use std::time::Duration;
 /// use headers::AccessControlMaxAge;
 ///

@@ -34,7 +34,6 @@ use crate::util::EntityTagRange;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::IfNoneMatch;
 ///
 /// let if_none_match = IfNoneMatch::any();

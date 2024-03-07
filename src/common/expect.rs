@@ -17,7 +17,6 @@ use crate::{Error, Header};
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::Expect;
 ///
 /// let expect = Expect::CONTINUE;

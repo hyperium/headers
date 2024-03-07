@@ -21,7 +21,6 @@ use crate::Error;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::Origin;
 ///
 /// let origin = Origin::NULL;

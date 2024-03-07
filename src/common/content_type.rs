@@ -34,7 +34,6 @@ use crate::{Error, Header};
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::ContentType;
 ///
 /// let ct = ContentType::json();

@@ -19,7 +19,6 @@ use crate::{Error, Header};
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// extern crate http;
 /// use headers::AccessControlRequestMethod;
 /// use http::Method;

@@ -35,7 +35,6 @@ use crate::{Error, Header};
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use std::time::Duration;
 /// use headers::StrictTransportSecurity;
 ///

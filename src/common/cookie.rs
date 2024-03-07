@@ -27,7 +27,6 @@ impl Cookie {
     /// # Example
     ///
     /// ```
-    /// # extern crate headers;
     /// use headers::{Cookie, HeaderMap, HeaderMapExt, HeaderValue};
     ///
     /// // Setup the header map with strings...

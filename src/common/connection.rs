@@ -29,7 +29,6 @@ use crate::util::FlatCsv;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::Connection;
 ///
 /// let keep_alive = Connection::keep_alive();
@@ -73,7 +72,6 @@ impl Connection {
     /// # Example
     ///
     /// ```
-    /// # extern crate headers;
     /// extern crate http;
     ///
     /// use http::header::UPGRADE;

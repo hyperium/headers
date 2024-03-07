@@ -23,7 +23,6 @@ use std::time::SystemTime;
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::IfUnmodifiedSince;
 /// use std::time::{SystemTime, Duration};
 ///

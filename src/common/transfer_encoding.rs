@@ -31,7 +31,6 @@ use crate::util::FlatCsv;
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::TransferEncoding;
 ///
 /// let transfer = TransferEncoding::chunked();

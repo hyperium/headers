@@ -22,7 +22,6 @@ use crate::util::FlatCsv;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// extern crate http;
 /// # fn main() {
 /// use http::header::{CONTENT_LENGTH, ETAG};

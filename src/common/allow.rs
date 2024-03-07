@@ -25,7 +25,6 @@ use crate::util::FlatCsv;
 /// # Examples
 ///
 /// ```
-/// # extern crate headers;
 /// extern crate http;
 /// use headers::Allow;
 /// use http::Method;

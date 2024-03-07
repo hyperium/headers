@@ -24,7 +24,6 @@ use crate::util::FlatCsv;
 /// # Example
 ///
 /// ```
-/// # extern crate headers;
 /// use headers::Vary;
 ///
 /// let vary = Vary::any();
