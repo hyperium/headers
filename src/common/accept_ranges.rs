@@ -52,17 +52,30 @@ impl AcceptRanges {
 
 #[cfg(test)]
 mod tests {
+    use super::super::test_decode;
     use super::*;
 
-    #[test]
-    fn bytes() {
-        let bytes_range = AcceptRanges::bytes();
-        assert!(bytes_range.is_bytes());
+    fn accept_ranges(s: &str) -> AcceptRanges {
+        test_decode(&[s]).unwrap()
     }
 
     #[test]
-    fn bytes_fails() {
-        let none_range = AcceptRanges(HeaderValue::from_static("none").into());
-        assert!(!none_range.is_bytes());
+    fn bytes_constructor() {
+        assert_eq!(accept_ranges("bytes"), AcceptRanges::bytes());
+    }
+
+    #[test]
+    fn is_bytes_method_successful_with_bytes_ranges() {
+        assert!(accept_ranges("bytes").is_bytes());
+    }
+
+    #[test]
+    fn is_bytes_method_successful_with_bytes_ranges_by_constructor() {
+        assert!(AcceptRanges::bytes().is_bytes());
+    }
+
+    #[test]
+    fn is_bytes_method_failed_with_not_bytes_ranges() {
+        assert!(!accept_ranges("dummy").is_bytes());
     }
 }
