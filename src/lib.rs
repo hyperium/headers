@@ -77,6 +77,8 @@ extern crate test;
 
 pub use headers_core::{Error, Header};
 
+pub use mime::Mime;
+
 #[doc(hidden)]
 pub use http::HeaderMap;
 
