@@ -2,7 +2,7 @@ use crate::util::HttpDate;
 use std::time::SystemTime;
 
 /// `If-Unmodified-Since` header, defined in
-/// [RFC7232](http://tools.ietf.org/html/rfc7232#section-3.4)
+/// [RFC7232](https://datatracker.ietf.org/doc/html/rfc7232#section-3.4)
 ///
 /// The `If-Unmodified-Since` header field makes the request method
 /// conditional on the selected representation's last modification date

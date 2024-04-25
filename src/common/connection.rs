@@ -6,7 +6,7 @@ use self::sealed::AsConnectionOption;
 use crate::util::FlatCsv;
 
 /// `Connection` header, defined in
-/// [RFC7230](http://tools.ietf.org/html/rfc7230#section-6.1)
+/// [RFC7230](https://datatracker.ietf.org/doc/html/rfc7230#section-6.1)
 ///
 /// The `Connection` header field allows the sender to indicate desired
 /// control options for the current connection.  In order to avoid

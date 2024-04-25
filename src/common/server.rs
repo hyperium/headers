@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 use crate::util::HeaderValueString;
 
-/// `Server` header, defined in [RFC7231](http://tools.ietf.org/html/rfc7231#section-7.4.2)
+/// `Server` header, defined in [RFC7231](https://datatracker.ietf.org/doc/html/rfc7231#section-7.4.2)
 ///
 /// The `Server` header field contains information about the software
 /// used by the origin server to handle the request, which is often used

@@ -2,7 +2,7 @@ use std::time::SystemTime;
 
 use crate::util::HttpDate;
 
-/// `Expires` header, defined in [RFC7234](http://tools.ietf.org/html/rfc7234#section-5.3)
+/// `Expires` header, defined in [RFC7234](https://datatracker.ietf.org/doc/html/rfc7234#section-5.3)
 ///
 /// The `Expires` header field gives the date/time after which the
 /// response is considered stale.

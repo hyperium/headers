@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use crate::util::EntityTag;
 
-/// `ETag` header, defined in [RFC7232](http://tools.ietf.org/html/rfc7232#section-2.3)
+/// `ETag` header, defined in [RFC7232](https://datatracker.ietf.org/doc/html/rfc7232#section-2.3)
 ///
 /// The `ETag` header field in a response provides the current entity-tag
 /// for the selected representation, as determined at the conclusion of

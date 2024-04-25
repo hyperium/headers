@@ -3,7 +3,7 @@ use http::HeaderValue;
 use crate::util::FlatCsv;
 
 /// `TE` header, defined in
-/// [RFC7230](http://tools.ietf.org/html/rfc7230#section-4.3)
+/// [RFC7230](https://datatracker.ietf.org/doc/html/rfc7230#section-4.3)
 ///
 /// As RFC7230 states, "The "TE" header field in a request indicates what transfer codings,
 /// besides chunked, the client is willing to accept in response, and

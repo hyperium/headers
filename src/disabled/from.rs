@@ -1,5 +1,5 @@
 header! {
-    /// `From` header, defined in [RFC7231](http://tools.ietf.org/html/rfc7231#section-5.5.1)
+    /// `From` header, defined in [RFC7231](https://datatracker.ietf.org/doc/html/rfc7231#section-5.5.1)
     ///
     /// The `From` header field contains an Internet email address for a
     /// human user who controls the requesting user agent.  The address ought

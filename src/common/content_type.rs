@@ -6,7 +6,7 @@ use mime::Mime;
 use crate::{Error, Header};
 
 /// `Content-Type` header, defined in
-/// [RFC7231](http://tools.ietf.org/html/rfc7231#section-3.1.1.5)
+/// [RFC7231](https://datatracker.ietf.org/doc/html/rfc7231#section-3.1.1.5)
 ///
 /// The `Content-Type` header field indicates the media type of the
 /// associated representation: either the representation enclosed in the
