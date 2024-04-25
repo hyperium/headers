@@ -3,7 +3,7 @@ use http::HeaderValue;
 use crate::{Error, Header};
 
 /// `Content-Length` header, defined in
-/// [RFC7230](http://tools.ietf.org/html/rfc7230#section-3.3.2)
+/// [RFC7230](https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.2)
 ///
 /// When a message does not have a `Transfer-Encoding` header field, a
 /// Content-Length header field can provide the anticipated size, as a
@@ -16,7 +16,7 @@ use crate::{Error, Header};
 ///
 /// Note that setting this header will *remove* any previously set
 /// `Transfer-Encoding` header, in accordance with
-/// [RFC7230](http://tools.ietf.org/html/rfc7230#section-3.3.2):
+/// [RFC7230](https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.2):
 ///
 /// > A sender MUST NOT send a Content-Length header field in any message
 /// > that contains a Transfer-Encoding header field.

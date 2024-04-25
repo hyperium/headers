@@ -4,7 +4,7 @@ use std::str::FromStr;
 use crate::util::HeaderValueString;
 
 /// `User-Agent` header, defined in
-/// [RFC7231](http://tools.ietf.org/html/rfc7231#section-5.5.3)
+/// [RFC7231](https://datatracker.ietf.org/doc/html/rfc7231#section-5.5.3)
 ///
 /// The `User-Agent` header field contains information about the user
 /// agent originating the request, which is often used by servers to help

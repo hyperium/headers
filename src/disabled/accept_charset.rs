@@ -2,7 +2,7 @@ use {Charset, QualityItem};
 
 header! {
     /// `Accept-Charset` header, defined in
-    /// [RFC7231](http://tools.ietf.org/html/rfc7231#section-5.3.3)
+    /// [RFC7231](https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.3)
     ///
     /// The `Accept-Charset` header field can be sent by a user agent to
     /// indicate what charsets are acceptable in textual response content.

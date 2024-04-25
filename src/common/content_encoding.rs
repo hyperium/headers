@@ -4,7 +4,7 @@ use self::sealed::AsCoding;
 use crate::util::FlatCsv;
 
 /// `Content-Encoding` header, defined in
-/// [RFC7231](http://tools.ietf.org/html/rfc7231#section-3.1.2.2)
+/// [RFC7231](https://datatracker.ietf.org/doc/html/rfc7231#section-3.1.2.2)
 ///
 /// The `Content-Encoding` header field indicates what content codings
 /// have been applied to the representation, beyond those inherent in the

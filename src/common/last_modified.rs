@@ -2,7 +2,7 @@ use crate::util::HttpDate;
 use std::time::SystemTime;
 
 /// `Last-Modified` header, defined in
-/// [RFC7232](http://tools.ietf.org/html/rfc7232#section-2.2)
+/// [RFC7232](https://datatracker.ietf.org/doc/html/rfc7232#section-2.2)
 ///
 /// The `Last-Modified` header field in a response provides a timestamp
 /// indicating the date and time at which the origin server believes the

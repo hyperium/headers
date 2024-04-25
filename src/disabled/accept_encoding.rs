@@ -2,7 +2,7 @@ use {Encoding, QualityItem};
 
 header! {
     /// `Accept-Encoding` header, defined in
-    /// [RFC7231](http://tools.ietf.org/html/rfc7231#section-5.3.4)
+    /// [RFC7231](https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.4)
     ///
     /// The `Accept-Encoding` header field can be used by user agents to
     /// indicate what response content-codings are

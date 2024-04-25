@@ -6,7 +6,7 @@ use super::{ETag, LastModified};
 use crate::util::{EntityTag, HttpDate, TryFromValues};
 use crate::Error;
 
-/// `If-Range` header, defined in [RFC7233](http://tools.ietf.org/html/rfc7233#section-3.2)
+/// `If-Range` header, defined in [RFC7233](https://datatracker.ietf.org/doc/html/rfc7233#section-3.2)
 ///
 /// If a client has a partial copy of a representation and wishes to have
 /// an up-to-date copy of the entire representation, it could use the

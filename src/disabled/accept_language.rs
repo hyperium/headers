@@ -3,7 +3,7 @@ use QualityItem;
 
 header! {
     /// `Accept-Language` header, defined in
-    /// [RFC7231](http://tools.ietf.org/html/rfc7231#section-5.3.5)
+    /// [RFC7231](https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.5)
     ///
     /// The `Accept-Language` header field can be used by user agents to
     /// indicate the set of natural languages that are preferred in the

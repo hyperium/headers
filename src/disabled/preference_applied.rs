@@ -2,7 +2,7 @@ use std::fmt;
 use {Header, Raw, Preference};
 use parsing::{from_comma_delimited, fmt_comma_delimited};
 
-/// `Preference-Applied` header, defined in [RFC7240](http://tools.ietf.org/html/rfc7240)
+/// `Preference-Applied` header, defined in [RFC7240](https://datatracker.ietf.org/doc/html/rfc7240)
 ///
 /// The `Preference-Applied` response header may be included within a
 /// response message as an indication as to which `Prefer` header tokens were

@@ -1,7 +1,7 @@
 use http::HeaderValue;
 
 /// `Location` header, defined in
-/// [RFC7231](http://tools.ietf.org/html/rfc7231#section-7.1.2)
+/// [RFC7231](https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.2)
 ///
 /// The `Location` header field is used in some responses to refer to a
 /// specific resource in relation to the response.  The type of

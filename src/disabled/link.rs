@@ -11,7 +11,7 @@ use parsing;
 use {Header, Raw};
 
 /// The `Link` header, defined in
-/// [RFC5988](http://tools.ietf.org/html/rfc5988#section-5)
+/// [RFC5988](https://datatracker.ietf.org/doc/html/rfc5988#section-5)
 ///
 /// # ABNF
 ///
@@ -76,7 +76,7 @@ pub struct Link {
 }
 
 /// A single `link-value` of a `Link` header, based on:
-/// [RFC5988](http://tools.ietf.org/html/rfc5988#section-5)
+/// [RFC5988](https://datatracker.ietf.org/doc/html/rfc5988#section-5)
 #[derive(Clone, PartialEq, Debug)]
 pub struct LinkValue {
     /// Target IRI: `link-value`.

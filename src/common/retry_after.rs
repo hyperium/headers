@@ -24,7 +24,7 @@ use crate::Error;
 /// let date = RetryAfter::date(SystemTime::now());
 /// ```
 
-/// Retry-After header, defined in [RFC7231](http://tools.ietf.org/html/rfc7231#section-7.1.3)
+/// Retry-After header, defined in [RFC7231](https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.3)
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RetryAfter(After);
 
