@@ -24,6 +24,7 @@ use crate::util::FlatCsv;
 ///
 /// * `gzip`
 /// * `br`
+/// * `zstd`
 ///
 /// # Examples
 ///
@@ -51,6 +52,12 @@ impl ContentEncoding {
     #[inline]
     pub fn brotli() -> ContentEncoding {
         ContentEncoding(HeaderValue::from_static("br").into())
+    }
+
+    /// A constructor to easily create a `Content-Encoding: zstd` header.
+    #[inline]
+    pub fn zstd() -> ContentEncoding {
+        ContentEncoding(HeaderValue::from_static("zstd").into())
     }
 
     /// Check if this header contains a given "coding".
