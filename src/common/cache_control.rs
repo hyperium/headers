@@ -123,7 +123,13 @@ impl CacheControl {
     pub fn immutable(&self) -> bool {
         self.flags.contains(Flags::IMMUTABLE)
     }
-    /// Check if the `must_understand` directive is set.
+
+    /// Check if the `must-revalidate` directive is set.
+    pub fn must_revalidate(&self) -> bool {
+        self.flags.contains(Flags::MUST_REVALIDATE)
+    }
+
+    /// Check if the `must-understand` directive is set.
     pub fn must_understand(&self) -> bool {
         self.flags.contains(Flags::MUST_UNDERSTAND)
     }
@@ -192,11 +198,18 @@ impl CacheControl {
         self
     }
 
-    /// Set the `must_understand` directive.
+    /// Set the `must-revalidate` directive.
+    pub fn with_must_revalidate(mut self) -> Self {
+        self.flags.insert(Flags::MUST_REVALIDATE);
+        self
+    }
+
+    /// Set the `must-understand` directive.
     pub fn with_must_understand(mut self) -> Self {
         self.flags.insert(Flags::MUST_UNDERSTAND);
         self
     }
+
     /// Set the `max-age` directive.
     pub fn with_max_age(mut self, duration: Duration) -> Self {
         self.max_age = Some(duration.into());
@@ -488,6 +501,18 @@ mod tests {
         assert_eq!(headers["cache-control"], "immutable");
         assert_eq!(test_decode::<CacheControl>(&["immutable"]).unwrap(), cc);
         assert!(cc.immutable());
+    }
+
+    #[test]
+    fn test_must_revalidate() {
+        let cc = CacheControl::new().with_must_revalidate();
+        let headers = test_encode(cc.clone());
+        assert_eq!(headers["cache-control"], "must-revalidate");
+        assert_eq!(
+            test_decode::<CacheControl>(&["must-revalidate"]).unwrap(),
+            cc
+        );
+        assert!(cc.must_revalidate());
     }
 
     #[test]
