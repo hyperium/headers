@@ -1,3 +1,4 @@
+use std::convert::TryFrom;
 use std::time::{Duration, SystemTime};
 
 use http::HeaderValue;
@@ -47,7 +48,7 @@ impl RetryAfter {
         RetryAfter(After::DateTime(time.into()))
     }
 
-    /// Create an `RetryAfter` header with a date value.
+    /// Create an `RetryAfter` header with a delay value.
     pub fn delay(dur: Duration) -> RetryAfter {
         RetryAfter(After::Delay(dur.into()))
     }
@@ -77,6 +78,40 @@ impl<'a> From<&'a After> for HeaderValue {
         match *after {
             After::Delay(ref delay) => delay.into(),
             After::DateTime(ref date) => date.into(),
+        }
+    }
+}
+
+impl From<SystemTime> for RetryAfter {
+    fn from(value: SystemTime) -> Self {
+        Self::date(value)
+    }
+}
+
+impl From<Duration> for RetryAfter {
+    fn from(value: Duration) -> Self {
+        Self::delay(value)
+    }
+}
+
+impl TryFrom<RetryAfter> for SystemTime {
+    type Error = Duration;
+
+    fn try_from(value: RetryAfter) -> Result<Self, Self::Error> {
+        match value.0 {
+            After::DateTime(date) => Ok(date.into()),
+            After::Delay(delay) => Err(delay.into()),
+        }
+    }
+}
+
+impl TryFrom<RetryAfter> for Duration {
+    type Error = SystemTime;
+
+    fn try_from(value: RetryAfter) -> Result<Self, Self::Error> {
+        match value.0 {
+            After::DateTime(date) => Err(date.into()),
+            After::Delay(delay) => Ok(delay.into()),
         }
     }
 }
