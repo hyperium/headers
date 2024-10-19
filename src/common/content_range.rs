@@ -146,7 +146,7 @@ impl Header for ContentRange {
     fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
         struct Adapter<'a>(&'a ContentRange);
 
-        impl<'a> fmt::Display for Adapter<'a> {
+        impl fmt::Display for Adapter<'_> {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                 f.write_str("bytes ")?;
 

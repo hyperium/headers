@@ -318,7 +318,7 @@ impl FromIterator<KnownDirective> for FromIter {
 
 struct Fmt<'a>(&'a CacheControl);
 
-impl<'a> fmt::Display for Fmt<'a> {
+impl fmt::Display for Fmt<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let if_flag = |f: Flags, dir: Directive| {
             if self.0.flags.contains(f) {

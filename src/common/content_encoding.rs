@@ -89,9 +89,9 @@ mod sealed {
         fn as_coding(&self) -> &str;
     }
 
-    impl<'a> AsCoding for &'a str {}
+    impl AsCoding for &str {}
 
-    impl<'a> Sealed for &'a str {
+    impl Sealed for &str {
         fn as_coding(&self) -> &str {
             self
         }
