@@ -69,6 +69,9 @@ impl<Sep: Separator> TryFromValues for FlatCsv<Sep> {
     where
         I: Iterator<Item = &'i HeaderValue>,
     {
+        let mut values = values.peekable();
+        values.peek().ok_or_else(::Error::invalid)?;
+
         let flat = values.collect();
         Ok(flat)
     }
