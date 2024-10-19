@@ -147,7 +147,7 @@ impl Header for StrictTransportSecurity {
     fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
         struct Adapter<'a>(&'a StrictTransportSecurity);
 
-        impl<'a> fmt::Display for Adapter<'a> {
+        impl fmt::Display for Adapter<'_> {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                 if self.0.include_subdomains {
                     write!(f, "max-age={}; includeSubdomains", self.0.max_age)

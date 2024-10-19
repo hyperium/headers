@@ -108,21 +108,21 @@ mod sealed {
     }
     pub trait Sealed {}
 
-    impl<'a> AsConnectionOption for &'a str {
+    impl AsConnectionOption for &str {
         fn as_connection_option(&self) -> &str {
             self
         }
     }
 
-    impl<'a> Sealed for &'a str {}
+    impl Sealed for &str {}
 
-    impl<'a> AsConnectionOption for &'a HeaderName {
+    impl AsConnectionOption for &HeaderName {
         fn as_connection_option(&self) -> &str {
             self.as_ref()
         }
     }
 
-    impl<'a> Sealed for &'a HeaderName {}
+    impl Sealed for &HeaderName {}
 
     impl AsConnectionOption for HeaderName {
         fn as_connection_option(&self) -> &str {

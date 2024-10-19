@@ -61,7 +61,7 @@ enum State<'a> {
     Tmp,
 }
 
-impl<'a> Extend<HeaderValue> for ToValues<'a> {
+impl Extend<HeaderValue> for ToValues<'_> {
     fn extend<T: IntoIterator<Item = HeaderValue>>(&mut self, iter: T) {
         for value in iter {
             let entry = match ::std::mem::replace(&mut self.state, State::Tmp) {
