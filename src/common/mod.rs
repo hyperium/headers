@@ -93,13 +93,13 @@ macro_rules! bench_header {
         #[cfg(feature = "nightly")]
         mod $mod {
             use super::$ty;
-            use HeaderMapExt;
+            use crate::HeaderMapExt;
 
             #[bench]
             fn bench_decode(b: &mut ::test::Bencher) {
                 let mut map = ::http::HeaderMap::new();
                 map.append(
-                    <$ty as ::Header>::name(),
+                    <$ty as crate::Header>::name(),
                     $value.parse().expect("HeaderValue::from_str($value)"),
                 );
                 b.bytes = $value.len() as u64;
@@ -112,7 +112,7 @@ macro_rules! bench_header {
             fn bench_encode(b: &mut ::test::Bencher) {
                 let mut map = ::http::HeaderMap::new();
                 map.append(
-                    <$ty as ::Header>::name(),
+                    <$ty as crate::Header>::name(),
                     $value.parse().expect("HeaderValue::from_str($value)"),
                 );
                 let typed = map.typed_get::<$ty>().unwrap();
