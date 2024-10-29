@@ -72,7 +72,28 @@ impl From<ETag> for IfMatch {
 
 #[cfg(test)]
 mod tests {
+    use super::super::test_decode;
     use super::*;
+
+    #[test]
+    fn test_empty() {
+        assert_eq!(test_decode::<IfMatch>(&[]), None);
+    }
+
+    #[test]
+    fn test_invalid() {
+        assert_eq!(test_decode::<IfMatch>(&[""]), None);
+        assert_eq!(test_decode::<IfMatch>(&["  "]), None);
+        assert_eq!(test_decode::<IfMatch>(&["foo"]), None);
+    }
+
+    #[test]
+    fn test_valid() {
+        assert_eq!(
+            test_decode::<IfMatch>(&["\"foo\""]),
+            Some(IfMatch::from(ETag::from_static("\"foo\"")))
+        );
+    }
 
     #[test]
     fn is_any() {
