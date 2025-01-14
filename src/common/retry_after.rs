@@ -23,7 +23,7 @@ use crate::Error;
 /// let delay = RetryAfter::delay(Duration::from_secs(300));
 /// let date = RetryAfter::date(SystemTime::now());
 /// ```
-
+///
 /// Retry-After header, defined in [RFC7231](https://datatracker.ietf.org/doc/html/rfc7231#section-7.1.3)
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RetryAfter(After);
