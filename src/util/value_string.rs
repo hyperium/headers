@@ -35,7 +35,7 @@ impl HeaderValueString {
             .map(|value| HeaderValueString { value })
     }
 
-    pub(crate) fn from_static(src: &'static str) -> HeaderValueString {
+    pub(crate) const fn from_static(src: &'static str) -> HeaderValueString {
         // A valid `str` (the argument)...
         HeaderValueString {
             value: HeaderValue::from_static(src),
