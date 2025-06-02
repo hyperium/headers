@@ -2,7 +2,6 @@
 #![deny(missing_debug_implementations)]
 #![cfg_attr(test, deny(warnings))]
 #![cfg_attr(all(test, feature = "nightly"), feature(test))]
-#![doc(html_root_url = "https://docs.rs/headers/0.4.1")]
 
 //! # Typed HTTP Headers
 //!
