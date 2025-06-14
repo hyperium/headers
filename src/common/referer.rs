@@ -99,9 +99,15 @@ impl Referer {
         }
 
         let path_part = path_and_query.unwrap_or("");
-        let uri_string = format!("{}://{}{}{}", scheme, host, MaybePort(port.into()), path_part);
+        let uri_string = format!(
+            "{}://{}{}{}",
+            scheme,
+            host,
+            MaybePort(port.into()),
+            path_part
+        );
         let bytes = Bytes::from(uri_string);
-        
+
         HeaderValue::from_maybe_shared(bytes)
             .ok()
             .and_then(|val| Self::try_from_value(&val))
@@ -142,8 +148,14 @@ impl Referer {
     #[inline]
     pub fn path(&self) -> &str {
         match &self.0 {
-            RefererUri::Absolute { path_and_query: Some(pq), .. } => pq.path(),
-            RefererUri::Absolute { path_and_query: None, .. } => "/",
+            RefererUri::Absolute {
+                path_and_query: Some(pq),
+                ..
+            } => pq.path(),
+            RefererUri::Absolute {
+                path_and_query: None,
+                ..
+            } => "/",
             RefererUri::Partial(s) => {
                 let s_str = s.as_str();
                 if s_str.starts_with('/') {
@@ -164,8 +176,14 @@ impl Referer {
     #[inline]
     pub fn query(&self) -> Option<&str> {
         match &self.0 {
-            RefererUri::Absolute { path_and_query: Some(pq), .. } => pq.query(),
-            RefererUri::Absolute { path_and_query: None, .. } => None,
+            RefererUri::Absolute {
+                path_and_query: Some(pq),
+                ..
+            } => pq.query(),
+            RefererUri::Absolute {
+                path_and_query: None,
+                ..
+            } => None,
             RefererUri::Partial(s) => {
                 let s_str = s.as_str();
                 if let Some(pos) = s_str.find('?') {
@@ -200,18 +218,21 @@ error_type!(InvalidReferer);
 impl RefererUri {
     fn try_from_value(value: &HeaderValue) -> Option<Self> {
         let value_str = value.to_str().ok()?;
-        
+
         // Check for forbidden components
         if value_str.contains('#') {
             // Contains fragment, which is forbidden
             return None;
         }
-        
+
         if value_str.contains('@') {
             // Might contain userinfo, which is forbidden
             // This is a simple check; a more thorough check would parse the URI
             if let Ok(uri) = Uri::try_from(value_str) {
-                if uri.authority().map_or(false, |auth| auth.as_str().contains('@')) {
+                if uri
+                    .authority()
+                    .map_or(false, |auth| auth.as_str().contains('@'))
+                {
                     return None;
                 }
             }
@@ -220,7 +241,7 @@ impl RefererUri {
         // Try to parse as URI first
         if let Ok(uri) = Uri::try_from(value_str) {
             let parts = uri.into_parts();
-            
+
             // If it has scheme and authority, it's an absolute URI
             if let (Some(scheme), Some(authority)) = (parts.scheme, parts.authority) {
                 return Some(RefererUri::Absolute {
@@ -264,7 +285,11 @@ impl FromStr for Referer {
 impl fmt::Display for Referer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self.0 {
-            RefererUri::Absolute { scheme, authority, path_and_query } => {
+            RefererUri::Absolute {
+                scheme,
+                authority,
+                path_and_query,
+            } => {
                 write!(f, "{}://{}", scheme, authority)?;
                 if let Some(pq) = path_and_query {
                     write!(f, "{}", pq)
@@ -280,7 +305,11 @@ impl fmt::Display for Referer {
 impl<'a> From<&'a RefererUri> for HeaderValue {
     fn from(referer: &'a RefererUri) -> HeaderValue {
         match referer {
-            RefererUri::Absolute { scheme, authority, path_and_query } => {
+            RefererUri::Absolute {
+                scheme,
+                authority,
+                path_and_query,
+            } => {
                 let mut s = format!("{}://{}", scheme, authority);
                 if let Some(pq) = path_and_query {
                     s.push_str(pq.as_str());
@@ -289,7 +318,9 @@ impl<'a> From<&'a RefererUri> for HeaderValue {
                 HeaderValue::from_maybe_shared(bytes)
                     .expect("Scheme, Authority, and PathAndQuery are valid header values")
             }
-            RefererUri::Partial(s) => s.as_str().parse()
+            RefererUri::Partial(s) => s
+                .as_str()
+                .parse()
                 .expect("HeaderValueString contains valid header value"),
         }
     }
@@ -358,7 +389,9 @@ mod tests {
 
     #[test]
     fn try_from_parts() {
-        let referer = Referer::try_from_parts("https", "example.com", Some(443), Some("/api/test?v=1")).unwrap();
+        let referer =
+            Referer::try_from_parts("https", "example.com", Some(443), Some("/api/test?v=1"))
+                .unwrap();
         assert_eq!(referer.scheme(), Some("https"));
         assert_eq!(referer.hostname(), Some("example.com"));
         assert_eq!(referer.port(), Some(443));
