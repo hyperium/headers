@@ -131,7 +131,7 @@ fn from_f32(f: f32) -> Quality {
     // should be done before calling this method. Just in case, this
     // debug_assert should catch if we were forgetful
     debug_assert!(
-        f >= 0f32 && f <= 1f32,
+        (0f32..=1f32).contains(&f),
         "q value must be between 0.0 and 1.0"
     );
     Quality((f * 1000f32) as u16)
