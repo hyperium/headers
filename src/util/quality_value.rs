@@ -168,7 +168,7 @@ mod internal {
     impl IntoQuality for f32 {
         fn into_quality(self) -> Quality {
             assert!(
-                self >= 0f32 && self <= 1f32,
+                (0f32..=1f32).contains(&self),
                 "float must be between 0.0 and 1.0"
             );
             super::from_f32(self)
