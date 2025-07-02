@@ -106,7 +106,7 @@ impl<T: str::FromStr> str::FromStr for QualityValue<T> {
                 }
                 match q_part.parse::<f32>() {
                     Ok(q_value) => {
-                        if 0f32 <= q_value && q_value <= 1f32 {
+                        if (0f32..=1f32).contains(&q_value) {
                             quality = q_value;
                             raw_item = second;
                         } else {
