@@ -489,12 +489,7 @@ mod tests {
     fn test_parse_quoted_comma() {
         assert_eq!(
             test_decode::<CacheControl>(&["foo=\"a, private, immutable, b\", no-cache"]).unwrap(),
-            CacheControl::new()
-                .with_no_cache()
-                // These are wrong: these appear inside a quoted string and so
-                // should be treated as parameter for the "a" directive.
-                .with_private()
-                .with_immutable(),
+            CacheControl::new().with_no_cache(),
             "unknown extensions are ignored but shouldn't fail parsing",
         )
     }
