@@ -14,8 +14,26 @@ where
     values
         .flat_map(|value| {
             value.to_str().into_iter().flat_map(|string| {
+                let mut in_quotes = false;
                 string
-                    .split(',')
+                    .split(move |c| {
+                        #[allow(clippy::collapsible_else_if)]
+                        if in_quotes {
+                            if c == '"' {
+                                in_quotes = false;
+                            }
+                            false // dont split
+                        } else {
+                            if c == ',' {
+                                true // split
+                            } else {
+                                if c == '"' {
+                                    in_quotes = true;
+                                }
+                                false // dont split
+                            }
+                        }
+                    })
                     .filter_map(|x| match x.trim() {
                         "" => None,
                         y => Some(y),
