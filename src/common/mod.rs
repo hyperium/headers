@@ -57,6 +57,9 @@ pub use self::referer::Referer;
 pub use self::referrer_policy::ReferrerPolicy;
 pub use self::retry_after::RetryAfter;
 pub use self::sec_websocket_accept::SecWebsocketAccept;
+pub use self::sec_websocket_extensions::{
+    WebsocketExtensionParam, SecWebsocketExtensions, WebsocketProtocolExtension,
+};
 pub use self::sec_websocket_key::SecWebsocketKey;
 pub use self::sec_websocket_version::SecWebsocketVersion;
 pub use self::server::Server;
@@ -177,6 +180,7 @@ mod referer;
 mod referrer_policy;
 mod retry_after;
 mod sec_websocket_accept;
+mod sec_websocket_extensions;
 mod sec_websocket_key;
 mod sec_websocket_version;
 mod server;
