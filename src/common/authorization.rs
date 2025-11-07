@@ -156,7 +156,7 @@ impl Credentials for Basic {
             value,
         );
 
-        let bytes = &value.as_bytes()["Basic ".len()..];
+        let bytes = value.as_bytes().get("Basic ".len()..)?;
         let non_space_pos = bytes.iter().position(|b| *b != b' ')?;
         let bytes = &bytes[non_space_pos..];
 
