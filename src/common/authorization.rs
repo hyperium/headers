@@ -155,10 +155,8 @@ impl Credentials for Basic {
             "HeaderValue to decode should start with \"Basic ..\", received = {:?}",
             value,
         );
-
         let bytes = value.as_bytes().get("Basic ".len()..)?;
-        let non_space_pos = bytes.iter().position(|b| *b != b' ')?;
-        let bytes = &bytes[non_space_pos..];
+        let bytes = bytes.trim_ascii_start();
 
         let bytes = ENGINE.decode(bytes).ok()?;
 
