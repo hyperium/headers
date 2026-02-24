@@ -10,7 +10,7 @@ authors = ["Sean McArthur <sean@seanmonstar.com>"]
 keywords = ["http", "headers", "hyper", "hyperium"]
 categories = ["web-programming"]
 edition = "2018"
-rust-version = "1.56"
+rust-version = "1.57"
 
 [workspace]
 members = ["headers-core"]
