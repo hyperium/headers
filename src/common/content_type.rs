@@ -72,7 +72,7 @@ impl ContentType {
         ContentType(mime::TEXT_XML)
     }
 
-    /// A constructor  to easily create a `Content-Type: application/www-form-url-encoded` header.
+    /// A constructor  to easily create a `Content-Type: application/x-www-form-url-encoded` header.
     #[inline]
     pub fn form_url_encoded() -> ContentType {
         ContentType(mime::APPLICATION_WWW_FORM_URLENCODED)
