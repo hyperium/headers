@@ -233,7 +233,7 @@ mod tests {
     fn basic_roundtrip() {
         let auth = Authorization::basic("Aladdin", "open sesame");
         let mut h = HeaderMap::new();
-        h.typed_insert(auth.clone());
+        h.typed_insert(&auth);
         assert_eq!(h.typed_get(), Some(auth));
     }
 
