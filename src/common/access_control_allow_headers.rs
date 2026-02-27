@@ -5,7 +5,7 @@ use http::{HeaderName, HeaderValue};
 use crate::util::FlatCsv;
 
 /// `Access-Control-Allow-Headers` header, part of
-/// [CORS](http://www.w3.org/TR/cors/#access-control-allow-headers-response-header)
+/// [CORS](https://fetch.spec.whatwg.org/#access-control-allow-headers-response-header)
 ///
 /// The `Access-Control-Allow-Headers` header indicates, as part of the
 /// response to a preflight request, which header field names can be used
@@ -42,11 +42,7 @@ derive_header! {
 impl AccessControlAllowHeaders {
     /// Returns an iterator over `HeaderName`s contained within.
     pub fn iter(&self) -> impl Iterator<Item = HeaderName> + '_ {
-        self.0
-            .iter()
-            .map(|s| s.parse().ok())
-            .take_while(|val| val.is_some())
-            .flatten()
+        self.0.iter().filter_map(|s| s.parse().ok())
     }
 }
 
