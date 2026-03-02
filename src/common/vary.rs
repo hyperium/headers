@@ -1,4 +1,5 @@
 use http::{HeaderName, HeaderValue};
+use std::iter::FromIterator;
 
 use crate::util::FlatCsv;
 
@@ -59,6 +60,15 @@ impl From<HeaderName> for Vary {
     }
 }
 
+impl FromIterator<HeaderName> for Vary {
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = HeaderName>,
+    {
+        Vary(iter.into_iter().map(HeaderValue::from).collect())
+    }
+}
+
 /*
 test_vary {
     test_header!(test1, vec![b"accept-encoding, accept-language"]);
@@ -80,10 +90,34 @@ test_vary {
 
 #[cfg(test)]
 mod tests {
+    use http::header::{ACCEPT_ENCODING, ACCEPT_LANGUAGE};
+
     use super::*;
 
     #[test]
     fn any_is_any() {
         assert!(Vary::any().is_any());
+    }
+
+    #[test]
+    fn from_header_name() {
+        let vary = Vary::from(ACCEPT_ENCODING);
+
+        assert!(!vary.is_any());
+        assert_eq!(
+            vary.iter_strs().collect::<Vec<_>>(),
+            vec![ACCEPT_ENCODING.as_str()]
+        );
+    }
+
+    #[test]
+    fn from_iter_header_name() {
+        let vary = Vary::from_iter([ACCEPT_ENCODING, ACCEPT_LANGUAGE]);
+
+        assert!(!vary.is_any());
+        assert_eq!(
+            vary.iter_strs().collect::<Vec<_>>(),
+            vec![ACCEPT_ENCODING.as_str(), ACCEPT_LANGUAGE.as_str()]
+        );
     }
 }
