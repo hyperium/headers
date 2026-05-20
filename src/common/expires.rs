@@ -48,3 +48,22 @@ impl From<Expires> for SystemTime {
         date.0.into()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::super::{test_decode, test_encode};
+    use super::Expires;
+
+    #[test]
+    fn roundtrip() {
+        let e: Expires = test_decode(&["Sun, 06 Nov 1994 08:49:37 GMT"]).unwrap();
+        let headers = test_encode(e);
+        let e2: Expires = test_decode(&[headers["expires"].to_str().unwrap()]).unwrap();
+        assert_eq!(e, e2);
+    }
+
+    #[test]
+    fn reject_malformed_date() {
+        assert!(test_decode::<Expires>(&["not-a-date"]).is_none());
+    }
+}

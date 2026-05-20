@@ -85,7 +85,7 @@ impl<'a> From<&'a After> for HeaderValue {
 mod tests {
     use std::time::Duration;
 
-    use super::super::test_decode;
+    use super::super::{test_decode, test_encode};
     use super::RetryAfter;
     use crate::util::HttpDate;
 
@@ -110,4 +110,27 @@ mod tests {
     test_retry_after_datetime!(date_decode_rfc1123, "Sun, 06 Nov 1994 08:49:37 GMT");
     test_retry_after_datetime!(date_decode_rfc850, "Sunday, 06-Nov-94 08:49:37 GMT");
     test_retry_after_datetime!(date_decode_asctime, "Sun Nov  6 08:49:37 1994");
+
+    #[test]
+    fn reject_malformed_http_date() {
+        assert!(test_decode::<RetryAfter>(&["not-a-date"]).is_none());
+    }
+
+    #[test]
+    fn reject_negative_delay() {
+        assert!(test_decode::<RetryAfter>(&["-10"]).is_none());
+    }
+
+    #[test]
+    fn reject_non_numeric_delay() {
+        assert!(test_decode::<RetryAfter>(&["abc"]).is_none());
+    }
+
+    #[test]
+    fn date_roundtrip() {
+        let r: RetryAfter = test_decode(&["Sun, 06 Nov 1994 08:49:37 GMT"]).unwrap();
+        let headers = test_encode(r.clone());
+        let r2: RetryAfter = test_decode(&[headers["retry-after"].to_str().unwrap()]).unwrap();
+        assert_eq!(r, r2);
+    }
 }
