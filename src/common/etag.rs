@@ -44,6 +44,11 @@ impl ETag {
     pub(crate) fn from_static(src: &'static str) -> ETag {
         ETag(EntityTag::from_static(src))
     }
+
+    /// Returns `true` if the etag is [weak](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag#directives).
+    pub fn is_weak(&self) -> bool {
+        self.0.is_weak()
+    }
 }
 
 error_type!(InvalidETag);
