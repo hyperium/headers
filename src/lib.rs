@@ -70,6 +70,48 @@
 //!     }
 //! }
 //! ```
+//!
+//! Another example; the `x-real-ip` is a header set by some reverse proxies,
+//! this sets the IP address where the client send the request from.
+//!
+//! ```
+//! extern crate headers;
+//!
+//! use headers::{Header, HeaderName, HeaderValue};
+//! use std::net::IpAddr;
+//!
+//! struct RealIp(IpAddr);
+//!
+//! static REAL_IP: HeaderName = HeaderName::from_static("x-real-ip");
+//!
+//! impl Header for RealIp {
+//!     fn name() -> &'static HeaderName {
+//!         &REAL_IP
+//!     }
+//!
+//!     fn decode<'i, I>(values: &mut I) -> Result<Self, headers::Error>
+//!     where
+//!         I: Iterator<Item = &'i HeaderValue>,
+//!     {
+//!         let value = values.next().ok_or_else(headers::Error::invalid)?;
+//!
+//!         let real_ip_str =
+//!             std::str::from_utf8(value.as_bytes()).map_err(|_| headers::Error::invalid())?;
+//!         let real_ip = real_ip_str.parse().map_err(|_| headers::Error::invalid())?;
+//!
+//!         Ok(RealIp(real_ip))
+//!     }
+//!
+//!     fn encode<E>(&self, values: &mut E)
+//!     where
+//!         E: Extend<HeaderValue>,
+//!     {
+//!         let value = HeaderValue::from_str(&self.0.to_string());
+//!
+//!         values.extend(std::iter::once(value.unwrap()));
+//!     }
+//! }
+//! ```
 
 #[cfg(all(test, feature = "nightly"))]
 extern crate test;
