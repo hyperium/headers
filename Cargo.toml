@@ -26,3 +26,6 @@ httpdate = "1"
 
 [features]
 nightly = []
+
+[patch.crates-io]
+http = { git = "https://github.com/daxpedda/http", branch = "coop-coep" }
