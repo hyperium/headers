@@ -83,7 +83,7 @@ fn test_decode<T: crate::Header>(values: &[&str]) -> Option<T> {
 fn test_encode<T: crate::Header>(header: T) -> ::http::HeaderMap {
     use crate::HeaderMapExt;
     let mut map = ::http::HeaderMap::new();
-    map.typed_insert(header);
+    map.typed_insert(&header);
     map
 }
 
@@ -118,7 +118,7 @@ macro_rules! bench_header {
                 let typed = map.typed_get::<$ty>().unwrap();
                 b.bytes = $value.len() as u64;
                 b.iter(|| {
-                    map.typed_insert(typed.clone());
+                    map.typed_insert(&typed);
                     map.clear();
                 });
             }
