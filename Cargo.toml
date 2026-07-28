@@ -26,3 +26,13 @@ httpdate = "1"
 
 [features]
 nightly = []
+
+[dev-dependencies]
+gungraun = "0.19.4"
+
+[[bench]]
+name = "gungraun_bench"
+harness = false
+
+[profile.bench]
+debug = true

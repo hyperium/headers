@@ -54,17 +54,30 @@ impl TransferEncoding {
 
     /// Returns whether this ends with the `chunked` encoding.
     pub fn is_chunked(&self) -> bool {
-        self.0
-            .value
-            //TODO(perf): use split and trim (not an actual method) on &[u8]
-            .to_str()
-            .map(|s| {
-                s.split(',')
-                    .next_back()
-                    .map(|encoding| encoding.trim() == "chunked")
-                    .expect("split always has at least 1 item")
-            })
-            .unwrap_or(false)
+        let value = match self.0.value.to_str() {
+            Ok(value) => value.as_bytes(),
+            Err(_) => return false,
+        };
+        let mut encoding = value
+            .rsplit(|&byte| byte == b',')
+            .next()
+            .unwrap_or_default();
+
+        // HeaderValue::to_str permits only SP and HTAB whitespace.
+        while let Some((&byte, rest)) = encoding.split_first() {
+            if byte != b' ' && byte != b'\t' {
+                break;
+            }
+            encoding = rest;
+        }
+        while let Some((&byte, rest)) = encoding.split_last() {
+            if byte != b' ' && byte != b'\t' {
+                break;
+            }
+            encoding = rest;
+        }
+
+        encoding == b"chunked"
     }
 }
 

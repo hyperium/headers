@@ -15,7 +15,7 @@ pub(crate) use self::seconds::Seconds;
 pub(crate) use self::value_string::HeaderValueString;
 
 //mod charset;
-pub(crate) mod csv;
+
 //mod encoding;
 mod entity;
 mod flat_csv;
@@ -85,5 +85,69 @@ impl TryFromValues for HeaderValue {
         I: Iterator<Item = &'i HeaderValue>,
     {
         values.next().cloned().ok_or_else(Error::invalid)
+    }
+}
+
+/// Parse an optional `+` followed by ASCII digits.
+#[inline]
+pub(crate) fn parse_u64_digits(bytes: &[u8]) -> Option<u64> {
+    let digits = match bytes.split_first() {
+        Some((b'+', rest)) => rest,
+        _ => bytes,
+    };
+    if digits.is_empty() {
+        return None;
+    }
+
+    // Values shorter than 20 digits cannot overflow u64.
+    if digits.len() < 20 {
+        let mut acc: u64 = 0;
+        for &b in digits {
+            let digit = b.wrapping_sub(b'0');
+            if digit > 9 {
+                return None;
+            }
+            acc = acc * 10 + digit as u64;
+        }
+        return Some(acc);
+    }
+
+    let mut acc: u64 = 0;
+    for &b in digits {
+        let digit = b.wrapping_sub(b'0');
+        if digit > 9 {
+            return None;
+        }
+        acc = acc.checked_mul(10)?.checked_add(digit as u64)?;
+    }
+    Some(acc)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_u64_digits;
+
+    #[test]
+    fn parse_u64_digits_matches_from_str_edges() {
+        for input in [
+            "",
+            "+",
+            "0",
+            "+1",
+            "9999999999999999999",
+            "18446744073709551615",
+            "18446744073709551616",
+            "00000000000000000000000000000000000000001",
+            "-1",
+            "1_000",
+            "12x",
+        ] {
+            assert_eq!(
+                parse_u64_digits(input.as_bytes()),
+                input.parse::<u64>().ok(),
+                "mismatch for {:?}",
+                input
+            );
+        }
     }
 }

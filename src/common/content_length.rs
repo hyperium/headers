@@ -52,11 +52,8 @@ impl Header for ContentLength {
         // correctly. If not, then it's an error.
         let mut len = None;
         for value in values {
-            let parsed = value
-                .to_str()
-                .map_err(|_| Error::invalid())?
-                .parse::<u64>()
-                .map_err(|_| Error::invalid())?;
+            let parsed =
+                crate::util::parse_u64_digits(value.as_bytes()).ok_or_else(Error::invalid)?;
 
             if let Some(prev) = len {
                 if prev != parsed {
@@ -94,3 +91,9 @@ __hyper__tm!(ContentLength, tests {
     test_header!(test_duplicates_vary, vec![b"5", b"6", b"5"], None);
 });
 */
+
+#[cfg(all(test, feature = "nightly"))]
+mod benches {
+    use super::ContentLength;
+    bench_header!(bench, ContentLength, "1234567");
+}

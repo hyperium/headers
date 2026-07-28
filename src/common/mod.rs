@@ -188,3 +188,6 @@ mod upgrade;
 mod user_agent;
 mod vary;
 //mod warning;
+
+#[cfg(all(test, feature = "nightly"))]
+mod benchmarks;

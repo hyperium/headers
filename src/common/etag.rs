@@ -115,3 +115,9 @@ test_etag {
         None::<ETag>);
 }
 */
+
+#[cfg(all(test, feature = "nightly"))]
+mod benches {
+    use super::ETag;
+    bench_header!(bench, ETag, "\"0123456789abcdef0123456789abcdef\"");
+}

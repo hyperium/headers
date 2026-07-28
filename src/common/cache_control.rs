@@ -1,11 +1,10 @@
 use std::fmt;
-use std::iter::FromIterator;
 use std::str::FromStr;
 use std::time::Duration;
 
 use http::{HeaderName, HeaderValue};
 
-use crate::util::{self, csv, Seconds};
+use crate::util::{self, Seconds};
 use crate::{Error, Header};
 
 /// `Cache-Control` header, defined in [RFC7234](https://tools.ietf.org/html/rfc7234#section-5.2)
@@ -241,7 +240,40 @@ impl Header for CacheControl {
     }
 
     fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, Error> {
-        csv::from_comma_delimited(values).map(|FromIter(cc)| cc)
+        let mut cache_control = CacheControl::new();
+
+        for value in values {
+            let string = match value.to_str() {
+                Ok(string) => string,
+                Err(_) => continue,
+            };
+            if string.as_bytes().contains(&b'"') {
+                let mut in_quotes = false;
+                for field in string.split(move |c| {
+                    if in_quotes {
+                        if c == '"' {
+                            in_quotes = false;
+                        }
+                        false
+                    } else if c == ',' {
+                        true
+                    } else {
+                        if c == '"' {
+                            in_quotes = true;
+                        }
+                        false
+                    }
+                }) {
+                    cache_control.apply_field(field)?;
+                }
+            } else {
+                for field in string.split(',') {
+                    cache_control.apply_field(field)?;
+                }
+            }
+        }
+
+        Ok(cache_control)
     }
 
     fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
@@ -249,70 +281,63 @@ impl Header for CacheControl {
     }
 }
 
-// Adapter to be used in Header::decode
-struct FromIter(CacheControl);
+impl CacheControl {
+    #[inline]
+    fn apply_field(&mut self, field: &str) -> Result<(), Error> {
+        let field = field.trim();
+        if field.is_empty() {
+            return Ok(());
+        }
+        let directive = match field.parse().map_err(|_| Error::invalid())? {
+            KnownDirective::Known(directive) => directive,
+            KnownDirective::Unknown => return Ok(()),
+        };
 
-impl FromIterator<KnownDirective> for FromIter {
-    fn from_iter<I>(iter: I) -> Self
-    where
-        I: IntoIterator<Item = KnownDirective>,
-    {
-        let mut cc = CacheControl::new();
-
-        // ignore all unknown directives
-        let iter = iter.into_iter().filter_map(|dir| match dir {
-            KnownDirective::Known(dir) => Some(dir),
-            KnownDirective::Unknown => None,
-        });
-
-        for directive in iter {
-            match directive {
-                Directive::NoCache => {
-                    cc.flags.insert(Flags::NO_CACHE);
-                }
-                Directive::NoStore => {
-                    cc.flags.insert(Flags::NO_STORE);
-                }
-                Directive::NoTransform => {
-                    cc.flags.insert(Flags::NO_TRANSFORM);
-                }
-                Directive::OnlyIfCached => {
-                    cc.flags.insert(Flags::ONLY_IF_CACHED);
-                }
-                Directive::MustRevalidate => {
-                    cc.flags.insert(Flags::MUST_REVALIDATE);
-                }
-                Directive::MustUnderstand => {
-                    cc.flags.insert(Flags::MUST_UNDERSTAND);
-                }
-                Directive::Public => {
-                    cc.flags.insert(Flags::PUBLIC);
-                }
-                Directive::Private => {
-                    cc.flags.insert(Flags::PRIVATE);
-                }
-                Directive::Immutable => {
-                    cc.flags.insert(Flags::IMMUTABLE);
-                }
-                Directive::ProxyRevalidate => {
-                    cc.flags.insert(Flags::PROXY_REVALIDATE);
-                }
-                Directive::MaxAge(secs) => {
-                    cc.max_age = Some(Duration::from_secs(secs).into());
-                }
-                Directive::MaxStale(secs) => {
-                    cc.max_stale = Some(Duration::from_secs(secs).into());
-                }
-                Directive::MinFresh(secs) => {
-                    cc.min_fresh = Some(Duration::from_secs(secs).into());
-                }
-                Directive::SMaxAge(secs) => {
-                    cc.s_max_age = Some(Duration::from_secs(secs).into());
-                }
+        match directive {
+            Directive::NoCache => {
+                self.flags.insert(Flags::NO_CACHE);
+            }
+            Directive::NoStore => {
+                self.flags.insert(Flags::NO_STORE);
+            }
+            Directive::NoTransform => {
+                self.flags.insert(Flags::NO_TRANSFORM);
+            }
+            Directive::OnlyIfCached => {
+                self.flags.insert(Flags::ONLY_IF_CACHED);
+            }
+            Directive::MustRevalidate => {
+                self.flags.insert(Flags::MUST_REVALIDATE);
+            }
+            Directive::MustUnderstand => {
+                self.flags.insert(Flags::MUST_UNDERSTAND);
+            }
+            Directive::Public => {
+                self.flags.insert(Flags::PUBLIC);
+            }
+            Directive::Private => {
+                self.flags.insert(Flags::PRIVATE);
+            }
+            Directive::Immutable => {
+                self.flags.insert(Flags::IMMUTABLE);
+            }
+            Directive::ProxyRevalidate => {
+                self.flags.insert(Flags::PROXY_REVALIDATE);
+            }
+            Directive::MaxAge(secs) => {
+                self.max_age = Some(Duration::from_secs(secs).into());
+            }
+            Directive::MaxStale(secs) => {
+                self.max_stale = Some(Duration::from_secs(secs).into());
+            }
+            Directive::MinFresh(secs) => {
+                self.min_fresh = Some(Duration::from_secs(secs).into());
+            }
+            Directive::SMaxAge(secs) => {
+                self.s_max_age = Some(Duration::from_secs(secs).into());
             }
         }
-
-        FromIter(cc)
+        Ok(())
     }
 }
 
@@ -320,46 +345,59 @@ struct Fmt<'a>(&'a CacheControl);
 
 impl fmt::Display for Fmt<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let if_flag = |f: Flags, dir: Directive| {
-            if self.0.flags.contains(f) {
-                Some(dir)
-            } else {
-                None
+        #[inline]
+        fn emit(f: &mut fmt::Formatter, first: &mut bool, directive: Directive) -> fmt::Result {
+            if !*first {
+                f.write_str(", ")?;
             }
-        };
+            *first = false;
+            fmt::Display::fmt(&directive, f)
+        }
 
-        let slice = &[
-            if_flag(Flags::NO_CACHE, Directive::NoCache),
-            if_flag(Flags::NO_STORE, Directive::NoStore),
-            if_flag(Flags::NO_TRANSFORM, Directive::NoTransform),
-            if_flag(Flags::ONLY_IF_CACHED, Directive::OnlyIfCached),
-            if_flag(Flags::MUST_REVALIDATE, Directive::MustRevalidate),
-            if_flag(Flags::PUBLIC, Directive::Public),
-            if_flag(Flags::PRIVATE, Directive::Private),
-            if_flag(Flags::IMMUTABLE, Directive::Immutable),
-            if_flag(Flags::MUST_UNDERSTAND, Directive::MustUnderstand),
-            if_flag(Flags::PROXY_REVALIDATE, Directive::ProxyRevalidate),
-            self.0
-                .max_age
-                .as_ref()
-                .map(|s| Directive::MaxAge(s.as_u64())),
-            self.0
-                .max_stale
-                .as_ref()
-                .map(|s| Directive::MaxStale(s.as_u64())),
-            self.0
-                .min_fresh
-                .as_ref()
-                .map(|s| Directive::MinFresh(s.as_u64())),
-            self.0
-                .s_max_age
-                .as_ref()
-                .map(|s| Directive::SMaxAge(s.as_u64())),
-        ];
-
-        let iter = slice.iter().filter_map(|o| *o);
-
-        csv::fmt_comma_delimited(f, iter)
+        let mut first = true;
+        if self.0.flags.contains(Flags::NO_CACHE) {
+            emit(f, &mut first, Directive::NoCache)?;
+        }
+        if self.0.flags.contains(Flags::NO_STORE) {
+            emit(f, &mut first, Directive::NoStore)?;
+        }
+        if self.0.flags.contains(Flags::NO_TRANSFORM) {
+            emit(f, &mut first, Directive::NoTransform)?;
+        }
+        if self.0.flags.contains(Flags::ONLY_IF_CACHED) {
+            emit(f, &mut first, Directive::OnlyIfCached)?;
+        }
+        if self.0.flags.contains(Flags::MUST_REVALIDATE) {
+            emit(f, &mut first, Directive::MustRevalidate)?;
+        }
+        if self.0.flags.contains(Flags::PUBLIC) {
+            emit(f, &mut first, Directive::Public)?;
+        }
+        if self.0.flags.contains(Flags::PRIVATE) {
+            emit(f, &mut first, Directive::Private)?;
+        }
+        if self.0.flags.contains(Flags::IMMUTABLE) {
+            emit(f, &mut first, Directive::Immutable)?;
+        }
+        if self.0.flags.contains(Flags::MUST_UNDERSTAND) {
+            emit(f, &mut first, Directive::MustUnderstand)?;
+        }
+        if self.0.flags.contains(Flags::PROXY_REVALIDATE) {
+            emit(f, &mut first, Directive::ProxyRevalidate)?;
+        }
+        if let Some(seconds) = self.0.max_age.as_ref() {
+            emit(f, &mut first, Directive::MaxAge(seconds.as_u64()))?;
+        }
+        if let Some(seconds) = self.0.max_stale.as_ref() {
+            emit(f, &mut first, Directive::MaxStale(seconds.as_u64()))?;
+        }
+        if let Some(seconds) = self.0.min_fresh.as_ref() {
+            emit(f, &mut first, Directive::MinFresh(seconds.as_u64()))?;
+        }
+        if let Some(seconds) = self.0.s_max_age.as_ref() {
+            emit(f, &mut first, Directive::SMaxAge(seconds.as_u64()))?;
+        }
+        Ok(())
     }
 }
 
@@ -432,22 +470,14 @@ impl FromStr for KnownDirective {
             "must-understand" => Directive::MustUnderstand,
             "proxy-revalidate" => Directive::ProxyRevalidate,
             "" => return Err(()),
-            _ => match s.find('=') {
-                Some(idx) if idx + 1 < s.len() => {
-                    match (&s[..idx], (s[idx + 1..]).trim_matches('"')) {
-                        ("max-age", secs) => secs.parse().map(Directive::MaxAge).map_err(|_| ())?,
-                        ("max-stale", secs) => {
-                            secs.parse().map(Directive::MaxStale).map_err(|_| ())?
-                        }
-                        ("min-fresh", secs) => {
-                            secs.parse().map(Directive::MinFresh).map_err(|_| ())?
-                        }
-                        ("s-maxage", secs) => {
-                            secs.parse().map(Directive::SMaxAge).map_err(|_| ())?
-                        }
-                        _unknown => return Ok(KnownDirective::Unknown),
-                    }
-                }
+            _ => match s.split_once('=') {
+                Some((name, value)) if !value.is_empty() => match (name, value.trim_matches('"')) {
+                    ("max-age", secs) => secs.parse().map(Directive::MaxAge).map_err(|_| ())?,
+                    ("max-stale", secs) => secs.parse().map(Directive::MaxStale).map_err(|_| ())?,
+                    ("min-fresh", secs) => secs.parse().map(Directive::MinFresh).map_err(|_| ())?,
+                    ("s-maxage", secs) => secs.parse().map(Directive::SMaxAge).map_err(|_| ())?,
+                    _unknown => return Ok(KnownDirective::Unknown),
+                },
                 Some(_) | None => return Ok(KnownDirective::Unknown),
             },
         }))
@@ -465,6 +495,14 @@ mod tests {
             test_decode::<CacheControl>(&["no-cache", "private"]).unwrap(),
             CacheControl::new().with_no_cache().with_private(),
         );
+    }
+
+    #[test]
+    fn decode_skips_non_string_header_values() {
+        let invalid = HeaderValue::from_bytes(b"\x80").unwrap();
+        let valid = HeaderValue::from_static("max-age=100");
+        let cache_control = CacheControl::decode(&mut [&invalid, &valid].iter().copied()).unwrap();
+        assert_eq!(cache_control.max_age(), Some(Duration::from_secs(100)));
     }
 
     #[test]
@@ -569,4 +607,6 @@ mod tests {
         );
         assert_eq!(headers["cache-control"], "no-cache, max-age=100");
     }
+
+    bench_header!(bench, CacheControl, "max-age=100, private, no-cache");
 }

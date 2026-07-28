@@ -44,3 +44,9 @@ impl From<Date> for SystemTime {
         date.0.into()
     }
 }
+
+#[cfg(all(test, feature = "nightly"))]
+mod benches {
+    use super::Date;
+    bench_header!(bench, Date, "Sun, 06 Nov 1994 08:49:37 GMT");
+}

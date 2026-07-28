@@ -83,12 +83,17 @@ impl ContentDisposition {
     }
 
     fn get_type(&self) -> &str {
-        self.0
-            .to_str()
-            .unwrap_or("")
-            .split(';')
-            .next()
-            .expect("split always has at least 1 item")
+        let value = match self.0.to_str() {
+            Ok(value) => value,
+            Err(_) => return "",
+        };
+        let end = value
+            .as_bytes()
+            .iter()
+            .position(|&byte| byte == b';')
+            .unwrap_or(value.len());
+
+        &value[..end]
     }
 }
 
@@ -108,6 +113,28 @@ impl Header for ContentDisposition {
 
     fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
         values.extend(::std::iter::once(self.0.clone()));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::test_decode;
+    use super::*;
+
+    #[test]
+    fn disposition_type_with_parameters() {
+        let disposition =
+            test_decode::<ContentDisposition>(&["attachment; filename=\"example.txt\""]).unwrap();
+        assert!(disposition.is_attachment());
+        assert!(!disposition.is_inline());
+        assert!(!disposition.is_form_data());
+    }
+
+    #[test]
+    fn invalid_string_is_not_a_known_type() {
+        let value = HeaderValue::from_bytes(b"attachment;\x80").unwrap();
+        let disposition = ContentDisposition(value);
+        assert!(!disposition.is_attachment());
     }
 }
 /*

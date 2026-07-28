@@ -107,28 +107,22 @@ impl Header for ContentRange {
     fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, Error> {
         values
             .next()
-            .and_then(|v| v.to_str().ok())
-            .and_then(|s| split_in_two(s, ' '))
-            .and_then(|(unit, spec)| {
-                if unit != "bytes" {
-                    // For now, this only supports bytes-content-range. nani?
-                    return None;
-                }
+            .and_then(|value| value.as_bytes().strip_prefix(b"bytes "))
+            .and_then(|spec| {
+                let (range, complete_length) = split_once_byte(spec, b'/')?;
 
-                let (range, complete_length) = split_in_two(spec, '/')?;
-
-                let complete_length = if complete_length == "*" {
+                let complete_length = if complete_length == b"*" {
                     None
                 } else {
-                    Some(complete_length.parse().ok()?)
+                    Some(crate::util::parse_u64_digits(complete_length)?)
                 };
 
-                let range = if range == "*" {
+                let range = if range == b"*" {
                     None
                 } else {
-                    let (first_byte, last_byte) = split_in_two(range, '-')?;
-                    let first_byte = first_byte.parse().ok()?;
-                    let last_byte = last_byte.parse().ok()?;
+                    let (first_byte, last_byte) = split_once_byte(range, b'-')?;
+                    let first_byte = crate::util::parse_u64_digits(first_byte)?;
+                    let last_byte = crate::util::parse_u64_digits(last_byte)?;
                     if last_byte < first_byte {
                         return None;
                     }
@@ -170,11 +164,63 @@ impl Header for ContentRange {
     }
 }
 
-fn split_in_two(s: &str, separator: char) -> Option<(&str, &str)> {
-    let mut iter = s.splitn(2, separator);
-    match (iter.next(), iter.next()) {
-        (Some(a), Some(b)) => Some((a, b)),
-        _ => None,
+fn split_once_byte(bytes: &[u8], separator: u8) -> Option<(&[u8], &[u8])> {
+    let index = bytes.iter().position(|&byte| byte == separator)?;
+    let (left, right) = bytes.split_at(index);
+    Some((left, right.split_first()?.1))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::test_decode;
+    use super::*;
+
+    #[test]
+    fn decode_bytes() {
+        let range = test_decode::<ContentRange>(&["bytes 0-499/500"]).unwrap();
+        assert_eq!(range.bytes_range(), Some((0, 499)));
+        assert_eq!(range.bytes_len(), Some(500));
+    }
+
+    #[test]
+    fn decode_unsatisfied_and_unknown_length() {
+        let unsatisfied = test_decode::<ContentRange>(&["bytes */500"]).unwrap();
+        assert_eq!(unsatisfied.bytes_range(), None);
+        assert_eq!(unsatisfied.bytes_len(), Some(500));
+
+        let unknown = test_decode::<ContentRange>(&["bytes */*"]).unwrap();
+        assert_eq!(unknown.bytes_range(), None);
+        assert_eq!(unknown.bytes_len(), None);
+    }
+
+    #[test]
+    fn decode_accepts_leading_plus() {
+        let range = test_decode::<ContentRange>(&["bytes +1-+2/+3"]).unwrap();
+        assert_eq!(range.bytes_range(), Some((1, 2)));
+        assert_eq!(range.bytes_len(), Some(3));
+    }
+
+    #[test]
+    fn decode_rejects_invalid_values() {
+        for value in [
+            "items 0-1/2",
+            "bytes 2-1/3",
+            "bytes 0-1/",
+            "bytes 0-/2",
+            "bytes 0-1/18446744073709551616",
+        ] {
+            assert!(
+                test_decode::<ContentRange>(&[value]).is_none(),
+                "accepted {}",
+                value
+            );
+        }
+    }
+
+    #[test]
+    fn decode_rejects_obs_text() {
+        let value = HeaderValue::from_bytes(b"bytes 0-1/2\x80").unwrap();
+        assert!(ContentRange::decode(&mut std::iter::once(&value)).is_err());
     }
 }
 

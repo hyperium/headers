@@ -50,19 +50,19 @@ impl<T: AsRef<[u8]>> EntityTag<T> {
     /// Get the tag.
     pub(crate) fn tag(&self) -> &[u8] {
         let bytes = self.0.as_ref();
-        let end = bytes.len() - 1;
-        if bytes[0] == b'W' {
-            // W/"<tag>"
-            &bytes[3..end]
-        } else {
-            // "<tag>"
-            &bytes[1..end]
-        }
+        debug_assert!(bytes.len() >= 2 && bytes.last() == Some(&b'"'));
+        let start = if self.is_weak() { 3 } else { 1 };
+        debug_assert!(start < bytes.len());
+
+        &bytes[start..bytes.len() - 1]
     }
 
     /// Return if this is a "weak" tag.
     pub(crate) fn is_weak(&self) -> bool {
-        self.0.as_ref()[0] == b'W'
+        let bytes = self.0.as_ref();
+        debug_assert!(!bytes.is_empty());
+
+        bytes[0] == b'W'
     }
 
     /// For strong comparison two entity-tags are equivalent if both are not weak and their
@@ -96,6 +96,7 @@ impl<T: AsRef<[u8]>> EntityTag<T> {
         !self.weak_eq(other)
     }
 
+    #[inline]
     pub(crate) fn parse(src: T) -> Option<Self> {
         let slice = src.as_ref();
         let length = slice.len();
@@ -163,11 +164,13 @@ impl EntityTag {
         }
     }
 
+    #[inline]
     pub(crate) fn from_owned(val: HeaderValue) -> Option<EntityTag> {
         EntityTag::parse(val.as_bytes())?;
         Some(EntityTag(val))
     }
 
+    #[inline]
     pub(crate) fn from_val(val: &HeaderValue) -> Option<EntityTag> {
         EntityTag::parse(val.as_bytes()).map(|_entity| EntityTag(val.clone()))
     }
@@ -208,18 +211,10 @@ impl<'a> From<&'a EntityTag> for HeaderValue {
 /// 2. in the range `%x23` to `%x7E`, or
 /// 3. above `%x80`
 fn check_slice_validity(slice: &[u8]) -> bool {
-    slice.iter().all(|&c| {
-        // HeaderValue already validates that this doesnt contain control
-        // characters, so we only need to look for DQUOTE (`"`).
-        //
-        // The debug_assert is just in case we use check_slice_validity in
-        // some new context that didnt come from a HeaderValue.
-        debug_assert!(
-            (b'\x21'..=b'\x7e').contains(&c) | (c >= b'\x80'),
-            "EntityTag expects HeaderValue to have check for control characters"
-        );
-        c != b'"'
-    })
+    debug_assert!(slice
+        .iter()
+        .all(|&c| (b'\x21'..=b'\x7e').contains(&c) | (c >= b'\x80')));
+    !slice.contains(&b'"')
 }
 
 // ===== impl EntityTagRange =====
@@ -239,10 +234,69 @@ impl EntityTagRange {
     {
         match *self {
             EntityTagRange::Any => true,
-            EntityTagRange::Tags(ref tags) => tags
-                .iter()
-                .flat_map(EntityTag::<&str>::parse)
-                .any(|tag| func(&tag, entity)),
+            EntityTagRange::Tags(ref tags) => {
+                if let Ok(value) = tags.value.to_str() {
+                    if let Some(matches) = matches_valid_list(value, entity, &func) {
+                        return matches;
+                    }
+                }
+
+                tags.iter()
+                    .flat_map(EntityTag::<&str>::parse)
+                    .any(|tag| func(&tag, entity))
+            }
+        }
+    }
+}
+
+fn matches_valid_list<F>(value: &str, entity: &EntityTag, func: &F) -> Option<bool>
+where
+    F: Fn(&EntityTag<&str>, &EntityTag) -> bool,
+{
+    let bytes = value.as_bytes();
+    let mut position = 0;
+
+    loop {
+        while matches!(bytes.get(position), Some(b' ' | b'\t')) {
+            position += 1;
+        }
+        if position == bytes.len() {
+            return Some(false);
+        }
+
+        let start = position;
+        if bytes.get(position..position + 3) == Some(b"W/\"") {
+            position += 3;
+        } else if bytes.get(position) == Some(&b'"') {
+            position += 1;
+        } else {
+            return None;
+        }
+
+        let close = bytes[position..].iter().position(|&byte| byte == b'"')?;
+        position += close + 1;
+        let end = position;
+
+        while matches!(bytes.get(position), Some(b' ' | b'\t')) {
+            position += 1;
+        }
+        let has_more = match bytes.get(position) {
+            None => false,
+            Some(b',') => {
+                position += 1;
+                true
+            }
+            Some(_) => return None,
+        };
+
+        let raw_tag = &value[start..end];
+        debug_assert!(EntityTag::parse(raw_tag).is_some());
+        let tag = EntityTag(raw_tag);
+        if func(&tag, entity) {
+            return Some(true);
+        }
+        if !has_more {
+            return Some(false);
         }
     }
 }
@@ -352,5 +406,20 @@ mod tests {
         assert!(etag1.weak_eq(&etag2));
         assert!(!etag1.strong_ne(&etag2));
         assert!(!etag1.weak_ne(&etag2));
+    }
+
+    #[test]
+    fn tag_list_does_not_match_valid_prefix_with_invalid_suffix() {
+        let entity = EntityTag::from_static("\"target\"");
+
+        for value in [
+            "\"target\"junk",
+            "W/\"target\"junk",
+            "\"other\", \"target\"junk",
+        ] {
+            let range = EntityTagRange::Tags(HeaderValue::from_static(value).into());
+            assert!(!range.matches_strong(&entity), "{:?}", value);
+            assert!(!range.matches_weak(&entity), "{:?}", value);
+        }
     }
 }

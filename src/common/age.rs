@@ -66,3 +66,9 @@ impl From<Age> for Duration {
         age.0.into()
     }
 }
+
+#[cfg(all(test, feature = "nightly"))]
+mod benches {
+    use super::Age;
+    bench_header!(bench, Age, "3600");
+}

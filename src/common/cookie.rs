@@ -54,12 +54,62 @@ impl Cookie {
 
     /// Iterator the key-value pairs of this `Cookie` header.
     pub fn iter(&self) -> impl Iterator<Item = (&str, &str)> {
-        self.0.iter().filter_map(|kv| {
-            let mut iter = kv.splitn(2, '=');
-            let key = iter.next()?.trim();
-            let val = iter.next()?.trim();
-            Some((key, val))
-        })
+        CookieIter {
+            rest: self.0.value.to_str().ok(),
+        }
+    }
+}
+
+struct CookieIter<'a> {
+    rest: Option<&'a str>,
+}
+
+impl<'a> Iterator for CookieIter<'a> {
+    type Item = (&'a str, &'a str);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            let rest = self.rest?;
+            let bytes = rest.as_bytes();
+            let mut in_quotes = false;
+            let mut equals = None;
+            let mut end = bytes.len();
+
+            for (index, &byte) in bytes.iter().enumerate() {
+                if byte == b'=' && equals.is_none() {
+                    equals = Some(index);
+                }
+                if in_quotes {
+                    if byte == b'"' {
+                        in_quotes = false;
+                    }
+                } else if byte == b';' {
+                    end = index;
+                    break;
+                } else if byte == b'"' {
+                    in_quotes = true;
+                }
+            }
+
+            // SAFETY: `end` is `rest.len()` or an in-bounds ASCII boundary.
+            let segment = unsafe { rest.get_unchecked(..end) };
+            self.rest = if end == bytes.len() {
+                None
+            } else {
+                // SAFETY: `end` indexes `;`, so `end + 1` is a valid boundary.
+                Some(unsafe { rest.get_unchecked(end + 1..) })
+            };
+
+            let equals = match equals {
+                Some(index) if index < end => index,
+                _ => continue,
+            };
+            // SAFETY: `equals` indexes an ASCII `=` within `segment`.
+            let key = unsafe { segment.get_unchecked(..equals) };
+            // SAFETY: The byte after the in-bounds `=` is a valid boundary.
+            let value = unsafe { segment.get_unchecked(equals + 1..) };
+            return Some((key.trim(), value.trim()));
+        }
     }
 }
 
@@ -107,6 +157,66 @@ mod tests {
         assert_eq!(cookie.get("foo"), Some("bar"));
         assert_eq!(cookie.get("lol"), Some("cat"));
     }
+
+    #[test]
+    fn quoted_delimiters_and_extra_equals() {
+        let cookie = test_decode::<Cookie>(&["quoted=\"semi;colon\"; token=a=b; invalid"]).unwrap();
+
+        assert_eq!(cookie.get("quoted"), Some("\"semi;colon\""));
+        assert_eq!(cookie.get("token"), Some("a=b"));
+        assert_eq!(cookie.len(), 2);
+    }
+
+    #[test]
+    fn iterator_matches_safe_reference_for_short_inputs() {
+        fn reference(value: &str) -> Vec<(&str, &str)> {
+            let mut in_quotes = false;
+            value
+                .split(move |character| {
+                    if in_quotes {
+                        if character == '"' {
+                            in_quotes = false;
+                        }
+                        false
+                    } else if character == ';' {
+                        true
+                    } else {
+                        if character == '"' {
+                            in_quotes = true;
+                        }
+                        false
+                    }
+                })
+                .filter_map(|pair| {
+                    let (key, value) = pair.split_once('=')?;
+                    Some((key.trim(), value.trim()))
+                })
+                .collect()
+        }
+
+        fn check(value: &mut String, remaining: usize) {
+            let cookie = test_decode::<Cookie>(&[value]).unwrap();
+            assert_eq!(
+                cookie.iter().collect::<Vec<_>>(),
+                reference(value),
+                "{:?}",
+                value
+            );
+
+            if remaining == 0 {
+                return;
+            }
+            for character in ['a', '=', ';', '"', ' ', '\t'] {
+                value.push(character);
+                check(value, remaining - 1);
+                value.pop();
+            }
+        }
+
+        check(&mut String::new(), 4);
+    }
+
+    bench_header!(bench, Cookie, "SID=31d4d96e407aad42; lang=en-US");
 
     /*
     #[test]

@@ -86,49 +86,77 @@ impl StrictTransportSecurity {
     }
 }
 
-enum Directive {
-    MaxAge(u64),
-    IncludeSubdomains,
-    Unknown,
-}
+fn from_bytes(bytes: &[u8]) -> Result<StrictTransportSecurity, Error> {
+    let mut max_age = None;
+    let mut include_subdomains = false;
 
-fn from_str(s: &str) -> Result<StrictTransportSecurity, Error> {
-    s.split(';')
-        .map(str::trim)
-        .map(|sub| {
-            if sub.eq_ignore_ascii_case("includeSubdomains") {
-                Some(Directive::IncludeSubdomains)
-            } else {
-                let mut sub = sub.splitn(2, '=');
-                match (sub.next(), sub.next()) {
-                    (Some(left), Some(right)) if left.trim().eq_ignore_ascii_case("max-age") => {
-                        right
-                            .trim()
-                            .trim_matches('"')
-                            .parse()
-                            .ok()
-                            .map(Directive::MaxAge)
-                    }
-                    _ => Some(Directive::Unknown),
-                }
+    for directive in bytes.split(|&byte| byte == b';') {
+        let directive = trim_ascii_whitespace(directive);
+        if directive.eq_ignore_ascii_case(b"includeSubdomains") {
+            if include_subdomains {
+                return Err(Error::invalid());
             }
-        })
-        .try_fold((None, None), |res, dir| match (res, dir) {
-            ((None, sub), Some(Directive::MaxAge(age))) => Some((Some(age), sub)),
-            ((age, None), Some(Directive::IncludeSubdomains)) => Some((age, Some(()))),
-            ((Some(_), _), Some(Directive::MaxAge(_)))
-            | ((_, Some(_)), Some(Directive::IncludeSubdomains))
-            | (_, None) => None,
-            (res, _) => Some(res),
-        })
-        .and_then(|res| match res {
-            (Some(age), sub) => Some(StrictTransportSecurity {
-                max_age: Duration::from_secs(age).into(),
-                include_subdomains: sub.is_some(),
-            }),
-            _ => None,
-        })
-        .ok_or_else(Error::invalid)
+            include_subdomains = true;
+            continue;
+        }
+
+        let (name, value) = match split_once_byte(directive, b'=') {
+            Some(parts) => parts,
+            None => continue,
+        };
+        if !trim_ascii_whitespace(name).eq_ignore_ascii_case(b"max-age") {
+            continue;
+        }
+        if max_age.is_some() {
+            return Err(Error::invalid());
+        }
+        let value = trim_byte(trim_ascii_whitespace(value), b'"');
+        max_age = Some(crate::util::parse_u64_digits(value).ok_or_else(Error::invalid)?);
+    }
+
+    fn split_once_byte(bytes: &[u8], separator: u8) -> Option<(&[u8], &[u8])> {
+        let index = bytes.iter().position(|&byte| byte == separator)?;
+        let (left, right) = bytes.split_at(index);
+        Some((left, right.split_first()?.1))
+    }
+
+    fn trim_ascii_whitespace(mut bytes: &[u8]) -> &[u8] {
+        // HeaderValue::to_str permits only SP and HTAB whitespace.
+        while let Some((&byte, rest)) = bytes.split_first() {
+            if byte != b' ' && byte != b'\t' {
+                break;
+            }
+            bytes = rest;
+        }
+        while let Some((&byte, rest)) = bytes.split_last() {
+            if byte != b' ' && byte != b'\t' {
+                break;
+            }
+            bytes = rest;
+        }
+        bytes
+    }
+
+    fn trim_byte(mut bytes: &[u8], needle: u8) -> &[u8] {
+        while let Some((&byte, rest)) = bytes.split_first() {
+            if byte != needle {
+                break;
+            }
+            bytes = rest;
+        }
+        while let Some((&byte, rest)) = bytes.split_last() {
+            if byte != needle {
+                break;
+            }
+            bytes = rest;
+        }
+        bytes
+    }
+
+    Ok(StrictTransportSecurity {
+        max_age: Duration::from_secs(max_age.ok_or_else(Error::invalid)?).into(),
+        include_subdomains,
+    })
 }
 
 impl Header for StrictTransportSecurity {
@@ -140,7 +168,7 @@ impl Header for StrictTransportSecurity {
         values
             .just_one()
             .and_then(|v| v.to_str().ok())
-            .map(from_str)
+            .map(|value| from_bytes(value.as_bytes()))
             .unwrap_or_else(|| Err(Error::invalid()))
     }
 
@@ -244,6 +272,12 @@ mod tests {
             None,
         );
     }
+
+    bench_header!(
+        bench,
+        StrictTransportSecurity,
+        "max-age=31536000; includeSubdomains"
+    );
 }
 
 //bench_header!(bench, StrictTransportSecurity, { vec![b"max-age=15768000 ; includeSubDomains".to_vec()] });

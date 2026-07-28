@@ -132,3 +132,9 @@ mod sealed {
 
     impl Sealed for HeaderName {}
 }
+
+#[cfg(all(test, feature = "nightly"))]
+mod benches {
+    use super::Connection;
+    bench_header!(bench, Connection, "keep-alive");
+}

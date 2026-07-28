@@ -101,6 +101,13 @@ mod tests {
     }
 
     #[test]
+    fn precondition_passes_for_tag_list() {
+        let if_match = super::super::test_decode::<IfMatch>(&["\"bar\", \"foo\""]).unwrap();
+        assert!(if_match.precondition_passes(&ETag::from_static("\"foo\"")));
+        assert!(!if_match.precondition_passes(&ETag::from_static("\"baz\"")));
+    }
+
+    #[test]
     fn precondition_any() {
         let foo = ETag::from_static("\"foo\"");
 

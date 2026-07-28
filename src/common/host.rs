@@ -30,7 +30,6 @@ impl Header for Host {
     fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, Error> {
         values
             .next()
-            .cloned()
             .and_then(|val| Authority::try_from(val.as_bytes()).ok())
             .map(Host)
             .ok_or_else(Error::invalid)
@@ -54,4 +53,10 @@ impl fmt::Display for Host {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         fmt::Display::fmt(&self.0, f)
     }
+}
+
+#[cfg(all(test, feature = "nightly"))]
+mod benches {
+    use super::Host;
+    bench_header!(bench, Host, "example.com:8080");
 }

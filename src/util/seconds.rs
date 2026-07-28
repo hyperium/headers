@@ -11,9 +11,9 @@ pub(crate) struct Seconds(Duration);
 
 impl Seconds {
     pub(crate) fn from_val(val: &HeaderValue) -> Option<Self> {
-        let secs = val.to_str().ok()?.parse().ok()?;
-
-        Some(Self::from_secs(secs))
+        Some(Self::from_secs(crate::util::parse_u64_digits(
+            val.as_bytes(),
+        )?))
     }
 
     pub(crate) fn from_secs(secs: u64) -> Self {

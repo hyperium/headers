@@ -87,22 +87,30 @@ impl TryFromValues for Policy {
         // See https://www.w3.org/TR/referrer-policy/#determine-policy-for-token
         // tl;dr - Pick *last* known policy in the list
         let mut known = None;
-        for s in csv(values) {
-            known = Some(match s {
-                "no-referrer" | "never" => Policy::NoReferrer,
-                "no-referrer-when-downgrade" | "default" => Policy::NoReferrerWhenDowngrade,
-                "same-origin" => Policy::SameOrigin,
-                "origin" => Policy::Origin,
-                "origin-when-cross-origin" => Policy::OriginWhenCrossOrigin,
-                "strict-origin" => Policy::StrictOrigin,
-                "strict-origin-when-cross-origin" => Policy::StrictOriginWhenCrossOrigin,
-                "unsafe-url" | "always" => Policy::UnsafeUrl,
-                _ => continue,
-            });
+        for value in values {
+            if let Ok(string) = value.to_str() {
+                if let Some(policy) = string.rsplit(',').map(str::trim).find_map(parse_policy) {
+                    known = Some(policy);
+                }
+            }
         }
 
         known.ok_or_else(Error::invalid)
     }
+}
+
+fn parse_policy(s: &str) -> Option<Policy> {
+    Some(match s {
+        "no-referrer" | "never" => Policy::NoReferrer,
+        "no-referrer-when-downgrade" | "default" => Policy::NoReferrerWhenDowngrade,
+        "same-origin" => Policy::SameOrigin,
+        "origin" => Policy::Origin,
+        "origin-when-cross-origin" => Policy::OriginWhenCrossOrigin,
+        "strict-origin" => Policy::StrictOrigin,
+        "strict-origin-when-cross-origin" => Policy::StrictOriginWhenCrossOrigin,
+        "unsafe-url" | "always" => Policy::UnsafeUrl,
+        _ => return None,
+    })
 }
 
 impl<'a> From<&'a Policy> for HeaderValue {
@@ -118,20 +126,6 @@ impl<'a> From<&'a Policy> for HeaderValue {
             Policy::UnsafeUrl => "unsafe-url",
         })
     }
-}
-
-fn csv<'i, I>(values: I) -> impl Iterator<Item = &'i str>
-where
-    I: Iterator<Item = &'i HeaderValue>,
-{
-    values.flat_map(|value| {
-        value.to_str().into_iter().flat_map(|string| {
-            string.split(',').filter_map(|x| match x.trim() {
-                "" => None,
-                y => Some(y),
-            })
-        })
-    })
 }
 
 #[cfg(test)]

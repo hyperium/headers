@@ -1,3 +1,4 @@
+use std::convert::TryFrom;
 use std::ops::{Bound, RangeBounds};
 
 use http::{HeaderName, HeaderValue};
@@ -62,7 +63,7 @@ impl Range {
             _ => return Err(InvalidRange { _inner: () }),
         };
 
-        Ok(Range(HeaderValue::from_str(&v).unwrap()))
+        Ok(Range(HeaderValue::try_from(v).unwrap()))
     }
 
     /// Iterate the range sets as a tuple of bounds, if valid with length.
@@ -73,40 +74,61 @@ impl Range {
         &self,
         len: u64,
     ) -> impl Iterator<Item = (Bound<u64>, Bound<u64>)> + '_ {
-        let s = self
-            .0
-            .to_str()
-            .expect("valid string checked in Header::decode()");
+        self.0
+            .as_bytes()
+            .strip_prefix(b"bytes=")
+            .into_iter()
+            .flat_map(|specs| specs.split(|&byte| byte == b','))
+            .filter_map(move |spec| {
+                let spec = trim_ascii_whitespace(spec);
+                let (start, end) = split_once_byte(spec, b'-')?;
+                let start = parse_bound(start)?;
+                let end = parse_bound(end)?;
 
-        s["bytes=".len()..].split(',').filter_map(move |spec| {
-            let mut iter = spec.trim().splitn(2, '-');
-            let start = parse_bound(iter.next()?)?;
-            let end = parse_bound(iter.next()?)?;
-
-            // Unbounded ranges in HTTP are actually a suffix
-            // For example, `-100` means the last 100 bytes.
-            if let Bound::Unbounded = start {
-                if let Bound::Included(end) = end {
-                    if len < end {
-                        // Last N bytes is larger than available!
-                        return None;
+                // An unbounded start denotes a suffix range.
+                if let Bound::Unbounded = start {
+                    if let Bound::Included(end) = end {
+                        if len < end {
+                            return None;
+                        }
+                        return Some((Bound::Included(len - end), Bound::Unbounded));
                     }
-                    return Some((Bound::Included(len - end), Bound::Unbounded));
                 }
-                // else fall through
-            }
 
-            Some((start, end))
-        })
+                Some((start, end))
+            })
     }
 }
 
-fn parse_bound(s: &str) -> Option<Bound<u64>> {
-    if s.is_empty() {
+fn parse_bound(bytes: &[u8]) -> Option<Bound<u64>> {
+    if bytes.is_empty() {
         return Some(Bound::Unbounded);
     }
 
-    s.parse().ok().map(Bound::Included)
+    crate::util::parse_u64_digits(bytes).map(Bound::Included)
+}
+
+fn split_once_byte(bytes: &[u8], separator: u8) -> Option<(&[u8], &[u8])> {
+    let index = bytes.iter().position(|&byte| byte == separator)?;
+    let (left, right) = bytes.split_at(index);
+    Some((left, right.split_first()?.1))
+}
+
+fn trim_ascii_whitespace(mut bytes: &[u8]) -> &[u8] {
+    // HeaderValue::to_str permits only SP and HTAB whitespace.
+    while let Some((&byte, rest)) = bytes.split_first() {
+        if byte != b' ' && byte != b'\t' {
+            break;
+        }
+        bytes = rest;
+    }
+    while let Some((&byte, rest)) = bytes.split_last() {
+        if byte != b' ' && byte != b'\t' {
+            break;
+        }
+        bytes = rest;
+    }
+    bytes
 }
 
 impl Header for Range {
@@ -455,4 +477,18 @@ fn test_to_unsatisfiable_range_suffix() {
     let range = super::test_decode::<Range>(&["bytes=-350"]).unwrap();
     let bounds = range.satisfiable_ranges(100).next();
     assert_eq!(bounds, None);
+}
+
+#[test]
+fn test_satisfiable_ranges_trims_and_accepts_plus() {
+    let range = super::test_decode::<Range>(&["bytes= 0-9 , +10-+19, -5"]).unwrap();
+    let bounds = range.satisfiable_ranges(100).collect::<Vec<_>>();
+    assert_eq!(
+        bounds,
+        vec![
+            (Bound::Included(0), Bound::Included(9)),
+            (Bound::Included(10), Bound::Included(19)),
+            (Bound::Included(95), Bound::Unbounded),
+        ]
+    );
 }
