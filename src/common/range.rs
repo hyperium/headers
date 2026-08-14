@@ -53,6 +53,11 @@ impl Range {
         let v = match (bounds.start_bound(), bounds.end_bound()) {
             (Bound::Included(start), Bound::Included(end)) => format!("bytes={}-{}", start, end),
             (Bound::Included(start), Bound::Excluded(&end)) => {
+                // An exclusive end of 0 (or <= start) has no last byte, so
+                // `end - 1` would underflow / produce an invalid range. (#231)
+                if end <= *start {
+                    return Err(InvalidRange { _inner: () });
+                }
                 format!("bytes={}-{}", start, end - 1)
             }
             (Bound::Included(start), Bound::Unbounded) => format!("bytes={}-", start),
@@ -455,4 +460,16 @@ fn test_to_unsatisfiable_range_suffix() {
     let range = super::test_decode::<Range>(&["bytes=-350"]).unwrap();
     let bounds = range.satisfiable_ranges(100).next();
     assert_eq!(bounds, None);
+}
+
+#[test]
+fn test_bytes_rejects_degenerate_bounds() {
+    // #231: an exclusive end that would underflow (`0`) or produce an invalid
+    // start > last range must error rather than panic or emit a bogus range.
+    assert!(Range::bytes(0u64..0u64).is_err());
+    assert!(Range::bytes(3u64..3u64).is_err());
+    assert!(Range::bytes(5u64..3u64).is_err());
+    // Valid ranges still work.
+    assert!(Range::bytes(0u64..500u64).is_ok());
+    assert!(Range::bytes(0u64..=500u64).is_ok());
 }

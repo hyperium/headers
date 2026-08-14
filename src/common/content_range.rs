@@ -55,20 +55,28 @@ impl ContentRange {
     ) -> Result<ContentRange, InvalidContentRange> {
         let complete_length = complete_length.into();
 
+        // Use checked arithmetic so degenerate/empty bounds return an error
+        // instead of overflowing (e.g. an exclusive end of 0). (#231)
+        let err = || InvalidContentRange { _inner: () };
+
         let start = match range.start_bound() {
             Bound::Included(&s) => s,
-            Bound::Excluded(&s) => s + 1,
+            Bound::Excluded(&s) => s.checked_add(1).ok_or_else(err)?,
             Bound::Unbounded => 0,
         };
 
         let end = match range.end_bound() {
             Bound::Included(&e) => e,
-            Bound::Excluded(&e) => e - 1,
+            Bound::Excluded(&e) => e.checked_sub(1).ok_or_else(err)?,
             Bound::Unbounded => match complete_length {
-                Some(max) => max - 1,
-                None => return Err(InvalidContentRange { _inner: () }),
+                Some(max) => max.checked_sub(1).ok_or_else(err)?,
+                None => return Err(err()),
             },
         };
+
+        if start > end {
+            return Err(err());
+        }
 
         Ok(ContentRange {
             range: Some((start, end)),
@@ -236,3 +244,20 @@ test_header!(test_bytes_unknown_range,
             vec![b"bytes 1-2-3/500"],
             None::<ContentRange>);
 */
+
+#[cfg(test)]
+mod tests {
+    use super::ContentRange;
+
+    #[test]
+    fn bytes_rejects_degenerate_bounds() {
+        // #231: bounds that would underflow or produce start > end must return
+        // an error instead of overflowing the u64 arithmetic.
+        assert!(ContentRange::bytes(0u64..0u64, 500u64).is_err());
+        assert!(ContentRange::bytes(3u64..3u64, 500u64).is_err());
+        assert!(ContentRange::bytes(.., 0u64).is_err());
+        // Valid ranges still work.
+        assert!(ContentRange::bytes(0u64..500u64, 500u64).is_ok());
+        assert!(ContentRange::bytes(0u64..=499u64, 500u64).is_ok());
+    }
+}
