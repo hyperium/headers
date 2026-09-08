@@ -252,10 +252,29 @@ impl super::TryFromValues for EntityTagRange {
     where
         I: Iterator<Item = &'i HeaderValue>,
     {
-        let flat = FlatCsv::try_from_values(values)?;
-        if flat.value == "*" {
+        let mut values = values.peekable();
+        if values.peek().is_none() {
+            return Err(Error::invalid());
+        }
+        let flat = FlatCsv::try_from_values(&mut values)?;
+        if flat
+            .value
+            .to_str()
+            .map(|s| s.trim() == "*")
+            .unwrap_or(false)
+        {
             Ok(EntityTagRange::Any)
         } else {
+            let mut count = 0;
+            for s in flat.iter() {
+                if EntityTag::<&str>::parse(s).is_none() {
+                    return Err(Error::invalid());
+                }
+                count += 1;
+            }
+            if count == 0 {
+                return Err(Error::invalid());
+            }
             Ok(EntityTagRange::Tags(flat))
         }
     }
