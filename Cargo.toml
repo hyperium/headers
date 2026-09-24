@@ -1,6 +1,6 @@
 [package]
 name = "headers"
-version = "0.4.1"
+version = "0.4.2"
 description = "typed HTTP headers"
 license = "MIT"
 readme = "README.md"
