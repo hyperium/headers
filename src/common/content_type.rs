@@ -44,54 +44,54 @@ pub struct ContentType(Mime);
 impl ContentType {
     /// A constructor  to easily create a `Content-Type: application/json` header.
     #[inline]
-    pub fn json() -> ContentType {
+    pub const fn json() -> ContentType {
         ContentType(mime::APPLICATION_JSON)
     }
 
     /// A constructor  to easily create a `Content-Type: text/plain` header.
     #[inline]
-    pub fn text() -> ContentType {
+    pub const fn text() -> ContentType {
         ContentType(mime::TEXT_PLAIN)
     }
 
     /// A constructor  to easily create a `Content-Type: text/plain; charset=utf-8` header.
     #[inline]
-    pub fn text_utf8() -> ContentType {
+    pub const fn text_utf8() -> ContentType {
         ContentType(mime::TEXT_PLAIN_UTF_8)
     }
 
     /// A constructor  to easily create a `Content-Type: text/html` header.
     #[inline]
-    pub fn html() -> ContentType {
+    pub const fn html() -> ContentType {
         ContentType(mime::TEXT_HTML)
     }
 
     /// A constructor  to easily create a `Content-Type: text/xml` header.
     #[inline]
-    pub fn xml() -> ContentType {
+    pub const fn xml() -> ContentType {
         ContentType(mime::TEXT_XML)
     }
 
     /// A constructor  to easily create a `Content-Type: application/x-www-form-url-encoded` header.
     #[inline]
-    pub fn form_url_encoded() -> ContentType {
+    pub const fn form_url_encoded() -> ContentType {
         ContentType(mime::APPLICATION_WWW_FORM_URLENCODED)
     }
     /// A constructor  to easily create a `Content-Type: image/jpeg` header.
     #[inline]
-    pub fn jpeg() -> ContentType {
+    pub const fn jpeg() -> ContentType {
         ContentType(mime::IMAGE_JPEG)
     }
 
     /// A constructor  to easily create a `Content-Type: image/png` header.
     #[inline]
-    pub fn png() -> ContentType {
+    pub const fn png() -> ContentType {
         ContentType(mime::IMAGE_PNG)
     }
 
     /// A constructor  to easily create a `Content-Type: application/octet-stream` header.
     #[inline]
-    pub fn octet_stream() -> ContentType {
+    pub const fn octet_stream() -> ContentType {
         ContentType(mime::APPLICATION_OCTET_STREAM)
     }
 }
