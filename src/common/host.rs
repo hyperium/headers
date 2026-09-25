@@ -20,6 +20,11 @@ impl Host {
     pub fn port(&self) -> Option<u16> {
         self.0.port_u16()
     }
+
+    /// Get the Host value, represented as an [`Authority`].
+    pub fn authority(&self) -> Authority {
+        self.0.clone()
+    }
 }
 
 impl Header for Host {
