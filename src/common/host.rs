@@ -50,6 +50,12 @@ impl From<Authority> for Host {
     }
 }
 
+impl From<Host> for Authority {
+    fn from(Host(authority): Host) -> Authority {
+        authority
+    }
+}
+
 impl fmt::Display for Host {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         fmt::Display::fmt(&self.0, f)
