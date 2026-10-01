@@ -108,4 +108,38 @@ mod tests {
 
         assert!(if_match.precondition_passes(&foo));
     }
+
+    #[test]
+    fn decode_empty() {
+        use crate::Header;
+
+        assert!(IfMatch::decode(&mut [].iter()).is_err());
+        assert!(IfMatch::decode(&mut [HeaderValue::from_static("")].iter()).is_err());
+        assert!(IfMatch::decode(&mut [HeaderValue::from_static("   ")].iter()).is_err());
+    }
+
+    #[test]
+    fn decode_invalid() {
+        use crate::Header;
+
+        assert!(IfMatch::decode(&mut [HeaderValue::from_static("no-quotes")].iter()).is_err());
+        assert!(IfMatch::decode(&mut [HeaderValue::from_static("\"foo\", bad")].iter()).is_err());
+    }
+
+    #[test]
+    fn decode_valid() {
+        use crate::Header;
+
+        let any = IfMatch::decode(&mut [HeaderValue::from_static("*")].iter()).unwrap();
+        assert!(any.is_any());
+
+        let any_spaced = IfMatch::decode(&mut [HeaderValue::from_static(" * ")].iter()).unwrap();
+        assert!(any_spaced.is_any());
+
+        let tags =
+            IfMatch::decode(&mut [HeaderValue::from_static("\"foo\", \"bar\"")].iter()).unwrap();
+        assert!(tags.precondition_passes(&ETag::from_static("\"foo\"")));
+        assert!(tags.precondition_passes(&ETag::from_static("\"bar\"")));
+        assert!(!tags.precondition_passes(&ETag::from_static("\"baz\"")));
+    }
 }
