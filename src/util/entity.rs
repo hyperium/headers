@@ -208,18 +208,9 @@ impl<'a> From<&'a EntityTag> for HeaderValue {
 /// 2. in the range `%x23` to `%x7E`, or
 /// 3. above `%x80`
 fn check_slice_validity(slice: &[u8]) -> bool {
-    slice.iter().all(|&c| {
-        // HeaderValue already validates that this doesnt contain control
-        // characters, so we only need to look for DQUOTE (`"`).
-        //
-        // The debug_assert is just in case we use check_slice_validity in
-        // some new context that didnt come from a HeaderValue.
-        debug_assert!(
-            (b'\x21'..=b'\x7e').contains(&c) | (c >= b'\x80'),
-            "EntityTag expects HeaderValue to have check for control characters"
-        );
-        c != b'"'
-    })
+    slice
+        .iter()
+        .all(|&c| c == b'\x21' || (b'\x23'..=b'\x7e').contains(&c) || c >= b'\x80')
 }
 
 // ===== impl EntityTagRange =====
@@ -307,6 +298,20 @@ mod tests {
         fails!(b"\"unmatched-dquotes1");
         fails!(b"unmatched-dquotes2\"");
         fails!(b"\"inner\"quotes\"");
+        fails!(b"\"contains space\"");
+        fails!(b"W/\"contains space\"");
+        fails!(b"\"contains\ttab\"");
+    }
+
+    #[test]
+    fn test_etag_from_str_rejects_whitespace() {
+        for value in &[
+            "\"contains space\"",
+            "W/\"contains space\"",
+            "\"contains\ttab\"",
+        ] {
+            assert!(value.parse::<crate::ETag>().is_err());
+        }
     }
 
     /*
