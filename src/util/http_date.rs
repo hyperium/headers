@@ -1,6 +1,6 @@
 use std::fmt;
 use std::str::FromStr;
-use std::time::SystemTime;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use bytes::Bytes;
 use http::header::HeaderValue;
@@ -91,7 +91,17 @@ impl fmt::Display for HttpDate {
 
 impl From<SystemTime> for HttpDate {
     fn from(sys: SystemTime) -> HttpDate {
-        HttpDate(sys.into())
+        // `httpdate::HttpDate: From<SystemTime>` panics for times before the
+        // Unix epoch or after year 9999. Callers pass an unrestricted
+        // `SystemTime` (e.g. a pre-1970 file mtime from a restored backup or a
+        // device with an unset clock), so clamp to the representable range
+        // instead of aborting.
+        const MAX_SECS: u64 = 253_402_300_799; // 9999-12-31T23:59:59Z
+        let secs = match sys.duration_since(UNIX_EPOCH) {
+            Ok(dur) => dur.as_secs().min(MAX_SECS),
+            Err(_) => 0,
+        };
+        HttpDate((UNIX_EPOCH + Duration::from_secs(secs)).into())
     }
 }
 
@@ -147,5 +157,19 @@ mod tests {
     #[test]
     fn test_no_date() {
         assert!("this-is-no-date".parse::<HttpDate>().is_err());
+    }
+
+    #[test]
+    fn test_out_of_range_systemtime_does_not_panic() {
+        // Before the Unix epoch clamps to the epoch.
+        let before = UNIX_EPOCH - Duration::from_secs(1);
+        assert_eq!(HttpDate::from(before), HttpDate::from(UNIX_EPOCH));
+
+        // Far past year 9999 clamps to the last representable second.
+        let far = UNIX_EPOCH + Duration::from_secs(1_000_000_000_000);
+        assert_eq!(
+            HttpDate::from(far).to_string(),
+            "Fri, 31 Dec 9999 23:59:59 GMT"
+        );
     }
 }
