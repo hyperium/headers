@@ -53,8 +53,23 @@ impl FromIterator<HeaderName> for AccessControlRequestHeaders {
     where
         I: IntoIterator<Item = HeaderName>,
     {
-        let flat = iter.into_iter().map(HeaderValue::from).collect();
-        AccessControlRequestHeaders(flat)
+        // Per the Fetch spec's CORS-preflight fetch, the value of
+        // `Access-Control-Request-Headers` joins header names with a plain
+        // `,` and no whitespace. This differs from the general list `combine`
+        // (`, `) that `FlatCsv`'s `FromIterator` performs, so join the names
+        // here directly rather than delegating to `FlatCsv`. Keeping this
+        // local leaves other `FlatCsv`-backed headers (Vary, Allow, ...)
+        // emitting `, ` as before.
+        let mut names = String::new();
+        for name in iter {
+            if !names.is_empty() {
+                names.push(',');
+            }
+            names.push_str(name.as_str());
+        }
+        let value = HeaderValue::from_bytes(names.as_bytes())
+            .expect("header names joined by `,` are a valid header value");
+        AccessControlRequestHeaders(value.into())
     }
 }
 
@@ -83,7 +98,23 @@ mod tests {
         let headers = test_encode(req_headers);
         assert_eq!(
             headers["access-control-request-headers"],
-            "cache-control, if-range"
+            "cache-control,if-range"
+        );
+    }
+
+    #[test]
+    fn from_iter_no_space_between_names() {
+        // Per the Fetch spec the preflight `Access-Control-Request-Headers`
+        // value must join header names with `,` only, no whitespace.
+        let req_headers: AccessControlRequestHeaders =
+            vec![::http::header::ACCEPT_LANGUAGE, ::http::header::DATE]
+                .into_iter()
+                .collect();
+
+        let headers = test_encode(req_headers);
+        assert_eq!(
+            headers["access-control-request-headers"],
+            "accept-language,date"
         );
     }
 }
