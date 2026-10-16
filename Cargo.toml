@@ -21,7 +21,9 @@ headers-core = { version = "0.3", path = "./headers-core" }
 base64 = "0.22"
 bytes = "1"
 mime = "0.3.14"
-sha1 = "0.10"
+# TODO: replace with `0.11` once MSRV >= 1.85
+# There are no breaking changes in sha1 0.11, other than MSRV increase
+sha1 = ">=0.10, <0.12"
 httpdate = "1"
 
 [features]
