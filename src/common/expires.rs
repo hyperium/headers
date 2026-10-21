@@ -1,4 +1,4 @@
-use std::time::SystemTime;
+use std::{fmt, time::SystemTime};
 
 use crate::util::HttpDate;
 
@@ -46,5 +46,27 @@ impl From<SystemTime> for Expires {
 impl From<Expires> for SystemTime {
     fn from(date: Expires) -> SystemTime {
         date.0.into()
+    }
+}
+
+impl fmt::Display for Expires {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::test_decode;
+    use super::*;
+
+    fn expires(s: &str) -> Expires {
+        test_decode(&[s]).unwrap()
+    }
+
+    #[test]
+    fn format() {
+        let s = "Thu, 01 Dec 1994 16:00:00 GMT";
+        assert_eq!(expires(s).to_string(), s);
     }
 }
